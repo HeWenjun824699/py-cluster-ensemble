@@ -1,0 +1,27 @@
+# .gitignore
+
+# 1. 排除 Python 编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 2. 排除虚拟环境 (你刚才生成的)
+.venv/
+venv/
+env/
+
+# 3. 排除 IDE 配置 (VSCode/PyCharm)
+.idea/
+.vscode/
+*.swp
+
+# 4. 排除打包产生的临时文件
+dist/
+build/
+*.egg-info/
+
+# 5. 排除 macOS 垃圾文件 (如果你用 Mac)
+.DS_Store
+
+# 6. 排除potery文件
+poetry.lock
