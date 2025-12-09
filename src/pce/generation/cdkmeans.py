@@ -3,11 +3,12 @@ import math
 import numpy as np
 import scipy.io
 
-from .utils.extract_xy import extract_xy
 from .methods.litekmeans_core import litekmeans_core
+from .methods.cdkm_fast_core import cdkm_fast_core
+from .utils.extract_xy import extract_xy
 
 
-def litekmeans(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, replicates=1):
+def cdkmeans(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, replicates=1):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑
@@ -26,7 +27,7 @@ def litekmeans(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, r
         print(f"Created directory: {output_path}")
 
     # 构造输出文件名
-    out_file_name = os.path.splitext(data_name)[0] + '_LKM' + str(nBase) + file_extension
+    out_file_name = os.path.splitext(data_name)[0] + '_CDKM' + str(nBase) + file_extension
     out_file_path = os.path.join(output_path, out_file_name)
 
     # 提取数据
@@ -78,9 +79,16 @@ def litekmeans(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, r
             np.random.seed(current_seed)
 
             # 调用 litekmeans
-            label = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0] + 1
+            label_init = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0]
 
-            BPs[:, iRepeat] = label
+            # -------------------------------------------------
+            # 步骤 C: 优化聚类 (CDKM)
+            # -------------------------------------------------
+            # 输入 0-based，输出也是 0-based
+            # 注意：Python 中 X 不需要转置，core 内部已经处理 X @ X.T
+            label_refined, _, _ = cdkm_fast_core(X, label_init, c=iCluster)
+
+            BPs[:, iRepeat] = label_refined + 1
 
         # --- 4. 保存结果 ---
         scipy.io.savemat(out_file_path, {'BPs': BPs, 'Y': Y})
