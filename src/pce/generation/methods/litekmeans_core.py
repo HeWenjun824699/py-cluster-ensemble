@@ -2,7 +2,7 @@ import numpy as np
 from scipy import sparse
 
 
-def litekmeans(X, k, distance='sqeuclidean', start='sample', maxiter=100, replicates=1, clustermaxiter=10):
+def litekmeans_core(X, k, distance='sqeuclidean', start='sample', maxiter=100, replicates=1, clustermaxiter=10):
     """
     LITEKMEANS K-means clustering, accelerated by numpy matrix operations.
 

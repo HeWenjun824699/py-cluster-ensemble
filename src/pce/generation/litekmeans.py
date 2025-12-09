@@ -4,7 +4,7 @@ import numpy as np
 import scipy.io
 import h5py
 
-from .methods.litekmeans import litekmeans as litekmeans_methods
+from .methods.litekmeans_core import litekmeans_core
 
 
 def extract_xy(file_path):
@@ -89,6 +89,10 @@ def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
         os.makedirs(output_path)
         print(f"Created directory: {output_path}")
 
+    # 构造输出文件名
+    out_file_name = os.path.splitext(data_name)[0] + '_LKM' + str(nBase) + '.mat'
+    out_file_path = os.path.join(output_path, out_file_name)
+
     # 提取数据
     try:
         X, Y = extract_xy(filepath)
@@ -106,13 +110,9 @@ def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
     minCluster = min(nCluster, sqrt_n)
     maxCluster = max(nCluster, sqrt_n)
 
-    # 构造输出文件名
-    out_file_name = os.path.splitext(data_name)[0] + '_LKM_' + str(nBase) + '.mat'
-    out_file_path = os.path.join(os.path.dirname(file_name), out_file_name)
-
     # --- 3. 生成基聚类 ---
     if not os.path.exists(out_file_path):
-        print(f"Processing {data_name}...")
+        print(f"Processing {file_name}...")
 
         BPs = np.zeros((nSmp, nBase), dtype=int)
 
@@ -142,7 +142,7 @@ def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
             np.random.seed(current_seed)
 
             # 调用 litekmeans
-            label = litekmeans_methods(X, iCluster, maxiter=maxiter, replicates=replicates)[0]
+            label = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0]
 
             BPs[:, iRepeat] = label
 
