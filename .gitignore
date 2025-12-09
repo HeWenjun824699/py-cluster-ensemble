@@ -24,4 +24,4 @@ build/
 .DS_Store
 
 # 6. 排除测试文件
-.demo/
+demo/
