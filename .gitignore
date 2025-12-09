@@ -25,3 +25,6 @@ build/
 
 # 6. 排除测试文件
 demo/
+
+# 7. 排除 matlab 其他算法文件
+matlab_methods/
