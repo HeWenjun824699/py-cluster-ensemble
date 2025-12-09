@@ -14,7 +14,8 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
+h5py = "^3.11"
 numpy = "^1.26"
 scipy = "^1.11"
 scikit-learn = "^1.3"
