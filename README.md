@@ -22,9 +22,7 @@
 | `maxiter`       | `int` | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int` | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
-
-
-
+<br>
 
 **方案：**
 
@@ -48,7 +46,7 @@
    pce.generation.cdkmeans(PBMC_filepath, output_path='data/CDKM200')
    ~~~
 
-
+<br>
 
 **Paper demo:**
 
