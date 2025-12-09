@@ -22,3 +22,6 @@ build/
 
 # 5. 排除 macOS 垃圾文件 (如果你用 Mac)
 .DS_Store
+
+# 6. 排除测试文件
+.demo/
