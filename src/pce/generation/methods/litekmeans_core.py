@@ -105,14 +105,14 @@ def litekmeans_core(X, k, distance='sqeuclidean', start='sample', maxiter=100, r
             Xsubset = X[indices, :]
             # Recursive call
             # Note: MATLAB [dump, center] means we only need the center
-            _, center, _, _, _ = litekmeans(Xsubset, k, start='sample',
+            _, center, _, _, _ = litekmeans_core(Xsubset, k, start='sample',
                                             replicates=1, maxiter=clustermaxiter,
                                             distance=distance)
         elif start == 'numeric':
             center = init_center.copy()
 
         last = np.zeros(n) - 1  # Initialize with -1 so first comparison fails
-        label = np.zeros(n, dtype=int)
+        label = np.zeros(n, dtype=np.float64)
         it = 0
 
         # Optimization

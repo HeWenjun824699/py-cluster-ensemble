@@ -32,8 +32,6 @@ def extract_xy(file_path):
 
         if X is not None:
             X = X.astype(float)
-        if Y is not None:
-            Y = Y.flatten()
 
     except Exception as e:
         # 如果报错包含 v7.3 提示，或者是 NotImplementedError
@@ -58,8 +56,6 @@ def extract_xy(file_path):
 
                 if X is not None:
                     X = X.astype(float)
-                if Y is not None:
-                    Y = Y.flatten()
 
             except Exception as h5_e:
                 print(f"h5py failed as well: {h5_e}")
@@ -72,30 +68,41 @@ def extract_xy(file_path):
         print(f"Could not find X or Y in {file_path}")
         return None, None
 
+    # =========== 【关键修改】统一在这里强制转换类型 ===========
+    if X.dtype != np.float64:
+        X = X.astype(np.float64)
+    if Y.dtype != np.float64:
+        Y = Y.astype(np.float64)
+    # =======================================================
+
     return X, Y
 
 
-def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
+def litekmeans(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, replicates=1):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑
     """
-    file_name = os.path.basename(filepath)
+    file_name = os.path.basename(file_path)
     data_name = os.path.splitext(file_name)[0]
+    file_extension = os.path.splitext(file_name)[1]
+
+    # 判断是否传入输出路径
+    if output_path is None:
+        output_path = os.path.dirname(file_path)
 
     # 如果输出目录不存在，创建它
-    output_path = os.path.dirname(filepath)
     if not os.path.exists(output_path):
         os.makedirs(output_path)
         print(f"Created directory: {output_path}")
 
     # 构造输出文件名
-    out_file_name = os.path.splitext(data_name)[0] + '_LKM' + str(nBase) + '.mat'
+    out_file_name = os.path.splitext(data_name)[0] + '_LKM' + str(nBase) + file_extension
     out_file_path = os.path.join(output_path, out_file_name)
 
     # 提取数据
     try:
-        X, Y = extract_xy(filepath)
+        X, Y = extract_xy(file_path)
         if X is None: return
     except Exception as e:
         print(f"Skipping {data_name}: {e}")
@@ -114,7 +121,7 @@ def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
     if not os.path.exists(out_file_path):
         print(f"Processing {file_name}...")
 
-        BPs = np.zeros((nSmp, nBase), dtype=int)
+        BPs = np.zeros((nSmp, nBase), dtype=np.float64)
 
         nRepeat = nBase
 
@@ -142,7 +149,7 @@ def litekmeans(filepath, nBase=200, seed=2024, maxiter=100, replicates=1):
             np.random.seed(current_seed)
 
             # 调用 litekmeans
-            label = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0]
+            label = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0] + 1
 
             BPs[:, iRepeat] = label
 
