@@ -43,7 +43,7 @@
    import pce
    
    isolet_filepath = 'data/isolet_uni_1560n_617d_2c.mat'
-   pce.generation.cdkmeans(PBMC_filepath, output_path='data/CDKM200')
+   pce.generation.cdkmeans(isolet_filepath, output_path='data/CDKM200')
    ~~~
 
 <br>
