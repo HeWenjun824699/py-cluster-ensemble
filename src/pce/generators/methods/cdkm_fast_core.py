@@ -5,7 +5,7 @@ def cdkm_fast_core(X, label, c=None):
     """
     Coordinate Descent Method for k-means (Fast Version).
 
-    Ref: F. Nie, et al. "Coordinate descent method for k-means", TPAMI 2021.
+    Ref: F. Nie, et al. "Coordinate descent consensus for k-means", TPAMI 2021.
 
     Parameters
     ----------
