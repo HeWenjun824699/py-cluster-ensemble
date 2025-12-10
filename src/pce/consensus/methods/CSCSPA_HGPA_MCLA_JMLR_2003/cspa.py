@@ -1,7 +1,8 @@
 import numpy as np
-from clstoclbs import clstoclbs
-from checks import checks
-from metis import metis
+from .clstoclbs import clstoclbs
+from .checks import checks
+from .metis import metis
+
 
 def cspa(cls, k=None):
     """

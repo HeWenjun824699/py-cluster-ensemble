@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def cltoclb(cl):
     # cl is expected to be a 1D array of cluster labels.
     n_samples = len(cl)

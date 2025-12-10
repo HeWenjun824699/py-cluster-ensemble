@@ -1,5 +1,6 @@
 import numpy as np
-from cltoclb import cltoclb
+from .cltoclb import cltoclb
+
 
 def clstoclbs(cls):
     # cls: (n_clusterings, n_samples)

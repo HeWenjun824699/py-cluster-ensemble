@@ -3,6 +3,7 @@ import subprocess
 import platform
 import numpy as np
 
+
 def sgraph(k, dataname):
     folder = os.path.dirname(os.path.abspath(__file__))
     
@@ -33,11 +34,8 @@ def sgraph(k, dataname):
     # Run command
     try:
         # Suppress output to keep it clean, or allow it for debugging
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        print(f"sgraph: partitioning failed. Command: {' '.join(cmd)}")
-        print(f"Error: {e.stderr.decode('utf-8') if e.stderr else 'Unknown'}")
-        return None
+        # Removed check=True to handle non-zero exit codes gracefully if file is produced
+        result = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except FileNotFoundError:
          print(f"sgraph: executable not found: {cmd[0]}")
          return None
@@ -57,7 +55,11 @@ def sgraph(k, dataname):
         except OSError:
             pass
     else:
-        print(f"sgraph: result file {resultname} not found.")
+        print(f"sgraph: partitioning failed (result file missing). Command: {' '.join(cmd)}")
+        if result.returncode != 0:
+            print(f"Exit Code: {result.returncode}")
+            print(f"Error (stderr): {result.stderr.decode('utf-8') if result.stderr else 'None'}")
+            print(f"Output (stdout): {result.stdout.decode('utf-8') if result.stdout else 'None'}")
         return None
 
     return np.array(labels)

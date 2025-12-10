@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from ints import ints
+from .ints import ints
 
 def wgraph(e, w=None, method=0, dataname=None):
     if w is None:

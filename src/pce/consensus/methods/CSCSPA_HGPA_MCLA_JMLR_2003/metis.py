@@ -1,6 +1,7 @@
 import os
-from wgraph import wgraph
-from sgraph import sgraph
+from .wgraph import wgraph
+from .sgraph import sgraph
+
 
 def metis(x, k):
     # x: similarity matrix
