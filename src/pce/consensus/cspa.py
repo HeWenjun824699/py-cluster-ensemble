@@ -129,7 +129,7 @@ def cspa(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
 
     # 计算均值和方差
     summary_mean = np.mean(results_mat, axis=0)
-    summary_std = np.std(results_mat, axis=0)
+    summary_std = np.std(results_mat, axis=0, ddof=1)
 
     # 构造保存字典
     save_dict = {
