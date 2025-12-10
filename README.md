@@ -1,4 +1,4 @@
-## generation
+## 1.generators
 
 ### litekmeans 参数说明
 
@@ -21,6 +21,20 @@
 | `seed`          | `int`     | `2024`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
 | `maxiter`       | `int`     | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
+
+## 2.consensus
+
+### cspa 参数说明
+
+| **参数名**      | **类型**  | **默认值** | **说明**                                                     |
+| --------------- | --------- | ---------- | ------------------------------------------------------------ |
+| **`file_path`** | **`str`** | **必填**   | **输入数据文件的完整路径**（`.mat` 格式）<br>文件内必须包含变量 `BPs` (基聚类矩阵) 和 `Y` (真实标签) |
+| `output_path`   | `str`     | `None`     | 输出 `.mat` 文件的保存路径 <br>如果为 `None`，默认在输入文件同级目录下新建 `CSPA_Results/[文件名]/` 保存结果 |
+| `nBase`         | `int`     | `20`       | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat`       | `int`     | `10`       | 实验重复次数。 程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed`          | `int`     | `2024`     | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性 |
+
+
 
 <br>
 
@@ -45,6 +59,8 @@
    isolet_filepath = 'data/isolet_uni_1560n_617d_2c.mat'
    pce.generation.cdkmeans(isolet_filepath, output_path='data/CDKM200')
    ~~~
+
+
 
 <br>
 
