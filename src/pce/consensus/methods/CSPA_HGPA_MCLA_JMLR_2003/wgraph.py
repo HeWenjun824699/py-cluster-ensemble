@@ -2,6 +2,7 @@ import os
 import numpy as np
 from .ints import ints
 
+
 def wgraph(e, w=None, method=0, dataname=None):
     if w is None:
         w = []
@@ -56,8 +57,24 @@ def wgraph(e, w=None, method=0, dataname=None):
                     
                     f.write(" ".join(line_parts) + "\n")
             elif method == 1:
-                # Method 1 not fully implemented in this port as CSPA uses method 0
-                pass
+                for i in range(e.shape[0]):
+                    line_parts = []
+                    
+                    # Vertex weight
+                    if len(w) > i:
+                         line_parts.append(str(int(w[i])))
+                    else:
+                         line_parts.append("1") 
+
+                    # Edges
+                    edges_indices = np.where(e[i, :] > 0)[0]
+                    weights_edges = e[i, edges_indices]
+                    
+                    for idx, weight in zip(edges_indices, weights_edges):
+                        line_parts.append(str(idx + 1))
+                        line_parts.append(str(int(weight)))
+                    
+                    f.write(" ".join(line_parts) + "\n")
             else:
                  # Method 2/3 not fully implemented
                 pass
