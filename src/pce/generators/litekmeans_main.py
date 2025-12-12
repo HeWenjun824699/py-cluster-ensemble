@@ -1,0 +1,55 @@
+import math
+import numpy as np
+
+from .methods.litekmeans_core import litekmeans_core
+
+
+def litekmeans_main(X, Y, nBase=200, seed=2024, maxiter=100, replicates=1):
+    """
+    主函数：批量生成基聚类 (Base Partitions)
+    对应 MATLAB 脚本的主逻辑
+    """
+    nSmp = X.shape[0]
+    nCluster = len(np.unique(Y))
+
+    # 计算 K 值范围 (minCluster, maxCluster)
+    # 对应 MATLAB: min(nCluster, ceil(sqrt(nSmp)))
+    sqrt_n = math.ceil(math.sqrt(nSmp))
+    minCluster = min(nCluster, sqrt_n)
+    maxCluster = max(nCluster, sqrt_n)
+
+    # --- 3. 生成基聚类 ---
+    BPs = np.zeros((nSmp, nBase), dtype=np.float64)
+
+    nRepeat = nBase
+
+    # 初始化随机数生成器 (对应 MATLAB: seed = 2024; rng(seed))
+    # 我们先生成 200 个随机种子，用于控制每一次循环
+    rs = np.random.RandomState(seed)
+    random_seeds = rs.randint(0, 1000001, size=nRepeat)
+
+    for iRepeat in range(nRepeat):
+        current_seed = random_seeds[iRepeat]
+
+        # -------------------------------------------------
+        # 步骤 A: 随机选择 K 值
+        # -------------------------------------------------
+        np.random.seed(current_seed)
+
+        if minCluster == maxCluster:
+            iCluster = minCluster
+        else:
+            iCluster = np.random.randint(minCluster, maxCluster + 1)
+
+        # -------------------------------------------------
+        # 步骤 B: 运行 LiteKMeans
+        # -------------------------------------------------
+        np.random.seed(current_seed)
+
+        # 调用 litekmeans
+        label = litekmeans_core(X, iCluster, maxiter=maxiter, replicates=replicates)[0] + 1
+
+        BPs[:, iRepeat] = label
+
+    return BPs, Y
+
