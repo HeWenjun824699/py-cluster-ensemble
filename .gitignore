@@ -28,3 +28,6 @@ demo/
 
 # 7. 排除 matlab 其他算法文件
 matlab_methods/
+
+# 8. 排除输出文件
+output/
