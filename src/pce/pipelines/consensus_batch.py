@@ -22,7 +22,8 @@ def consensus_batch(
         seed: int = 2024,
         maxiter: int = 100,
         replicates: int = 1,
-        nRepeat: int = 10
+        nRepeat: int = 10,
+        overwrite: bool = False
 ):
     """
     批量执行聚类集成流水线。
@@ -38,6 +39,7 @@ def consensus_batch(
         maxiter: 基聚类生成中，算法最大迭代次数
         replicates: 基聚类生成中，重复聚类的次数
         nRepeat: 实验重复次数，配合nBase使用(nBase * nRepeat = 基聚类数量)
+        overwrite: 是否覆盖原来的输出数据
     """
     # 1. 准备目录
     input_path = Path(input_dir)
@@ -77,6 +79,14 @@ def consensus_batch(
 
     for file_path in mat_files:
         dataset_name = file_path.stem  # 获取文件名（不含后缀）
+
+        # 检测输出文件是否存在
+        save_path = output_path / f"{consensus_method}_result" / f"{dataset_name}_result.{save_format}"
+        if not overwrite and save_path.exists():
+            print(f"    - Skipping: {save_path} already exists.")
+            continue
+
+        # 如果不跳过，则开始处理
         print(f"\n>>> Processing: {dataset_name}")
 
         try:
