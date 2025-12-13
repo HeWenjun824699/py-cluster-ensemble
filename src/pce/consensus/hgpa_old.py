@@ -4,7 +4,7 @@ import numpy as np
 import scipy.io
 
 from .methods.hgpa_core import hgpa_core
-from ..metrics.evaluation import evaluation
+from ..metrics.evaluation_single import evaluation_single
 
 
 def hgpa_old(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
@@ -107,7 +107,7 @@ def hgpa_old(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         # -------------------------------------------------
         # 步骤 C: 评估
         # -------------------------------------------------
-        metrics = evaluation(label_pred, Y)
+        metrics = evaluation_single(label_pred, Y)
 
         # 保存单次结果: [NMI, ARI, ACC, ..., Time]
         row_result = metrics + [t_cost]

@@ -1,9 +1,9 @@
-from .evaluation import evaluation
-from .evaluation_labels import evaluation_labels
+from .evaluation_single import evaluation_single
+from .evaluation_batch import evaluation_batch
 
 # 定义当用户 from pce.generators import * 时导出什么
 __all__ = [
-    "evaluation",
-    "evaluation_labels"
+    "evaluation_single",
+    "evaluation_batch"
 ]
 

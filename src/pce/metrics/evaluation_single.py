@@ -7,7 +7,7 @@ from .utils.compute_f import compute_f
 from .utils.balance_evl import balance_evl
 
 
-def evaluation(y, Y):
+def evaluation_single(y, Y):
     """
     Evaluates clustering performance.
     

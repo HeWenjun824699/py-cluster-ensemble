@@ -7,7 +7,7 @@ from .utils.compute_f import compute_f
 from .utils.balance_evl import balance_evl
 
 
-def evaluation_labels(labels, Y):
+def evaluation_batch(labels, Y):
     """
     Evaluates clustering performance.
     
