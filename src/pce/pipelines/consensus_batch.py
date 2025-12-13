@@ -1,15 +1,13 @@
 import os
-import glob
-import time
-import scipy.io
+import traceback
 import numpy as np
 from pathlib import Path
 
 # 引入你的库组件
-import pce.io
-import pce.generators
-import pce.consensus
-import pce.metrics
+from .. import io
+from .. import generators
+from .. import consensus
+from .. import metrics
 
 
 def consensus_batch(
@@ -40,12 +38,12 @@ def consensus_batch(
 
     # 2. 获取算法函数 (利用 getattr 动态获取)
     try:
-        consensus_func = getattr(pce.consensus, consensus_method)
+        consensus_func = getattr(consensus, consensus_method)
     except AttributeError:
         raise ValueError(f"Consensus method '{consensus_method}' not found in pce.consensus")
 
     try:
-        generator_func = getattr(pce.generators, generator_method)
+        generator_func = getattr(generators, generator_method)
     except AttributeError:
         raise ValueError(f"Generator method '{generator_method}' not found in pce.generators")
 
@@ -62,69 +60,49 @@ def consensus_batch(
         print(f"\n>>> Processing: {dataset_name}")
 
         try:
-            # --- A. 数据加载与探测 ---
-            # 为了判断包含 X 还是 BPs，我们先用 scipy 加载 raw dict 查看 keys
-            raw_mat = scipy.io.loadmat(file_path)
-
-            # 尝试寻找 Y (标签)
+            BPs = None
             Y = None
-            for key in ['Y', 'label', 'gnd', 'labels']:
-                if key in raw_mat:
-                    Y = raw_mat[key].flatten()
-                    break
 
-            if Y is None:
-                print(f"Skipping {dataset_name}: Label 'Y' not found.")
-                continue
+            # --- A & B. 数据加载与探测 (核心修改) ---
+            try:
+                # 方案 1: 优先尝试直接加载 BPs 和 Y
+                # load_mat_BPs_Y 会自动处理 1-based 索引问题
+                print(f"   - Attempting to load pre-computed BPs...")
+                BPs, Y = io.load_mat_BPs_Y(file_path)
+                print(f"   - Success: Pre-computed BPs found.")
+
+            except IOError:
+                # 方案 2: 如果找不到 BPs (IOError)，则回退尝试加载 X 并现场生成
+                print(f"   - BPs not found. Fallback: Loading raw data (X)...")
+
+                # 如果这里也失败 (如文件损坏或无 X 无 Y)，会抛出 IOError 被外层 catch
+                X, Y = io.load_mat_X_Y(file_path)
+
+                print(f"   - Generating BPs using {generator_method}...")
+                BPs, _ = generator_func(X, Y, nBase=n_base, seed=seed)
 
             # 确定 K (聚类数)
             n_cluster = len(np.unique(Y))
 
-            # --- B. 获取 BPs (基聚类矩阵) ---
-            BPs = None
-
-            # 情况 1: 文件中已经包含 BPs
-            if 'BPs' in raw_mat:
-                print(f"   - Mode: Pre-computed BPs found.")
-                BPs = raw_mat['BPs']
-                # 处理 MATLAB 1-based 索引
-                if np.min(BPs) == 1:
-                    BPs = BPs - 1
-
-            # 情况 2: 文件只有 X，需要生成
-            else:
-                print(f"   - Mode: Raw data found. Generating BPs using {generator_method}...")
-                # 使用你的 io 模块加载 X (处理 v7.3 等复杂情况)
-                X, _ = pce.io.load_mat(file_path)
-
-                if X is None:
-                    print(f"Skipping {dataset_name}: Neither 'BPs' nor 'X' found.")
-                    continue
-
-                # 调用生成器
-                # 注意：这里假设你的生成器通过 kwargs 接收参数，或者固定参数
-                # 如果你的 generator 接口不同，需在此调整
-                BPs, _ = generator_func(X, Y, nBase=n_base, seed=seed)
-
             # --- C. 运行集成 (Consensus) ---
             print(f"   - Running Consensus: {consensus_method}...")
-            # 调用集成算法
-            labels, _ = consensus_func(BPs, Y)  # 假设 Y 只是透传，主要用到 K
+            labels, _ = consensus_func(BPs, Y)
 
             # --- D. 评估 (Evaluation) ---
             print(f"   - Evaluating...")
-            res = pce.metrics.evaluation_batch(labels, Y)
+            res = metrics.evaluation_batch(labels, Y)
 
             # --- E. 保存 (Saving) ---
             save_name = f"{dataset_name}_result.csv"
             save_path = output_path / save_name
 
-            pce.io.save_csv(res, str(save_path))
-            # print(f"   - Saved to: {save_name}")
+            io.save_csv(res, str(save_path))
+            print(f"   - Saved to: {save_name}")
 
         except Exception as e:
+            # 捕获所有异常（包括 load_mat_X_Y 失败的情况）
             print(f"!!! Error processing {dataset_name}: {e}")
-            import traceback
-            traceback.print_exc()  # 打印详细报错方便调试
+            # 打印堆栈以便调试
+            traceback.print_exc()
 
     print("\nBatch processing completed.")
