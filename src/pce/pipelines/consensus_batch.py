@@ -15,8 +15,11 @@ def consensus_batch(
         output_dir: str,
         consensus_method: str = 'cspa',
         generator_method: str = 'cdkmeans',
-        n_base: int = 20,
-        seed: int = 2024
+        nBase: int = 20,
+        seed: int = 2024,
+        maxiter: int = 100,
+        replicates: int = 1,
+        nRepeat: int = 10
 ):
     """
     批量执行聚类集成流水线。
@@ -26,8 +29,11 @@ def consensus_batch(
         output_dir: 结果输出目录
         consensus_method: 'cspa', 'mcla', 'hgpa' 等 (函数名字符串)
         generator_method: 如果数据是原始 X，使用该生成器 (如 'cdkmeans', 'litekmeans')
-        n_base: 基聚类器数量 (仅当需要生成 BPs 时使用)
+        nBase: 基聚类器数量 (仅当需要生成 BPs 时使用)
         seed: 随机种子
+        maxiter: 基聚类生成中，算法最大迭代次数
+        replicates: 基聚类生成中，重复聚类的次数
+        nRepeat: 实验重复次数，配合nBase使用(nBase * nRepeat = 基聚类数量)
     """
     # 1. 准备目录
     input_path = Path(input_dir)
@@ -67,42 +73,43 @@ def consensus_batch(
             try:
                 # 方案 1: 优先尝试直接加载 BPs 和 Y
                 # load_mat_BPs_Y 会自动处理 1-based 索引问题
-                print(f"   - Attempting to load pre-computed BPs...")
+                print(f"    - Attempting to load pre-computed BPs...")
                 BPs, Y = io.load_mat_BPs_Y(file_path)
-                print(f"   - Success: Pre-computed BPs found.")
+                print(f"    - Success: Pre-computed BPs found.")
 
             except IOError:
                 # 方案 2: 如果找不到 BPs (IOError)，则回退尝试加载 X 并现场生成
-                print(f"   - BPs not found. Fallback: Loading raw data (X)...")
+                print(f"    - BPs not found. Fallback: Loading raw data (X)...")
 
                 # 如果这里也失败 (如文件损坏或无 X 无 Y)，会抛出 IOError 被外层 catch
                 X, Y = io.load_mat_X_Y(file_path)
 
-                print(f"   - Generating BPs using {generator_method}...")
-                BPs, _ = generator_func(X, Y, nBase=n_base, seed=seed)
+                print(f"    - Generating BPs using {generator_method}...")
+
+                # 运行基聚类生成器
+                BPs, Y = generator_func(X, Y, nBase=nBase, seed=seed, maxiter=maxiter, replicates=replicates)
 
             # 确定 K (聚类数)
             n_cluster = len(np.unique(Y))
 
             # --- C. 运行集成 (Consensus) ---
-            print(f"   - Running Consensus: {consensus_method}...")
-            labels, _ = consensus_func(BPs, Y)
+            print(f"    - Running Consensus: {consensus_method}...")
+            labels, _ = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
 
             # --- D. 评估 (Evaluation) ---
-            print(f"   - Evaluating...")
+            print(f"    - Evaluating...")
             res = metrics.evaluation_batch(labels, Y)
 
             # --- E. 保存 (Saving) ---
             save_name = f"{dataset_name}_result.csv"
-            save_path = output_path / save_name
-
+            save_path = output_path / f"{consensus_method}_result" / save_name
             io.save_csv(res, str(save_path))
-            print(f"   - Saved to: {save_name}")
+            print(f"    - Saved to: {save_name}")
 
         except Exception as e:
             # 捕获所有异常（包括 load_mat_X_Y 失败的情况）
             print(f"!!! Error processing {dataset_name}: {e}")
             # 打印堆栈以便调试
-            traceback.print_exc()
+            # traceback.print_exc()
 
     print("\nBatch processing completed.")

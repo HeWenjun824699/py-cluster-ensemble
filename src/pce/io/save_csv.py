@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 import pandas as pd
 from typing import List, Dict
 
@@ -38,7 +40,7 @@ def save_csv(
             # 2.2 【关键修改】构造一个空行
             # values 使用 None，index 使用空字符串 ''，这样在 CSV 里这行就是全空的
             empty_row = pd.DataFrame(
-                [[None] * df.shape[1]],
+                [[np.nan] * df.shape[1]],
                 columns=df.columns,
                 index=['']
             )
@@ -56,7 +58,7 @@ def save_csv(
             na_rep=''
         )
 
-        print(f"Results saved to {final_path}")
+        # print(f"Results saved to {final_path}")
 
     except Exception as e:
         print(f"Failed to save csv: {e}")
