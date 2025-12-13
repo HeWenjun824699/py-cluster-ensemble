@@ -2,7 +2,28 @@
 
 ### load_mat 参数说明
 
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`file_path`** | `Union[str, Path]` | **必填** | **输入 .mat 文件的路径**<br>支持字符串或 `pathlib.Path` 对象。代码会自动识别并处理标准 MATLAB 格式以及 v7.3 (HDF5) 格式 |
+| `ensure_x_float` | `bool` | `True` | **强制转换特征矩阵为浮点数**<br>如果为 `True`，会将读取到的特征矩阵 `X` 转换为 `np.float64` 类型。这对大多数聚类算法（如 K-Means）的数值计算稳定性至关重要 |
+| `flatten_y` | `bool` | `True` | **展平标签向量**<br>如果为 `True`，会将读取到的标签 `Y` 从二维列向量 `(n_samples, 1)` 展平为一维数组 `(n_samples,)`。这符合 Scikit-learn 等 Python 机器学习库的标准输入格式 |
+
+### load_mat 返回值说明 (Returns)
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`X`** | `Optional[np.ndarray]` | **特征矩阵**<br>形状为 `(n_samples, n_features)`<br>代码会自动尝试匹配常见的变量名（如 `'X'`, `'data'`, `'fea'`, `'features'` 等）。如果未找到特征数据，函数将抛出 `IOError` |
+| **`Y`** | `Optional[np.ndarray]` | **标签向量**<br>形状通常为 `(n_samples,)`（当 `flatten_y=True` 时）<br>代码会自动尝试匹配常见的变量名（如 `'Y'`, `'label'`, `'gnd'` 等）<br> **特殊处理**：如果读取到的标签是浮点型整数（如 `1.0`, `2.0`），代码会自动将其安全转换为 `np.int64` 类型 |
+
 ### save_csv 参数说明
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`data`** | `List[Dict]` | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。列表中的每个字典代表一行数据，字典的 Key 将成为 CSV 的列名 |
+| **`output_path`** | `str` | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/res.csv`)：直接保存为该文件，代码会自动创建不存在的父目录 |
+| `default_name` | `str` | `"result.csv"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
+| `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
+| `float_format` | `str` | `"%.4f"` | **浮点数格式控制**<br>指定写入 CSV 时浮点数的精度。默认保留 4 位小数 |
 
 ## 2.generators
 
@@ -155,7 +176,29 @@
 
 ### evaluation_single 参数说明
 
+| 参数名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`y`** | **`np.ndarray`** | **预测标签向量**<br>聚类算法输出的预测结果，代码内部会自动展平为一维数组 |
+| **`Y`** | **`np.ndarray`** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
+
+### evaluation_single 返回值说明 (Returns)
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`res`** | `List[float]` | **评估指标列表**<br>包含14个浮点数的列表，顺序依次为：<br>`[ACC, NMI, Purity, AR, RI, MI, HI, F-Score, Precision, Recall, Entropy, SDCS, RME, Bal]` |
+
 ### evaluation_batch 参数说明
+
+| 参数名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`labels`** | `List[np.ndarray]` | **预测标签列表**<br>包含多个预测结果的列表，列表中的每个元素都是一个形状为 `(n_samples,)` 的一维数组（例如多次实验的聚类结果），函数将遍历此列表逐一评估 |
+| **`Y`** | **`np.ndarray`** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
+
+### evaluation_batch 返回值说明 (Returns)
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`res_list`** | `List[Dict]` | **评估结果列表**<br>列表中的每个元素都是一个字典，对应 `labels` 中每一次预测的评估结果。字典包含以下 14 个 Key：<br>`['ACC', 'NMI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score', 'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal']` |
 
 ### 5.pipelines
 

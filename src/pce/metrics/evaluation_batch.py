@@ -12,9 +12,9 @@ def evaluation_batch(labels, Y):
     Evaluates clustering performance.
     
     Parameters:
-    y : Ground truth labels
-    Y : Predicted labels
-    
+    labels : Predicted labels
+    Y : Ground truth labels
+
     Returns:
     res : list or array
           [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal]
