@@ -3,24 +3,28 @@ import time
 import numpy as np
 import scipy.io
 
-from .methods.mcla_core import mcla_core
+from .methods.cspa_core import cspa_core
 from ..metrics.evaluation import evaluation
 
 
-def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
+def cspa_old(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
     """
-    MCLA (Meta-Clustering Algorithm) Wrapper.
-    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 MCLA，评估并保存结果。
+    CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
+    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。
     """
     file_name = os.path.basename(file_path)
     data_name = os.path.splitext(file_name)[0]
+    # file_extension = os.path.splitext(file_name)[1] # CSPA 结果通常固定为 .mat
 
     # 1. 路径与文件名处理
-    # 如果未指定输出路径，默认在输入文件同级目录下创建一个 MCLA_Results 文件夹
+    # 如果未指定输出路径，默认在输入文件同级目录下创建一个 CSPA 文件夹，保持整洁
     if output_path is None:
         input_dir = os.path.dirname(file_path)
-        # 结构: .../data_dir/MCLA_Results/data_name/
-        output_path = os.path.join(input_dir, 'MCLA_Results', data_name)
+        # 仿照 MATLAB 逻辑: .../exp_n/data_name/
+        # 但为了符合 Python 风格，我们可以简化为 input_dir/CSPA/data_name/
+        # 或者为了保持与 litekmeans 一致，直接放在 input_dir 下，但加后缀
+        # 这里为了区分不同实验，建议新建一个子文件夹
+        output_path = os.path.join(input_dir, 'CSPA_Results', data_name)
 
     # 如果输出目录不存在，创建它
     if not os.path.exists(output_path):
@@ -28,7 +32,7 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         print(f"Created directory: {output_path}")
 
     # 构造输出文件名
-    out_file_name = f"{data_name}_MCLA.mat"
+    out_file_name = f"{data_name}_CSPA.mat"
     out_file_path = os.path.join(output_path, out_file_name)
 
     # 2. 检查结果是否已存在
@@ -48,7 +52,8 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         Y = mat_data['Y'].flatten()
 
         # 【关键】处理 MATLAB 的 1-based 索引
-        # MCLA 核心算法通常也需要 0-based 索引来构建超图或矩阵
+        # 如果 BPs 是从 MATLAB 生成的 (litekmeans + 1)，最小值是 1
+        # Python 的 cspa_core (基于矩阵运算) 需要 0-based 索引
         if np.min(BPs) == 1:
             BPs = BPs - 1
 
@@ -61,9 +66,10 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         return
 
     # 4. 实验循环
-    print(f"MCLA Processing {file_name} (Shape: {BPs.shape}, K={nCluster})...")
+    print(f"CSPA Processing {file_name} (Shape: {BPs.shape}, K={nCluster})...")
 
     # 准备结果容器
+    # MATLAB: CSPA_result = zeros(nRepeat, nMeasure);
     results_list = []
 
     # 初始化随机数生成器
@@ -74,6 +80,8 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         # -------------------------------------------------
         # 步骤 A: 切片 BPs
         # -------------------------------------------------
+        # MATLAB: idx = (iRepeat - 1) * nBase + 1 : iRepeat * nBase;
+        # Python: [start, end)
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
@@ -87,19 +95,21 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 MCLA
+        # 步骤 B: 运行 CSPA
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
+        # 设置当前轮次的随机种子 (控制 SpectralClustering 的初始化)
+        # 注意：这里主要影响 cspa_core 内部的 kmeans/discretization
 
         t_start = time.time()
 
         try:
             # 调用核心算法
-            # 注意：Python 实现通常直接接收 (n_samples, n_estimators)
-            # 但 mcla_core (移植自 MATLAB) 期望 (n_clusterings, n_samples)
-            label_pred = mcla_core(BPi.T, nCluster)
+            # 注意：cspa_core 接收 (n_estimators, n_samples)
+            # BPi 是 (n_samples, n_estimators), 所以需要转置
+            label_pred = cspa_core(BPi.T, nCluster)
         except Exception as e:
-            print(f"MCLA failed on repeat {iRepeat}: {e}")
+            print(f"CSPA failed on repeat {iRepeat}: {e}")
             label_pred = np.zeros_like(Y)
 
         t_cost = time.time() - t_start
@@ -107,24 +117,25 @@ def mcla(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
         # -------------------------------------------------
         # 步骤 C: 评估
         # -------------------------------------------------
+        # 使用 evaluate_all 计算 [NMI, ARI, ACC]
         metrics = evaluation(label_pred, Y)
 
-        # 保存单次结果: [NMI, ARI, ACC, ..., Time]
+        # 保存单次结果: [NMI, ARI, ACC, Time]
         row_result = metrics + [t_cost]
         results_list.append(row_result)
 
     # 5. 汇总与保存
     results_mat = np.array(results_list)
 
-    # 计算均值和方差 (注意标准差使用 ddof=1 以匹配 MATLAB std)
+    # 计算均值和方差
     summary_mean = np.mean(results_mat, axis=0)
     summary_std = np.std(results_mat, axis=0, ddof=1)
 
     # 构造保存字典
     save_dict = {
-        'MCLA_result': results_mat,
-        'MCLA_result_summary': summary_mean,
-        'MCLA_result_summary_std': summary_std
+        'CSPA_result': results_mat,
+        'CSPA_result_summary': summary_mean,
+        'CSPA_result_summary_std': summary_std
     }
 
     scipy.io.savemat(out_file_path, save_dict)
