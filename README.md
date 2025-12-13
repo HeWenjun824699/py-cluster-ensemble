@@ -10,7 +10,7 @@
 
 ## 📋 目录 (Table of Contents) 
 
-- [安装 (Installation)](#安装-installation) 
+- [安装 (Installation)](#install) 
 - [快速开始 (Quick Start)](#快速开始-quick-start) 
 
 - [核心模块 API (API Reference)](#核心模块-api-api-reference)   
@@ -23,10 +23,10 @@
 
 ---
 
-## 📦 安装 (Installation) 
+## <span id="install">📦 安装 (Installation) </span>
 
-~~~
 使用 pip 安装 (推荐)
+~~~
 pip install py-cluster-ensemble
 ~~~
 
