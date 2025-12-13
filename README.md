@@ -1,10 +1,52 @@
+# py-cluster-ensemble (PCE)
+
+[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue)](https://pypi.org/project/py-cluster-ensemble/) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**A Python toolkit for Cluster Ensembles generation, consensus, and visualization.** 
+
+`py-cluster-ensemble` 是一个模块化的 Python 聚类集成工具包，旨在协助研究人员从 MATLAB 迁移至 Python 环境。它提供了从基聚类生成、集成共识到结果评估和可视化的完整流水线，并完美兼容 `.mat` 数据格式。 
+
+---
+
+## 📋 目录 (Table of Contents) 
+
+- [安装 (Installation)](#安装-installation) 
+- [快速开始 (Quick Start)](#快速开始-quick-start) 
+
+- [核心模块 API (API Reference)](#核心模块-api-api-reference)   
+  - [1. 流水线 (Pipelines)](#1-流水线-pipelines)    
+  - [2. 输入输出 (IO)](#2-输入输出-io)    
+  - [3. 基聚类生成器 (Generators)](#3-基聚类生成器-generators) 
+  - [4. 集成算法 (Consensus)](#4-集成算法-consensus) 
+  - [5. 评估指标 (Metrics)](#5-评估指标-metrics) 
+- [项目规划 (Roadmap)](#项目规划-roadmap) 
+
+---
+
+## 📦 安装 (Installation) 
+
+~~~
+使用 pip 安装 (推荐)
+pip install py-cluster-ensemble
+~~~
+
+---
+
+## 🚀 快速开始 (Quick Start)
+
+
+
+
+
+## 📚 核心模块 API (API Reference)
+
 ## 1.io
 
 ### load_mat 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`file_path`** | `Union[str, Path]` | **必填** | **输入 .mat 文件的路径**<br>支持字符串或 `pathlib.Path` 对象。代码会自动识别并处理标准 MATLAB 格式以及 v7.3 (HDF5) 格式 |
+| **`file_path`** | **`Union[str, Path]`** | **必填** | **输入 .mat 文件的路径**<br>支持字符串或 `pathlib.Path` 对象。代码会自动识别并处理标准 MATLAB 格式以及 v7.3 (HDF5) 格式 |
 | `ensure_x_float` | `bool` | `True` | **强制转换特征矩阵为浮点数**<br>如果为 `True`，会将读取到的特征矩阵 `X` 转换为 `np.float64` 类型。这对大多数聚类算法（如 K-Means）的数值计算稳定性至关重要 |
 | `flatten_y` | `bool` | `True` | **展平标签向量**<br>如果为 `True`，会将读取到的标签 `Y` 从二维列向量 `(n_samples, 1)` 展平为一维数组 `(n_samples,)`。这符合 Scikit-learn 等 Python 机器学习库的标准输入格式 |
 
@@ -19,24 +61,43 @@
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`data`** | `List[Dict]` | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。列表中的每个字典代表一行数据，字典的 Key 将成为 CSV 的列名 |
-| **`output_path`** | `str` | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/res.csv`)：直接保存为该文件，代码会自动创建不存在的父目录 |
+| **`data`** | **`List[Dict]`** | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。列表中的每个字典代表一行数据，字典的 Key 将成为 CSV 的列名 |
+| **`output_path`** | **`str`** | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/res.csv`)：直接保存为该文件，代码会自动创建不存在的父目录 |
 | `default_name` | `str` | `"result.csv"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
 | `float_format` | `str` | `"%.4f"` | **浮点数格式控制**<br>指定写入 CSV 时浮点数的精度。默认保留 4 位小数 |
+
+### save_xlsx 参数说明
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`data`** | **`List[Dict]`** | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。列表中的每个字典代表一行数据，字典的 Key 将成为 Excel 的列名 |
+| **`output_path`** | **`str`** | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/res.xlsx`)：直接保存为该文件。代码会自动创建不存在的父目录，并强制后缀为 `.xlsx` |
+| `default_name` | `str` | `"result.xlsx"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
+| `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
+| `excel_format` | `str` | `"0.0000"` | **Excel 数值格式控制**<br>指定 Excel 单元格的数字显示格式字符串。例如 `"0.0000"` 表示显示 4 位小数<br>相比 CSV，此方式能保持单元格为**数值类型**（便于在 Excel 中进行求和等后续计算），而非纯文本 |
+
+### save_mat 参数说明
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`data`** | **`List[Dict]`** | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。函数会将字典中的数值提取并转换为 NumPy 矩阵保存到 `.mat` 文件变量 `result` 中 |
+| **`output_path**`** | **`str`** | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/res.mat`)：直接保存为该文件。代码会自动创建不存在的父目录，并强制后缀为 `.mat` |
+| `default_name` | `str` | `"result.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
+| `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会计算所有结果的 **均值 (Mean)** 和 **标准差 (Std)**，并分别以变量名 `result_summary` 和 `result_summary_std` 保存到 `.mat` 文件中 |
 
 ## 2.generators
 
 ### litekmeans 参数说明
 
-| 参数名       | 类型             | 默认值     | 说明                                                         |
-| :----------- | :--------------- | :--------- | :----------------------------------------------------------- |
-| **`X`**      | **`np.ndarray`** | **`必填`** | **输入特征矩阵**<br>形状通常为 `(n_samples, n_features)`, 算法将在此数据上运行 KMeans |
-| **`Y`**      | **`np.ndarray`** | **`必填`** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
-| `nBase`      | `int`            | `200`      | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`       | `int`            | `2024`     | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
-| `maxiter`    | `int`            | `100`      | 聚类算法（LiteKMeans）的最大迭代次数                         |
-| `replicates` | `int`            | `1`        | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
+| 参数名       | 类型             | 默认值   | 说明                                                         |
+| :----------- | :--------------- | :------- | :----------------------------------------------------------- |
+| **`X`**      | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状通常为 `(n_samples, n_features)`, 算法将在此数据上运行 KMeans |
+| **`Y`**      | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
+| `nBase`      | `int`            | `200`    | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
+| `seed`       | `int`            | `2024`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `maxiter`    | `int`            | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
+| `replicates` | `int`            | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
 ### litekmeans 返回值说明(Returns)
 
@@ -47,14 +108,14 @@
 
 ### cdkmeans 参数说明
 
-| 参数名       | 类型             | 默认值     | 说明                                                         |
-| :----------- | :--------------- | :--------- | :----------------------------------------------------------- |
-| **`X`**      | **`np.ndarray`** | **`必填`** | **输入特征矩阵**<br>形状通常为` (n_samples, n_features)`, 算法将在此数据上运行 KMeans 初始化及 CDKM 优化 |
-| **`Y`**      | **`np.ndarray`** | **`必填`** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
-| `nBase`      | `int`            | `200`      | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`       | `int`            | `2024`     | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
-| `maxiter`    | `int`            | `100`      | 聚类算法（LiteKMeans）的最大迭代次数                         |
-| `replicates` | `int`            | `1`        | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
+| 参数名       | 类型             | 默认值   | 说明                                                         |
+| :----------- | :--------------- | :------- | :----------------------------------------------------------- |
+| **`X`**      | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状通常为` (n_samples, n_features)`, 算法将在此数据上运行 KMeans 初始化及 CDKM 优化 |
+| **`Y`**      | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
+| `nBase`      | `int`            | `200`    | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
+| `seed`       | `int`            | `2024`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `maxiter`    | `int`            | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
+| `replicates` | `int`            | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
 ### cdkmeans 返回值说明(Returns)
 
@@ -93,8 +154,8 @@
 
 | 参数名     | 类型      | 默认值         | 说明                                                                                                                                                       |
 |:----------| :-------- |:------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`BPs`** | **`np.ndarray`** | **`必填`** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
-| **`Y`**   | **`np.ndarray`** | **`必填`** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)`     |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| **`Y`**   | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)`     |
 | `nBase`   | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成                                                                                   |
 | `nRepeat` | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat`                                                                                            |
 | `seed`    | `int`     | `2024`      | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性                                                                                                   |
@@ -110,8 +171,8 @@
 
 | 参数名      | 类型      | 默认值         | 说明                                                        |
 |:-----------| :-------- |:------------| :----------------------------------------------------------- |
-| **`BPs`**  | **`np.ndarray`** | **`必填`** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
-| **`Y`**    | **`np.ndarray`** | **`必填`** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
+| **`BPs`**  | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| **`Y`**    | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
 | `nBase`    | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成    |
 | `nRepeat`  | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat`             |
 | `seed`     | `int`     | `2024`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
@@ -127,8 +188,8 @@
 
 | 参数名      | 类型      | 默认值         | 说明                                                        |
 |:-----------| :-------- |:------------| :----------------------------------------------------------- |
-| **`BPs`**  | **`np.ndarray`** | **`必填`** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
-| **`Y`**    | **`np.ndarray`** | **`必填`** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
+| **`BPs`**  | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果, 代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| **`Y`**    | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
 | `nBase`    | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
 | `nRepeat`  | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
 | `seed`     | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
@@ -176,10 +237,10 @@
 
 ### evaluation_single 参数说明
 
-| 参数名 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| **`y`** | **`np.ndarray`** | **预测标签向量**<br>聚类算法输出的预测结果，代码内部会自动展平为一维数组 |
-| **`Y`** | **`np.ndarray`** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | ---- |
+| **`y`** | **`np.ndarray`** | **必填** | **预测标签向量**<br>聚类算法输出的预测结果，代码内部会自动展平为一维数组 |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
 
 ### evaluation_single 返回值说明 (Returns)
 
@@ -189,10 +250,10 @@
 
 ### evaluation_batch 参数说明
 
-| 参数名 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| **`labels`** | `List[np.ndarray]` | **预测标签列表**<br>包含多个预测结果的列表，列表中的每个元素都是一个形状为 `(n_samples,)` 的一维数组（例如多次实验的聚类结果），函数将遍历此列表逐一评估 |
-| **`Y`** | **`np.ndarray`** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | ---- |
+| **`labels`** | **`List[np.ndarray]`** | **必填** | **预测标签列表**<br>包含多个预测结果的列表，列表中的每个元素都是一个形状为 `(n_samples,)` 的一维数组（例如多次实验的聚类结果），函数将遍历此列表逐一评估 |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
 
 ### evaluation_batch 返回值说明 (Returns)
 
@@ -203,6 +264,12 @@
 ### 5.pipelines
 
 ### consensus_batch 参数说明
+
+
+
+## 🗺 项目规划 (Roadmap)
+
+
 
 <br>
 
