@@ -86,6 +86,7 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 ## <span id="api_reference">📚 核心模块 API (API Reference)</span>
 
 ## <span id="io">📂 1. 输入输出 (pce.io)</span>
+
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
@@ -135,7 +136,10 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 
 </details>
 
-## <span id="generators">⚙️ 2. 基聚类生成器 (pce.generators) - 点击展开</span>
+## <span id="generators">⚙️ 2. 基聚类生成器 (pce.generators)</span>
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### litekmeans 参数说明
 
@@ -197,7 +201,12 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `maxiter`       | `int`     | `100`       | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
-## <span id="consensus">🤝 3. 集成算法 (pce.consensus) - 点击展开</span>
+</details>
+
+## <span id="consensus">🤝 3. 集成算法 (pce.consensus)</span>
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### cspa 参数说明
 
@@ -282,7 +291,12 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
 | `seed`          | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
 
-## <span id="metrics">📊 4. 评估指标 (pce.metrics) - 点击展开</span>
+</details>
+
+## <span id="metrics">📊 4. 评估指标 (pce.metrics)</span>
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### evaluation_single 参数说明
 
@@ -310,15 +324,41 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | :--- | :--- | :--- |
 | **`res_list`** | `List[Dict]` | **评估结果列表**<br>列表中的每个元素都是一个字典，对应 `labels` 中每一次预测的评估结果。字典包含以下 14 个 Key：<br>`['ACC', 'NMI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score', 'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal']` |
 
-### <span id="pipelines">5.pipelines</span>
+</details>
+
+### <span id="pipelines">🚀 5. 流水线 (pce.pipelines)</span>
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### consensus_batch 参数说明
 
+### consensus_batch 参数说明
 
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`input_dir`** | `str` | **必填** | **输入数据集目录**<br>代码会自动扫描该目录下所有的 `.mat` 文件进行处理 |
+| `output_dir` | `str` | `None` | **结果输出目录**<br>如果为 `None`，默认使用输入目录作为输出根目录，并在其下创建算法对应的子文件夹 |
+| `save_format` | `str` | `"csv"` | **结果保存格式**<br>支持 `'csv'`, `'xlsx'`, `'mat'`。需要确保 `pce.io` 中存在对应的 `save_` 函数 |
+| `consensus_method` | `str` | `'cspa'` | **集成算法名称**<br>对应 `pce.consensus` 模块中的函数名，如 `'cspa'`, `'mcla'`, `'hgpa'` |
+| `generator_method` | `str` | `'cdkmeans'` | **生成器名称**<br>当 `.mat` 文件中仅包含原始特征 `X` 时，使用此算法生成基聚类，如 `'cdkmeans'`, `'litekmeans'` |
+| `nBase` | `int` | `20` | **基聚类数量/切片大小**<br>单次集成实验使用的基聚类器数量。若需现场生成 BPs，此参数也作为生成器的目标列数 |
+| `seed` | `int` | `2024` | **随机种子**<br>用于控制基聚类生成和集成算法内部的随机性，保证结果可复现 |
+| `maxiter` | `int` | `100` | **最大迭代次数**<br>仅在调用基聚类生成器（如 K-Means）时生效 |
+| `replicates` | `int` | `1` | **生成器重复次数**<br>仅在调用基聚类生成器时生效，表示每次聚类尝试的重复运行次数 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>流水线将循环运行 `nRepeat` 次独立实验以评估算法稳定性 |
+| `overwrite` | `bool` | `False` | **覆盖开关**<br>若为 `False` 且检测到输出文件已存在，则自动跳过该数据集。若为 `True` 则强制覆盖 |
+
+</details>
 
 ## <span id="roadmap">🗺 项目规划 (Roadmap)</span>
 
-
+- [x] 基础架构: IO, Generators, Consensus, Metrics 模块解耦
+- [x] 兼容性: 完美支持 MATLAB .mat v7.3 及 1-based 索引自动修复
+- [x] 流水线: consensus_batch 自动化批处理与断点跳过
+- [x] 报表: 支持生成带格式的 Excel 报表
+- [ ] 可视化: 共识矩阵 (Consensus Matrix) 热力图
+- [ ] 发布: PyPI 正式发布
 
 <br>
 
