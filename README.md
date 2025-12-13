@@ -16,8 +16,8 @@
   - [1. 输入输出 (IO)](#io)    
   - [2. 基聚类生成器 (Generators)](#generators) 
   - [3. 集成算法 (Consensus)](#consensus) 
-  - [4. 流水线 (Pipelines)](#pipelines) 
-  - [5. 评估指标 (Metrics)](#metrics) 
+  - [4. 评估指标 (Metrics)](#metrics) 
+  - [5. 流水线 (Pipelines)](#pipelines) 
 - [项目规划 (Roadmap)](#roadmap) 
 
 ---
@@ -33,13 +33,57 @@ pip install py-cluster-ensemble
 
 ## <span id="quickstart">🚀 快速开始 (Quick Start)</span>
 
+### 场景 A: 一键批处理 (推荐)
 
+使用 consensus_batch 自动扫描目录下的所有 .mat 数据集，生成基聚类、运行集成算法并导出csv、xlsx、mat格式的数据。
 
+~~~
+from pce.pipelines import consensus_batch
+
+# 运行流水线
+consensus_batch(
+    input_dir='./data',            # 数据集目录
+    output_dir='./results',        # 结果保存目录
+    consensus_method='cspa',       # 集成算法: 'cspa', 'mcla', 'hgpa'
+    generator_method='cdkmeans',   # 生成器: 'cdkmeans', 'litekmeans'
+    nBase=20,                      # 每次集成的基聚类数
+    nRepeat=10,                    # 实验重复轮数
+    save_format='csv',             # 保存格式: 'xlsx', 'csv', 'mat'
+    overwrite=True                 # 是否覆盖已有结果
+)
+~~~
+
+### 场景 B: 模块化分步调用
+
+如果您需要更细粒度的控制，可以独立调用各个模块：
+
+~~~
+import pce.io as io
+import pce.generators as gen
+import pce.consensus as con
+import pce.metrics as met
+
+# 1. 加载数据 (自动处理 .mat 格式)
+X, Y = io.load_mat_X_Y('data/isolet.mat')
+
+# 2. 生成基聚类 (使用 CDK-Means)
+BPs, _ = gen.cdkmeans(X, Y, nBase=200)
+
+# 3. 执行集成 (使用 CSPA)
+# 将 200 个基聚类切分为 10 组，每组 20 个进行实验
+labels_list, _ = con.cspa(BPs, Y, nBase=20, nRepeat=10)
+
+# 4. 评估结果
+results = met.evaluation_batch(labels_list, Y)
+
+# 5. 保存结果为 Excel (保留 4 位小数格式)
+io.save_xlsx(results, 'output/isolet_report.xlsx')
+~~~
 
 
 ## <span id="api_reference">📚 核心模块 API (API Reference)</span>
 
-## <span id="id">1.io</span>
+## <span id="io">1.io</span>
 
 ### load_mat 参数说明
 
