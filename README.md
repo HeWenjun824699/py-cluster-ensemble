@@ -11,19 +11,18 @@
 ## 📋 目录 (Table of Contents) 
 
 - [安装 (Installation)](#install) 
-- [快速开始 (Quick Start)](#快速开始-quick-start) 
-
-- [核心模块 API (API Reference)](#核心模块-api-api-reference)   
-  - [1. 流水线 (Pipelines)](#1-流水线-pipelines)    
-  - [2. 输入输出 (IO)](#2-输入输出-io)    
-  - [3. 基聚类生成器 (Generators)](#3-基聚类生成器-generators) 
-  - [4. 集成算法 (Consensus)](#4-集成算法-consensus) 
-  - [5. 评估指标 (Metrics)](#5-评估指标-metrics) 
-- [项目规划 (Roadmap)](#项目规划-roadmap) 
+- [快速开始 (Quick Start)](#quickstart)
+- [核心模块 API (API Reference)](#api_reference) 
+  - [1. 输入输出 (IO)](#io)    
+  - [2. 基聚类生成器 (Generators)](#generators) 
+  - [3. 集成算法 (Consensus)](#consensus) 
+  - [4. 流水线 (Pipelines)](#pipelines) 
+  - [5. 评估指标 (Metrics)](#metrics) 
+- [项目规划 (Roadmap)](#roadmap) 
 
 ---
 
-## <span id="install">📦 安装 (Installation) </span>
+## <span id="install">📦 安装 (Installation)</span>
 
 使用 pip 安装 (推荐)
 ~~~
@@ -32,15 +31,15 @@ pip install py-cluster-ensemble
 
 ---
 
-## 🚀 快速开始 (Quick Start)
+## <span id="quickstart">🚀 快速开始 (Quick Start)</span>
 
 
 
 
 
-## 📚 核心模块 API (API Reference)
+## <span id="api_reference">📚 核心模块 API (API Reference)</span>
 
-## 1.io
+## <span id="id">1.io</span>
 
 ### load_mat 参数说明
 
@@ -86,7 +85,7 @@ pip install py-cluster-ensemble
 | `default_name` | `str` | `"result.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会计算所有结果的 **均值 (Mean)** 和 **标准差 (Std)**，并分别以变量名 `result_summary` 和 `result_summary_std` 保存到 `.mat` 文件中 |
 
-## 2.generators
+## <span id="generators">2.generators</span>
 
 ### litekmeans 参数说明
 
@@ -148,7 +147,7 @@ pip install py-cluster-ensemble
 | `maxiter`       | `int`     | `100`       | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
-## 3.consensus
+## <span id="consensus">3.consensus</span>
 
 ### cspa 参数说明
 
@@ -233,7 +232,7 @@ pip install py-cluster-ensemble
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
 | `seed`          | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
 
-## 4.metrics
+## <span id="metrics">4.metrics</span>
 
 ### evaluation_single 参数说明
 
@@ -261,13 +260,13 @@ pip install py-cluster-ensemble
 | :--- | :--- | :--- |
 | **`res_list`** | `List[Dict]` | **评估结果列表**<br>列表中的每个元素都是一个字典，对应 `labels` 中每一次预测的评估结果。字典包含以下 14 个 Key：<br>`['ACC', 'NMI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score', 'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal']` |
 
-### 5.pipelines
+### <span id="pipelines">5.pipelines</span>
 
 ### consensus_batch 参数说明
 
 
 
-## 🗺 项目规划 (Roadmap)
+## <span id="roadmap">🗺 项目规划 (Roadmap)</span>
 
 
 
