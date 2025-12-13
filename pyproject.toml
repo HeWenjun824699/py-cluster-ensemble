@@ -23,6 +23,8 @@ networkx = "^3.2"       # 用于 CSPA/MCLA 等图算法
 matplotlib = "^3.8"     # 用于可视化
 seaborn = "^0.13"       # 用于画更好看的共识矩阵热力图
 tqdm = "^4.66"          # 进度条 (集成算法跑得慢时很有用)
+pandas = "^2.2"         # io 模块依赖
+xlsxwriter = "^3.2"     # 用于 save_xlsx 的格式化输出
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"         # 测试框架

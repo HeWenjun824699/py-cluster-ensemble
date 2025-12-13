@@ -1,5 +1,7 @@
 import os
 import traceback
+from typing import Optional
+
 import numpy as np
 from pathlib import Path
 
@@ -12,7 +14,8 @@ from .. import metrics
 
 def consensus_batch(
         input_dir: str,
-        output_dir: str,
+        output_dir: Optional[str] = None,
+        save_format: str = "csv",
         consensus_method: str = 'cspa',
         generator_method: str = 'cdkmeans',
         nBase: int = 20,
@@ -27,6 +30,7 @@ def consensus_batch(
     Args:
         input_dir: 输入数据集目录 (.mat)
         output_dir: 结果输出目录
+        save_format: 'csv', 'xlsx' (文件保存方式)
         consensus_method: 'cspa', 'mcla', 'hgpa' 等 (函数名字符串)
         generator_method: 如果数据是原始 X，使用该生成器 (如 'cdkmeans', 'litekmeans')
         nBase: 基聚类器数量 (仅当需要生成 BPs 时使用)
@@ -37,12 +41,22 @@ def consensus_batch(
     """
     # 1. 准备目录
     input_path = Path(input_dir)
-    output_path = Path(output_dir)
+    # 判断是否传入输出路径
+    if output_dir is None:
+        output_path = input_path
+    else:
+        output_path = Path(output_dir)
+
     if not output_path.exists():
         os.makedirs(output_path)
         print(f"Created output directory: {output_path}")
 
     # 2. 获取算法函数 (利用 getattr 动态获取)
+    try:
+        save_func = getattr(io, "save_" + save_format)
+    except AttributeError:
+        raise ValueError(f"Save format '{save_format}' not found in pce.io")
+
     try:
         consensus_func = getattr(consensus, consensus_method)
     except AttributeError:
@@ -59,7 +73,7 @@ def consensus_batch(
         print(f"No .mat files found in {input_dir}")
         return
 
-    print(f"Found {len(mat_files)} datasets. Starting batch process with [{consensus_method}]...")
+    print(f"\nFound {len(mat_files)} datasets. Starting batch process with [{consensus_method}]...")
 
     for file_path in mat_files:
         dataset_name = file_path.stem  # 获取文件名（不含后缀）
@@ -101,9 +115,9 @@ def consensus_batch(
             res = metrics.evaluation_batch(labels, Y)
 
             # --- E. 保存 (Saving) ---
-            save_name = f"{dataset_name}_result.csv"
+            save_name = f"{dataset_name}_result.{save_format}"
             save_path = output_path / f"{consensus_method}_result" / save_name
-            io.save_csv(res, str(save_path))
+            save_func(res, str(save_path))
             print(f"    - Saved to: {save_name}")
 
         except Exception as e:
