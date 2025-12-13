@@ -80,10 +80,14 @@ results = met.evaluation_batch(labels_list, Y)
 io.save_xlsx(results, 'output/isolet_report.xlsx')
 ~~~
 
+---
+
 
 ## <span id="api_reference">📚 核心模块 API (API Reference)</span>
 
-## <span id="io">1.io</span>
+## <span id="io">📂 1. 输入输出 (pce.io)</span>
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### load_mat 参数说明
 
@@ -129,7 +133,9 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `default_name` | `str` | `"result.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会计算所有结果的 **均值 (Mean)** 和 **标准差 (Std)**，并分别以变量名 `result_summary` 和 `result_summary_std` 保存到 `.mat` 文件中 |
 
-## <span id="generators">2.generators</span>
+</details>
+
+## <span id="generators">⚙️ 2. 基聚类生成器 (pce.generators) - 点击展开</span>
 
 ### litekmeans 参数说明
 
@@ -191,7 +197,7 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `maxiter`       | `int`     | `100`       | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
-## <span id="consensus">3.consensus</span>
+## <span id="consensus">🤝 3. 集成算法 (pce.consensus) - 点击展开</span>
 
 ### cspa 参数说明
 
@@ -276,7 +282,7 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
 | `seed`          | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
 
-## <span id="metrics">4.metrics</span>
+## <span id="metrics">📊 4. 评估指标 (pce.metrics) - 点击展开</span>
 
 ### evaluation_single 参数说明
 
