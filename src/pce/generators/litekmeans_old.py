@@ -7,7 +7,7 @@ from .utils.extract_xy import extract_xy
 from .methods.litekmeans_core import litekmeans_core
 
 
-def litekmeans_old(file_path, output_path=None, nBase=200, seed=2024, maxiter=100, replicates=1):
+def litekmeans_old(file_path, output_path=None, nBase: int = 200, seed: int = 2024, maxiter: int = 100, replicates: int = 1):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑

@@ -7,7 +7,7 @@ from .methods.cspa_core import cspa_core
 from ..metrics.evaluation_single import evaluation_single
 
 
-def cspa_old(file_path, output_path=None, nBase=20, nRepeat=10, seed=2024):
+def cspa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。

@@ -4,7 +4,7 @@ import numpy as np
 from .methods.hgpa_core import hgpa_core
 
 
-def hgpa(BPs, Y, nBase=20, nRepeat=10, seed=2024):
+def hgpa(BPs, Y, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
     """
     HGPA (HyperGraph Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 HGPA，评估并保存结果。
