@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 from pathlib import Path
 
-# 引入你的库组件
+# 引入库组件
 from .. import io
 from .. import generators
 from .. import consensus
@@ -55,7 +55,7 @@ def consensus_batch(
 
     # 2. 获取算法函数 (利用 getattr 动态获取)
     try:
-        save_func = getattr(io, "save_" + save_format)
+        save_func = getattr(io, "save_results_" + save_format)
     except AttributeError:
         raise ValueError(f"Save format '{save_format}' not found in pce.io")
 
