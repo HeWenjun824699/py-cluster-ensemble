@@ -126,7 +126,16 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | **`BPs`** | `np.ndarray` | **基聚类矩阵**<br>形状为 `(n_samples, n_estimators)`<br>数据会被强制转换为 `np.int64`，如果触发了 `fix_matlab_index`，返回的数据范围将从 0 开始 |
 | **`Y`** | `np.ndarray` | **标签向量**<br>形状通常为 `(n_samples,)`<br>同 `load_mat_X_Y` 中的 Y 处理逻辑 |
 
-### 1.3 save_results_csv 参数说明
+### 1.3 save_base_mat 参数说明
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>通常是 $N \times M$ 的矩阵（N=样本数，M=基聚类器数量）。<br>函数内部会自动将其转换为 **`float64` (double)** 类型以兼容 MATLAB，在 `.mat` 文件中变量名为 `'BPs'`。 |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签 (True Labels)**<br>样本的真实类别标签。<br>函数内部会自动执行以下操作：<br>1. 转换为 **`float64` (double)** 类型<br>2. 强制重塑为 **$N \times 1$ 的列向量**<br>在 `.mat` 文件中变量名为 `'Y'`。 |
+| **`output_path`** | **`str`** | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/data.mat`)：直接保存为该文件，代码会自动补全 `.mat` 后缀并创建不存在的父目录 |
+| `default_name` | `str` | `"base.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
+
+### 1.4 save_results_csv 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -136,7 +145,7 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
 | `float_format` | `str` | `"%.4f"` | **浮点数格式控制**<br>指定写入 CSV 时浮点数的精度。默认保留 4 位小数 |
 
-### 1.4 save_results_xlsx 参数说明
+### 1.5 save_results_xlsx 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -146,7 +155,7 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
 | `excel_format` | `str` | `"0.0000"` | **Excel 数值格式控制**<br>指定 Excel 单元格的数字显示格式字符串。例如 `"0.0000"` 表示显示 4 位小数<br>相比 CSV，此方式能保持单元格为**数值类型**（便于在 Excel 中进行求和等后续计算），而非纯文本 |
 
-### 1.5 save_results_mat 参数说明
+### 1.6 save_results_mat 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -411,9 +420,9 @@ NUBO A Transparent Python Package for Bayesian Optimization-JSS-2025
    - [x] save_base.py（保存基聚类）
      - [x] save_base_mat.py（保存mat基聚类）
    - [x] save_results.py（保存结果）
-     - [x] save_csv.py（保存csv结果）
-     - [x] save_xlsx.py（保存xlsx结果）
-     - [x] save_mat.py（保存mat结果）
+     - [x] save_results_csv.py（保存csv结果）
+     - [x] save_results_xlsx.py（保存xlsx结果）
+     - [x] save_results_mat.py（保存mat结果）
 
 2. 基聚类生成
 
