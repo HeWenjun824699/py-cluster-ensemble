@@ -35,7 +35,7 @@ def _get_visual_width(s: str) -> int:
     return width
 
 
-def show_algorithm_params(method_name: str, module_type: str = 'consensus'):
+def show_function_params(method_name: str, module_type: str = 'consensus'):
     """
     智能打印算法参数 (已修复 Emoji 对齐问题)
     """

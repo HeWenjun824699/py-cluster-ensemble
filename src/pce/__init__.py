@@ -10,6 +10,7 @@ from . import metrics
 from . import pipelines
 from . import grid
 from . import analysis
+from . import utils
 
 # 定义当用户使用 'from pce import *' 时导出什么
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     "metrics",
     "pipelines",
     "grid",
-    "analysis"
+    "analysis",
+    "utils"
 ]
