@@ -187,8 +187,8 @@ class GridSearcher:
                     logger.info(f"Scores saved to: {exp_dir / 'scores.json'}")
 
                     # 打印日志
-                    logger.info(f"Log saved to: {exp_dir} / 'run.log'")
-                    logger.info("Experiment completed.")
+                    logger.info(f"Log saved to: {exp_dir / 'run.log'}")
+                    logger.info("=== Experiment: {exp_id} completed===")
 
                 except Exception as e:
                     status = "FAILED"
