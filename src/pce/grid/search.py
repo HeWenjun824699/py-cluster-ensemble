@@ -53,6 +53,22 @@ class GridSearcher:
 
         return logger
 
+    def _compute_avg_metrics(self, metrics_res: Any) -> Dict[str, float]:
+        """
+        内部函数：处理 metrics 结果。
+        如果是列表（多运行结果），计算平均值；
+        如果是字典（单运行结果），直接返回。
+        """
+        if isinstance(metrics_res, list):
+            if not metrics_res:
+                return {}
+            # 转换为 DataFrame 计算均值
+            df = pd.DataFrame(metrics_res)
+            return df.mean().to_dict()
+        elif isinstance(metrics_res, dict):
+            return metrics_res
+        return {}
+
     def run(self, param_grid: Dict[str, List[Any]], fixed_params: Dict[str, Any] = None):
         if fixed_params is None: fixed_params = {}
 
@@ -71,7 +87,7 @@ class GridSearcher:
 
         for file_idx, file_path in enumerate(mat_files):
             dataset_name = file_path.stem
-            print(f"[{file_idx + 1}/{len(mat_files)}] Dataset: {dataset_name}")
+            print(f"\n[{file_idx + 1}/{len(mat_files)}] Dataset: {dataset_name}")
 
             # 2.1 数据集根目录
             ds_output_dir = self.output_dir / dataset_name
@@ -114,6 +130,7 @@ class GridSearcher:
                 status = "SUCCESS"
                 error_msg = ""
                 metrics_res = {}
+                metrics_avg = {}
 
                 try:
                     BPs = None
@@ -143,29 +160,41 @@ class GridSearcher:
                     # 【参数自动过滤】
                     con_kwargs, con_ignored = self._filter_kwargs(con_func, full_config)
                     logger.info(f"Consensus params used: {con_kwargs}")
-                    if con_ignored: logger.info(f"Consensus ignored params: {con_ignored}")
+                    if con_ignored:
+                        logger.info(f"Consensus ignored params: {con_ignored}")
 
                     labels, _ = con_func(BPs, Y, **con_kwargs)
 
                     # --- C. 评估与保存 ---
                     metrics_res = metrics.evaluation_batch(labels, Y)
-                    logger.info(f"Metrics: {metrics_res}")
+                    logger.info(f"Metrics (Raw): {metrics_res}")
+
+                    # [NEW] 使用内部函数计算平均值
+                    metrics_avg = self._compute_avg_metrics(metrics_res)
+                    logger.info(f"Metrics (Avg): {metrics_avg}")
 
                     # 保存结果文件
                     # 1. Labels
-                    pd.DataFrame(labels).to_csv(exp_dir / "labels.csv", index=False, header=False)
-                    # 2. Config
-                    with open(exp_dir / "config.json", 'w') as f:
+                    pd.DataFrame(labels).T.to_csv(exp_dir / "labels.csv", index=False, header=False)
+                    logger.info(f"Labels saved to: {exp_dir / 'labels.csv'}")
+                    # 2. Params
+                    with open(exp_dir / "params.json", 'w') as f:
                         json.dump(full_config, f, indent=4)
+                    logger.info(f"Params saved to: {exp_dir / 'params.json'}")
                     # 3. Scores
                     with open(exp_dir / "scores.json", 'w') as f:
                         json.dump(metrics_res, f, indent=4)
+                    logger.info(f"Scores saved to: {exp_dir / 'scores.json'}")
+
+                    # 打印日志
+                    logger.info(f"Log saved to: {exp_dir} / 'run.log'")
+                    logger.info("Experiment completed.")
 
                 except Exception as e:
                     status = "FAILED"
                     error_msg = str(e)
                     logger.error(f"Experiment failed: {e}", exc_info=True)
-                    print(f"  x {exp_id} Failed. See log.")
+                    print(f" x {exp_id} Failed. See log.")
 
                 # 释放 logger 句柄
                 handlers = logger.handlers[:]
@@ -176,18 +205,19 @@ class GridSearcher:
                 # --- 4. 记录到总表 ---
                 elapsed = time.time() - start_time
                 summary_record = {
-                    "dataset": dataset_name,
-                    "exp_id": exp_id,
-                    "status": status,
-                    "elapsed": round(elapsed, 4),
+                    "Dataset": dataset_name,
+                    "Exp_id": exp_id,
+                    "Status": status,
+                    "Time": round(elapsed, 4),
                     **params,  # 仅记录变动参数，避免表格太宽
-                    **metrics_res  # 结果
+                    **metrics_avg
                 }
                 all_summary.append(summary_record)
 
                 if status == "SUCCESS":
-                    nmi = metrics_res.get('NMI', 0)
-                    print(f"  - {exp_id}: NMI={nmi:.4f} ({elapsed:.2f}s)")
+                    acc = metrics_avg.get('ACC', 0)
+                    print(f"  - {exp_id}: ACC={acc:.4f} ({elapsed:.2f}s)")
+                    logger.info(f"  - {exp_id}: ACC={acc:.4f} ({elapsed:.2f}s)")
 
         # 5. 保存总汇总表
         if all_summary:
