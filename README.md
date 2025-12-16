@@ -518,14 +518,6 @@ searcher.run(param_grid, fixed_params)
 - [ ] **文档完善**: 部署 ReadTheDocs 在线文档与 API 索引。
 - [ ] **单元测试**: 完善核心模块的 PyTest 覆盖率。
 - [ ] **PyPI 发布**: 完成 v1.0.0 正式版发布流程。
----
-
-
-**Paper demo:**
-
-WEFE A Python Library for Measuring and Mitigating Bias in Word Embeddings-JMLR-2025
-
-NUBO A Transparent Python Package for Bayesian Optimization-JSS-2025
 
 ---
 
