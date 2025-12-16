@@ -422,22 +422,30 @@ NUBO A Transparent Python Package for Bayesian Optimization-JSS-2025
      - [x] save_results_xlsx.py（保存xlsx结果）
      - [x] save_results_mat.py（保存mat结果）
 
-2. 基聚类生成
+2. 基聚类生成(generators)
 
    - [x] litekmeans.py（litekmeans生成基聚类）
    - [x] cdkmeans.py（cdkmeans生成基聚类）
 
-3. 集成算法
+3. 集成算法(consensus)
 
    - [x] cspa.py（cspa集成算法）
    - [x] mcla.py（mcla集成算法）
    - [x] hgpa.py（hgpa集成算法）
 
-4. 评估指标
+4. 评估指标(metrics)
 
    - [x] evaluation_single.py（评估单轮指标）
    - [x] evaluation_batch.py（评估多轮指标）
 
-5. 流水线
+5. 流水线(pipelines)
 
    - [x] consensus_batch.py（集成流水线）
+
+6. 网格搜索(grid)
+
+   - [x] grid_search.py（网格搜索）
+
+7. utils
+
+   - [x] show_function_params.py（显示函数参数）
