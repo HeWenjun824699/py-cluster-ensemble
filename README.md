@@ -399,8 +399,6 @@ io.save_xlsx(results, 'output/isolet_report.xlsx')
 - [ ] 可视化: 共识矩阵 (Consensus Matrix) 热力图
 - [ ] 发布: PyPI 正式发布
 
-<br>
-
 ---
 
 
@@ -410,7 +408,7 @@ WEFE A Python Library for Measuring and Mitigating Bias in Word Embeddings-JMLR-
 
 NUBO A Transparent Python Package for Bayesian Optimization-JSS-2025
 
-
+---
 
 ## 目前支持的功能
 
