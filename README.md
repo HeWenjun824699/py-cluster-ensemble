@@ -82,6 +82,47 @@ results = met.evaluation_batch(labels_list, Y)
 io.save_xlsx(results, 'output/isolet_report.xlsx')
 ~~~
 
+### 场景 C: 超参数网格搜索(Grid Search)
+
+针对科研实验设计的网格搜索模块，支持对集成算法和基聚类生成器进行参数扫描。<br>
+`GridSearcher` 会自动计算参数的笛卡尔积组合，并智能跳过无效的参数配置。
+
+~~~
+import pce
+
+# 1. 准备路径
+input_dir = './data'
+output_dir = './grid_results'
+
+# 2. 定义网格参数 (param_grid)
+# 字典中的 value 必须是列表，程序会自动生成所有组合
+param_grid = {
+    'consensus_method': ['cspa', 'mcla'],   # 同时对比多种集成算法
+    't': [20, 50, 100],                     # 探究超参数 t 的影响
+    'k': [5, 10, 15]                        # 探究超参数 k 的影响
+}
+
+# 3. 定义固定参数 (fixed_params)
+# 所有实验共用的静态参数
+fixed_params = {
+    'generator_method': 'cdkmeans',
+    'nBase': 20,        # generators, consensus
+    'seed': 2024,       # generators, consensus
+    'maxiter': 100,     # generators
+    'replicates': 1,    # generators
+    'nRepeat': 10       # consensus
+}
+
+# 4. 初始化并运行
+# 结果将生成汇总 CSV 表格及详细的 JSON/Log 文件
+searcher = pce.grid.GridSearcher(input_dir, output_dir)
+searcher.run(param_grid, fixed_params)
+
+# 小贴士: 不确定某个算法支持哪些参数？
+# 使用工具函数查看参数列表:
+# pce.utils.show_function_params('cspa', module_type='consensus')
+~~~
+
 ---
 
 
