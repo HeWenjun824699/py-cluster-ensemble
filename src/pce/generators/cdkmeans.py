@@ -5,7 +5,7 @@ from .methods.litekmeans_core import litekmeans_core
 from .methods.cdkm_fast_core import cdkm_fast_core
 
 
-def cdkmeans(X, Y, nBase: int = 200, seed: int = 2024, maxiter: int = 100, replicates: int = 1):
+def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2024, maxiter: int = 100, replicates: int = 1):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑

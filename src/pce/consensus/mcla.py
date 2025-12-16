@@ -4,7 +4,7 @@ import numpy as np
 from .methods.mcla_core import mcla_core
 
 
-def mcla(BPs, Y, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
+def mcla(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
     """
     MCLA (Meta-Clustering Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 MCLA，评估并保存结果。
