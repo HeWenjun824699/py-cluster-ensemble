@@ -2,9 +2,11 @@
 
 [![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue)](https://pypi.org/project/py-cluster-ensemble/) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**A Python toolkit for Cluster Ensembles generation, consensus, and visualization.** 
+A Comprehensive Python Toolkit for Cluster Ensemble Generation, Consensus, and Automated Experimentation.
 
-`py-cluster-ensemble` 是一个模块化的 Python 聚类集成工具包，旨在协助研究人员从 MATLAB 迁移至 Python 环境。它提供了从基聚类生成、集成共识到结果评估和可视化的完整流水线，并完美兼容 `.mat` 数据格式。 
+`py-cluster-ensemble` (PCE) 是一款专为科研人员设计的 Python 聚类集成（Cluster Ensemble）工具库。它致力于填补 Python 生态中缺乏统一聚类集成框架的空白，打造从 MATLAB 到 Python 的无缝迁移体验。
+
+PCE 不仅提供了从基聚类生成、集成共识到评估的完整流水线，还针对科研实验场景深度优化，内置了智能网格搜索与自动化批处理模块。
 
 ---
 
@@ -17,7 +19,9 @@
   - [2. 基聚类生成器 (Generators)](#generators) 
   - [3. 集成算法 (Consensus)](#consensus) 
   - [4. 评估指标 (Metrics)](#metrics) 
-  - [5. 流水线 (Pipelines)](#pipelines) 
+  - [5. 流水线 (Pipelines)](#pipelines)
+  - [6. 网格搜索 (Grid)](#grid)
+  - [7. 工具模块 (Utils)](#utils)
 - [项目规划 (Roadmap)](#roadmap) 
 
 ---
@@ -130,6 +134,8 @@ searcher.run(param_grid, fixed_params)
 
 ## <span id="io">📂 1. 输入输出 (pce.io)</span>
 
+**数据接口模块，** 负责处理与 `.mat` 文件的交互及结果持久化，自动解决 MATLAB v7.3 格式兼容性问题，并支持将实验结果导出为 `CSV`、`Excel` 或 `MAT` 格式。
+
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
@@ -209,6 +215,8 @@ searcher.run(param_grid, fixed_params)
 
 ## <span id="generators">⚙️ 2. 基聚类生成器 (pce.generators)</span>
 
+**基聚类生成模块，** 封装了多种基聚类生成逻辑，支持通过控制随机初始化、迭代策略及子空间扰动，从原始特征矩阵构建具有多样性的基聚类池。
+
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
@@ -276,6 +284,8 @@ searcher.run(param_grid, fixed_params)
 </details>
 
 ## <span id="consensus">🤝 3. 集成算法 (pce.consensus)</span>
+
+**核心集成算法模块，** 实现了从基聚类矩阵推导最终共识划分的逻辑，涵盖基于共协矩阵（CSPA）、基于元聚类（MCLA）及基于超图分割（HGPA）等经典集成算法。
 
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
@@ -371,6 +381,8 @@ searcher.run(param_grid, fixed_params)
 
 ## <span id="metrics">📊 4. 评估指标 (pce.metrics)</span>
 
+**指标评估模块，** 提供全套聚类验证指标（包含 NMI, ARI, ACC 等 14 种），支持单次结果验证及批量实验的统计分析，用于量化对比集成算法的有效性。
+
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
@@ -408,6 +420,8 @@ searcher.run(param_grid, fixed_params)
 
 ## <span id="pipelines">🚀 5. 流水线 (pce.pipelines)</span>
 
+**自动化工作流模块，** 提供高层级的批处理接口，能够自动扫描数据集目录、串联“生成-集成-评估”全流程，适合大规模对比实验与结果复现。
+
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
@@ -429,17 +443,81 @@ searcher.run(param_grid, fixed_params)
 
 </details>
 
+## <span id="grid">🎛️ 6. 网格搜索 (pce.grid)</span>
+
+**实验调优模块，** 专为科研设计的自动化参数搜索工具，能够生成参数空间的笛卡尔积，智能剔除冗余组合（Pruning），并自动记录详细的实验日志与汇总报表。
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
+
+### 6.1 GridSearcher 类说明
+
+#### 6.1.1 初始化 (init)
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`input_dir`** | **`str`** | **必填** | **输入数据集目录**<br>包含待实验 `.mat` 文件的文件夹路径，支持直接读取包含 `BPs` 的文件（跳过生成步骤）或仅包含 `X` 的文件（自动调用生成器） |
+| **`output_dir`** | **`str`** | **必填** | **结果输出根目录**<br>所有实验结果、日志、JSON 配置将按数据集名称分类保存到此目录下 |
+
+#### 6.1.2 运行 (run)
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`param_grid`** | **`Dict[str, List]`** | **必填** | **网格搜索参数空间**<br>字典的值必须是列表（如 `{'t': [0.5, 0.7]}`），程序会自动生成所有组合并根据算法类型智能清洗无效参数（如运行 `mcla` 时自动忽略只属于 `cspa` 的参数） |
+| `fixed_params` | `Dict[str, Any]` | `None` | **固定参数配置**<br>所有实验共用的静态参数（如 `{'nBase': 20}`），如果 `param_grid` 中出现了同名参数，优先使用网格中的动态值 |
+
+</details>
+
+## <span id="utils">🛠️ 7. 工具模块 (pce.utils)</span>
+
+**工具模块，** 用于开发调试与用户引导，支持打印算法的详细参数签名，并明确区分固定配置参数（Fixed）与可用于网格搜索的超参数（Hyperparameter）。
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
+
+### 7.1 show_function_params 参数说明
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`method_name`** | **`str`** | **必填** | **目标函数名称**<br>例如 `'cspa'`, `'cdkmeans'` 等，需确保该名称在指定的 `module_type` 中存在 |
+| `module_type` | `str` | `'consensus'` | **所属模块名称**<br>指定在哪个模块中查找函数，支持的选项映射：`'io'`, `'generators'`, `'consensus'`, `'metrics'`, `'pipelines'`, `'grid'`, `'analysis'` |
+
+</details>
+
 ---
 
-## <span id="roadmap">🗺 项目规划 (Roadmap)</span>
+## <span id="roadmap">🎯 项目规划 (Roadmap)</span>
 
-- [x] 基础架构: IO, Generators, Consensus, Metrics 模块解耦
-- [x] 兼容性: 完美支持 MATLAB .mat v7.3 及 1-based 索引自动修复
-- [x] 流水线: consensus_batch 自动化批处理与断点跳过
-- [x] 报表: 支持生成带格式的 Excel 报表
-- [ ] 可视化: 共识矩阵 (Consensus Matrix) 热力图
-- [ ] 发布: PyPI 正式发布
+### ✅ 已完成特性 (Implemented Features)
 
+**1. 基础架构与 IO**
+- [x] **MATLAB 深度兼容**: 完美支持 `.mat` v7.3 格式读取，自动处理 1-based/0-based 索引转换。
+- [x] **多格式导出**: 支持将实验结果导出为 CSV、Excel (自动保留小数位格式) 及 MAT 文件。
+- [x] **开发辅助**: 提供 `utils` 模块，支持查看算法参数签名及网格搜索兼容性。
+
+**2. 核心算法**
+- [x] **基聚类生成器**: 支持 `LiteKMeans` (高速实现) 与 `CDK-Means` (约束性差异化生成)。
+- [x] **集成共识算法**: 实现了 `CSPA` (基于相似度)、`MCLA` (基于元聚类) 及 `HGPA` (基于超图) 等经典算法。
+- [x] **评估指标**: 内置 NMI, ARI, ACC, Purity, F-Score 等 14 种常用聚类指标。
+
+**3. 自动化与实验**
+- [x] **批处理流水线**: `consensus_batch` 支持目录级扫描，一键完成“生成-集成-评估”全流程。
+- [x] **智能网格搜索**: `GridSearcher` 支持参数笛卡尔积生成，并具备**自动去重 (Pruning)** 功能，避免无效计算。
+
+### 🚧 开发计划 (Future Plans)
+
+**1. 可视化 (Visualization)**
+- [ ] **共识矩阵热力图**: 可视化展示基聚类之间的共协矩阵 (Co-association Matrix)。
+- [ ] **聚类结果投影**: 集成 t-SNE 或 PCA，提供高维数据的聚类结果 2D/3D 可视化。
+
+**2. 算法扩展 (Algorithm Expansion)**
+- [ ] **加权集成**: 引入基于基聚类质量或多样性的加权机制 (Weighted Ensemble)。
+- [ ] **更多算法**: 计划新增 EAC (Evidence Accumulation), LWE (Locally Weighted Ensemble) 等算法。
+
+**3. 工程化与发布 (Engineering)**
+- [ ] **文档完善**: 部署 ReadTheDocs 在线文档与 API 索引。
+- [ ] **单元测试**: 完善核心模块的 PyTest 覆盖率。
+- [ ] **PyPI 发布**: 完成 v1.0.0 正式版发布流程。
 ---
 
 
