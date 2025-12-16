@@ -73,7 +73,7 @@ def clbtocl(clb, p=None):
     else:
         index = np.where(winnersprop < p)[0]
         
-    print(f"clbtocl: delivering {np.max(cl) + 1} clusters")
-    print(f"clbtocl: average posterior prob is {np.mean(winnersprop)}")
+    # print(f"clbtocl: delivering {np.max(cl) + 1} clusters")
+    # print(f"clbtocl: average posterior prob is {np.mean(winnersprop)}")
     
     return cl, index

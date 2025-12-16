@@ -25,6 +25,9 @@ class GridSearcher:
         核心魔法：根据函数的签名，从大字典中提取它需要的参数。
         返回: (valid_params, ignored_keys)
         """
+        if func is None:
+            return {}, []
+
         sig = inspect.signature(func)
         valid_params = {}
         ignored_keys = []
@@ -54,30 +57,85 @@ class GridSearcher:
         return logger
 
     def _compute_avg_metrics(self, metrics_res: Any) -> Dict[str, float]:
-        """
-        内部函数：处理 metrics 结果。
-        如果是列表（多运行结果），计算平均值；
-        如果是字典（单运行结果），直接返回。
-        """
+        """内部函数：处理 metrics 结果。"""
         if isinstance(metrics_res, list):
             if not metrics_res:
                 return {}
-            # 转换为 DataFrame 计算均值
             df = pd.DataFrame(metrics_res)
             return df.mean().to_dict()
         elif isinstance(metrics_res, dict):
             return metrics_res
         return {}
 
+    def _prune_combinations(self, raw_combinations: List[Dict], fixed_params: Dict) -> List[Dict]:
+        """
+        【新增功能】智能去重
+        逻辑：如果参数的变化对于当前的 generator 和 consensus 都是无效的（即都不在它们的参数列表中），
+        那么这个组合就是冗余的，只保留第一个。
+        """
+        valid_tasks = []
+        seen_signatures = set()
+
+        print(f">>> Pruning tasks... (Raw combinations: {len(raw_combinations)})")
+
+        for params in raw_combinations:
+            full_config = {**fixed_params, **params}
+
+            # 1. 获取当前的方法名
+            c_method_name = full_config.get('consensus_method', 'unknown')
+            g_method_name = full_config.get('generator_method', 'cdkmeans')
+
+            # 2. 获取函数对象
+            c_func = getattr(consensus, c_method_name, None)
+            g_func = getattr(generators, g_method_name, None)
+
+            # 3. 提取有效参数 (Effective Params)
+            # 我们只关心 valid_params，不关心 ignored
+            c_valid, _ = self._filter_kwargs(c_func, full_config)
+            g_valid, _ = self._filter_kwargs(g_func, full_config)
+
+            # 4. 生成唯一指纹 (Signature)
+            # 指纹由：Generator名 + Generator有效参数 + Consensus名 + Consensus有效参数 组成
+            # 如果两个组合生成的指纹一样，说明它们跑出来的结果绝对是一样的（数学上等价）
+            signature = (
+                g_method_name,
+                json.dumps(g_valid, sort_keys=True),  # 字典转字符串以使其可哈希
+                c_method_name,
+                json.dumps(c_valid, sort_keys=True)
+            )
+
+            if signature not in seen_signatures:
+                seen_signatures.add(signature)
+                valid_tasks.append(params)  # 保留这个有效组合
+            else:
+                # # 调试用：可以看到哪些被跳过了
+                # 1. 找出被忽略的参数名 (集合运算)
+                ignored_keys = set(params.keys()) - set(c_valid.keys()) - set(g_valid.keys())
+
+                # 2. 提取这些参数对应的值 (字典推导式)
+                ignored_details = {k: params[k] for k in ignored_keys}
+
+                # 3. 打印详细信息
+                # 仅当 ignored_details 不为空时打印，避免混淆
+                if ignored_details:
+                    print(f"    [Skipped] Redundant config for '{c_method_name}': {ignored_details}")
+
+        print(f">>> Pruning finished. Effective tasks: {len(valid_tasks)} (Removed {len(raw_combinations) - len(valid_tasks)} redundant tasks)")
+        return valid_tasks
+
     def run(self, param_grid: Dict[str, List[Any]], fixed_params: Dict[str, Any] = None):
         if fixed_params is None: fixed_params = {}
 
-        # 1. 生成参数组合
+        # 1. 生成原始参数组合
         keys = param_grid.keys()
         values = param_grid.values()
-        combinations = [dict(zip(keys, v)) for v in itertools.product(*values)]
+        raw_combinations = [dict(zip(keys, v)) for v in itertools.product(*values)]
 
-        print(f">>> Start Grid Search. Total combinations: {len(combinations)}")
+        # 【Step 1.5: 智能去重】
+        # 这里进行去重，只保留真正有意义的组合
+        tasks = self._prune_combinations(raw_combinations, fixed_params)
+
+        print(f">>> Start Grid Search.")
         print(f">>> Output Directory: {self.output_dir}\n")
 
         all_summary = []  # 汇总表数据
@@ -95,7 +153,6 @@ class GridSearcher:
 
             # 2.2 加载数据 (Cache)
             try:
-                # 尝试加载 BPs
                 try:
                     BPs_cached, Y_cached = io.load_mat_BPs_Y(file_path)
                     data_source = "precomputed"
@@ -107,12 +164,13 @@ class GridSearcher:
                 print(f"  [Error] Failed to load {dataset_name}: {e}")
                 continue
 
-            # 3. 遍历参数组合
-            for combo_idx, params in enumerate(combinations):
+            # 3. 遍历去重后的任务列表 (Tasks)
+            for task_idx, params in enumerate(tasks):
                 # 3.1 准备配置
-                # 命名规则: Exp_{ID}_{Method}
+                # 命名建议：不再单纯用 combo_idx，而是最好体现这组参数的特征，或者直接用 task_idx
                 c_method = params.get('consensus_method', fixed_params.get('consensus_method', 'unknown'))
-                exp_id = f"Exp_{combo_idx + 1:03d}_{c_method}"
+                # 使用 task_idx + 1 保证顺序编号
+                exp_id = f"Exp_{task_idx + 1:03d}_{c_method}"
                 exp_dir = ds_output_dir / exp_id
                 exp_dir.mkdir(exist_ok=True)
 
@@ -123,7 +181,6 @@ class GridSearcher:
                 logger = self._setup_experiment_logger(exp_dir / "run.log")
                 logger.info(f"=== Experiment: {exp_id} ===")
                 logger.info(f"Dataset: {dataset_name}")
-                logger.info(f"Data Source: {data_source}")
                 logger.info(f"Full Config: {full_config}")
 
                 start_time = time.time()
@@ -145,58 +202,34 @@ class GridSearcher:
                     else:
                         logger.info(f"Generating BPs using {g_method}...")
                         gen_func = getattr(generators, g_method)
-
-                        # 【参数自动过滤】
-                        gen_kwargs, gen_ignored = self._filter_kwargs(gen_func, full_config)
-                        logger.info(f"Generator params used: {gen_kwargs}")
-                        if gen_ignored: logger.info(f"Generator ignored params: {gen_ignored}")
-
+                        gen_kwargs, _ = self._filter_kwargs(gen_func, full_config)
                         BPs, Y = gen_func(X_cached, Y_cached, **gen_kwargs)
 
                     # --- B. 聚类集成 (Consensus) ---
                     logger.info(f"Running Consensus: {c_method}...")
                     con_func = getattr(consensus, c_method)
-
-                    # 【参数自动过滤】
-                    con_kwargs, con_ignored = self._filter_kwargs(con_func, full_config)
-                    logger.info(f"Consensus params used: {con_kwargs}")
-                    if con_ignored:
-                        logger.info(f"Consensus ignored params: {con_ignored}")
-
+                    con_kwargs, _ = self._filter_kwargs(con_func, full_config)
                     labels, _ = con_func(BPs, Y, **con_kwargs)
 
                     # --- C. 评估与保存 ---
                     metrics_res = metrics.evaluation_batch(labels, Y)
-                    logger.info(f"Metrics (Raw): {metrics_res}")
-
-                    # [NEW] 使用内部函数计算平均值
                     metrics_avg = self._compute_avg_metrics(metrics_res)
                     logger.info(f"Metrics (Avg): {metrics_avg}")
 
-                    # 保存结果文件
-                    # 1. Labels
+                    # 保存结果
                     pd.DataFrame(labels).T.to_csv(exp_dir / "labels.csv", index=False, header=False)
-                    logger.info(f"Labels saved to: {exp_dir / 'labels.csv'}")
-                    # 2. Params
                     with open(exp_dir / "params.json", 'w') as f:
                         json.dump(full_config, f, indent=4)
-                    logger.info(f"Params saved to: {exp_dir / 'params.json'}")
-                    # 3. Scores
                     with open(exp_dir / "scores.json", 'w') as f:
                         json.dump(metrics_res, f, indent=4)
-                    logger.info(f"Scores saved to: {exp_dir / 'scores.json'}")
-
-                    # 打印日志
-                    logger.info(f"Log saved to: {exp_dir / 'run.log'}")
-                    logger.info("=== Experiment: {exp_id} completed===")
 
                 except Exception as e:
                     status = "FAILED"
                     error_msg = str(e)
                     logger.error(f"Experiment failed: {e}", exc_info=True)
-                    print(f" x {exp_id} Failed. See log.")
+                    print(f"  x {exp_id} Failed. See log.")
 
-                # 释放 logger 句柄
+                # 清理 Logger
                 handlers = logger.handlers[:]
                 for handler in handlers:
                     handler.close()
@@ -209,19 +242,18 @@ class GridSearcher:
                     "Exp_id": exp_id,
                     "Status": status,
                     "Time": round(elapsed, 4),
-                    **params,  # 仅记录变动参数，避免表格太宽
+                    **params,
                     **metrics_avg
                 }
                 all_summary.append(summary_record)
 
                 if status == "SUCCESS":
                     acc = metrics_avg.get('ACC', 0)
-                    print(f"  - {exp_id}: ACC={acc:.4f} ({elapsed:.2f}s)")
-                    logger.info(f"  - {exp_id}: ACC={acc:.4f} ({elapsed:.2f}s)")
+                    # 简单打印进度
+                    print(f"  - {exp_id}: ACC={acc:.4f}")
 
         # 5. 保存总汇总表
         if all_summary:
             df = pd.DataFrame(all_summary)
             df.to_csv(self.output_dir / "grid_summary.csv", index=False)
             print(f"\nAll Done. Summary saved to {self.output_dir / 'grid_summary.csv'}")
-

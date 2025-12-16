@@ -28,7 +28,7 @@ def mcla_core(cls, k=None):
         # If cls contains 0..K-1, max is K-1.
         # Let's assume the user handles 'k' or we infer max number of clusters.
     
-    print('mcla: preparing graph for meta-clustering')
+    # print('mcla: preparing graph for meta-clustering')
     
     # clb = clstoclbs(cls);
     # clstoclbs should return a binary matrix of all clusters vs samples.
