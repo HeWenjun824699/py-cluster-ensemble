@@ -18,10 +18,12 @@ PCE 不仅提供了从基聚类生成、集成共识到评估的完整流水线�
   - [1. 输入输出 (IO)](#io)    
   - [2. 基聚类生成器 (Generators)](#generators) 
   - [3. 集成算法 (Consensus)](#consensus) 
-  - [4. 评估指标 (Metrics)](#metrics) 
-  - [5. 流水线 (Pipelines)](#pipelines)
-  - [6. 网格搜索 (Grid)](#grid)
-  - [7. 工具模块 (Utils)](#utils)
+  - [4. 评估指标 (Metrics)](#metrics)
+  - [5. 分析模块 (Analysis)](#analysis)
+  - [6. 流水线 (Pipelines)](#pipelines)
+  - [7. 网格搜索 (Grid)](#grid)
+  - [8. 工具模块 (Utils)](#utils)
+  
 - [项目规划 (Roadmap)](#roadmap) 
 
 ---
@@ -418,14 +420,79 @@ searcher.run(param_grid, fixed_params)
 
 </details>
 
-## <span id="pipelines">🚀 5. 流水线 (pce.pipelines)</span>
+## <span id="analysis">📈 5. 分析模块 (pce.analysis)</span>
+
+**可视化分析模块，** 提供符合学术发表标准（Paper-Style）的绘图工具，支持数据降维可视化、共协矩阵热力图、实验性能折线图及参数敏感性分析。
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
+
+### 5.1 plot_2d_scatter 参数说明
+
+用于绘制原始数据或聚类结果的 2D 散点图，若数据维度大于 2，自动调用 t-SNE 或 PCA 进行降维
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **特征矩阵**<br>形状通常为 `(n_samples, n_features)`，若列数大于 2 将自动进行降维处理 |
+| **`labels`** | **`np.ndarray`** | **必填** | **标签向量**<br>形状为 `(n_samples,)`，用于控制散点颜色，支持真实标签或预测标签 |
+| `method` | `str` | `'tsne'` | **降维方法**<br>支持 `'tsne'` (默认) 或 `'pca'` |
+| `title` | `str` | `None` | **图表标题**<br>若为 `None`，自动生成包含方法名和样本数的默认标题 |
+| `save_path` | `str` | `None` | **保存路径**<br>支持 `.png`, `.pdf` 等格式，若路径不存在会自动创建目录 |
+| `show` | `bool` | `True` | **显示窗口**<br>是否在绘图结束后调用 `plt.show()` 弹出窗口 |
+| `**kwargs` | `Any` | - | **透传参数**<br>传递给 `TSNE` 或 `PCA` 初始化函数的其他关键字参数 |
+
+### 5.2 plot_coassociation_heatmap 参数说明
+
+绘制排序后的共协矩阵（Co-association Matrix）热力图，用于直观评估基聚类的集成一致性
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵**<br>形状为 `(n_samples, n_estimators)`，用于计算样本间的 Hamming 距离 |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签/参考标签**<br>用于对矩阵行列进行排序，使得同类样本在对角线上形成聚集块 |
+| `xlabel` | `str` | `None` | **X轴标签**<br>通常设为 "Sample Index" |
+| `ylabel` | `str` | `None` | **Y轴标签**<br>通常设为 "Sample Index" |
+| `title` | `str` | `None` | **图表标题**<br>若为 `None`，自动生成包含样本数的默认标题 |
+| `save_path` | `str` | `None` | **保存路径**<br>建议保存为 `.png` 或 `.pdf` |
+| `show` | `bool` | `True` | **显示窗口**<br>是否弹出绘图窗口 |
+
+### 5.3 plot_metric_line 参数说明
+
+绘制多轮实验的性能变化折线图（Trace Plot），适用于展示算法的稳定性或收敛趋势
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`results_list`** | **`List[Dict]`** | **必填** | **实验结果列表**<br>通常是 `evaluation_batch` 的输出结果，每个元素包含单次实验的各类指标得分 |
+| `metrics` | `Union[List, str]` | `'ACC'` | **展示指标**<br>需要绘制的指标名称（如 `'ACC'`, `'NMI'`），支持单个字符串或字符串列表 |
+| `xlabel` | `str` | `None` | **X轴标签**<br>默认为空，建议设为 "Run ID" 或 "Experiment ID" |
+| `ylabel` | `str` | `None` | **Y轴标签**<br>默认为空，建议设为 "Score" |
+| `title` | `str` | `None` | **图表标题**<br>若为 `None`，自动生成默认标题 |
+| `save_path` | `str` | `None` | **保存路径**<br>自动去除白边并保存 |
+| `show` | `bool` | `True` | **显示窗口**<br>是否弹出绘图窗口 |
+
+### 5.4 plot_parameter_sensitivity 参数说明
+
+基于网格搜索结果绘制单参数敏感性分析图，支持“控制变量法”逻辑，自动筛选特定背景参数下的性能曲线
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`csv_file`** | **`str`** | **必填** | **数据源文件**<br>网格搜索生成的汇总 CSV 文件路径 |
+| **`target_param`** | **`str`** | **必填** | **目标参数 (X轴)**<br>需要分析敏感性的参数名称（如 `'t'`, `'k'`） |
+| `metric` | `str` | `'NMI'` | **评价指标 (Y轴)**<br>用于衡量性能的指标列名 |
+| `fixed_params` | `Dict` | `None` | **固定背景参数**<br>字典格式（如 `{'k': 5}`）<br>若未指定，函数会自动寻找全局最优结果对应的参数作为固定背景 |
+| `method_name` | `str` | `None` | **算法过滤器**<br>若 CSV 包含多种算法，需指定具体算法名称（如 `'mcla'`）以避免数据混淆 |
+| `save_path` | `str` | `None` | **保存路径**<br>保存分析结果图 |
+| `show` | `bool` | `True` | **显示窗口**<br>是否弹出绘图窗口 |
+
+</details>
+
+## <span id="pipelines">🚀 6. 流水线 (pce.pipelines)</span>
 
 **自动化工作流模块，** 提供高层级的批处理接口，能够自动扫描数据集目录、串联“生成-集成-评估”全流程，适合大规模对比实验与结果复现。
 
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
-### 5.1 consensus_batch 参数说明
+### 6.1 consensus_batch 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -443,23 +510,23 @@ searcher.run(param_grid, fixed_params)
 
 </details>
 
-## <span id="grid">🎛️ 6. 网格搜索 (pce.grid)</span>
+## <span id="grid">🎛️ 7. 网格搜索 (pce.grid)</span>
 
 **实验调优模块，** 专为科研设计的自动化参数搜索工具，能够生成参数空间的笛卡尔积，智能剔除冗余组合（Pruning），并自动记录详细的实验日志与汇总报表。
 
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
-### 6.1 GridSearcher 类说明
+### 7.1 GridSearcher 类说明
 
-#### 6.1.1 初始化 (init)
+#### 7.1.1 初始化 (init)
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`input_dir`** | **`str`** | **必填** | **输入数据集目录**<br>包含待实验 `.mat` 文件的文件夹路径，支持直接读取包含 `BPs` 的文件（跳过生成步骤）或仅包含 `X` 的文件（自动调用生成器） |
 | **`output_dir`** | **`str`** | **必填** | **结果输出根目录**<br>所有实验结果、日志、JSON 配置将按数据集名称分类保存到此目录下 |
 
-#### 6.1.2 运行 (run)
+#### 7.1.2 运行 (run)
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -468,14 +535,14 @@ searcher.run(param_grid, fixed_params)
 
 </details>
 
-## <span id="utils">🛠️ 7. 工具模块 (pce.utils)</span>
+## <span id="utils">🛠️ 8. 工具模块 (pce.utils)</span>
 
 **工具模块，** 用于开发调试与用户引导，支持打印算法的详细参数签名，并明确区分固定配置参数（Fixed）与可用于网格搜索的超参数（Hyperparameter）。
 
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
-### 7.1 show_function_params 参数说明
+### 8.1 show_function_params 参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -549,14 +616,25 @@ searcher.run(param_grid, fixed_params)
    - [x] evaluation_single.py（评估单轮指标）
    - [x] evaluation_batch.py（评估多轮指标）
 
-5. 流水线(pipelines)
+5. 分析(analysis)
+    - [x] plot.py（绘图）
 
-   - [x] consensus_batch.py（集成流水线）
+6. 流水线(pipelines)
 
-6. 网格搜索(grid)
+    - [x] consensus_batch.py（集成流水线）
 
-   - [x] grid_search.py（网格搜索）
+7. 网格搜索(grid)
 
-7. utils
+    - [x] grid_search.py（网格搜索）
+   
+8. utils
 
    - [x] show_function_params.py（显示函数参数）
+
+   
+
+   
+
+
+
+
