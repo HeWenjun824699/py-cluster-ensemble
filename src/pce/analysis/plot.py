@@ -6,6 +6,9 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
 from typing import Optional, List, Dict, Any, Union
+
+from sklearn.metrics import pairwise_distances
+
 from .utils import set_paper_style, save_fig
 
 
@@ -195,6 +198,52 @@ def plot_grid_heatmap(
 
     # 翻转Y轴，让坐标原点在左下角（符合通常直觉）
     plt.gca().invert_yaxis()
+
+    save_fig(plt.gcf(), save_path)
+    plt.show()
+
+
+def plot_coassociation_heatmap(
+        BPs: np.ndarray,
+        Y: np.ndarray,
+        title: str = None,
+        save_path: str = None
+):
+    """
+    绘制排序后的共协矩阵热力图
+    """
+    set_paper_style()
+
+    # 1. 计算共协矩阵 (S = 1 - Hamming Distance)
+    # BPs: (N, M)
+    print("[Analysis] Calculating Co-association Matrix...")
+    D_hamming = pairwise_distances(BPs, metric='hamming')
+    S = 1.0 - D_hamming  # 相似度矩阵 (0~1)
+
+    # 2. 关键：根据真实标签 Y 对矩阵进行排序
+    # 这样同类的样本就会聚在一起，形成对角线上的方块
+    sort_indices = np.argsort(Y)
+    S_sorted = S[sort_indices][:, sort_indices]
+
+    # 3. 绘图
+    plt.figure(figsize=(7, 6))
+
+    # 使用 heatmap，颜色越深代表越相似
+    sns.heatmap(
+        S_sorted,
+        cmap='viridis',
+        xticklabels=False,
+        yticklabels=False,
+        cbar_kws={'label': 'Co-association Probability'}
+    )
+
+    if title:
+        plt.title(title)
+    else:
+        plt.title(f'Sorted Co-association Matrix (N={len(Y)})')
+
+    plt.xlabel('Sample Index (Sorted by Ground Truth)')
+    plt.ylabel('Sample Index (Sorted by Ground Truth)')
 
     save_fig(plt.gcf(), save_path)
     plt.show()
