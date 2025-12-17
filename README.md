@@ -2,11 +2,11 @@
 
 [![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue)](https://pypi.org/project/py-cluster-ensemble/) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A Comprehensive Python Toolkit for Cluster Ensemble Generation, Consensus, and Automated Experimentation.
+> **A Comprehensive Python Toolkit for Cluster Ensemble Generation, Consensus, and Automated Experimentation.**
 
-`py-cluster-ensemble` (PCE) 是一款专为科研人员设计的 Python 聚类集成（Cluster Ensemble）工具库。它致力于填补 Python 生态中缺乏统一聚类集成框架的空白，打造从 MATLAB 到 Python 的无缝迁移体验。
+**py-cluster-ensemble (PCE)** 是一款专为科研与学术界打造的 Python 聚类集成（Cluster Ensemble）通用框架。
 
-PCE 不仅提供了从基聚类生成、集成共识到评估的完整流水线，还针对科研实验场景深度优化，内置了智能网格搜索与自动化批处理模块。
+它致力于解决 Python 生态中缺乏统一聚类集成工具的痛点，提供从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化流水线。PCE 特别针对科研实验场景进行了深度优化，完美兼容 MATLAB (`.mat`) 数据交互，并内置 **智能网格搜索**、**自动化批处理** 及 **论文级可视化** 模块，旨在打造从 MATLAB 到 Python 的无缝迁移体验。
 
 ---
 
@@ -143,6 +143,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 1.1 load_mat_X_Y 参数和返回值说明
 
+用于读取包含原始特征矩阵 X 和标签 Y 的 MATLAB 数据文件，支持自动识别变量名及数据类型转换。
+
 #### 1.1.1 参数 (Parameters)
 
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -159,6 +161,8 @@ searcher.run(param_grid, fixed_params)
 | **`Y`** | `np.ndarray` | **标签向量**<br>形状通常为 `(n_samples,)`<br>代码会自动尝试匹配常见的变量名（如 `'Y'`, `'label'`, `'gnd'` 等），且会自动将浮点型整数标签安全转换为 `np.int64` 类型 |
 
 ### 1.2 load_mat_BPs_Y 参数和返回值说明
+
+用于读取包含基聚类矩阵 BPs 和标签 Y 的 MATLAB 数据文件，常用于加载外部生成的基聚类结果。
 
 #### 1.2.1 参数 (Parameters)
 
@@ -177,6 +181,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 1.3 save_base_mat 参数说明
 
+将生成的基聚类矩阵和真实标签保存为 MATLAB 兼容的 `.mat` 文件，便于跨平台验证。
+
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>通常是 $N \times M$ 的矩阵（N=样本数，M=基聚类器数量）。<br>函数内部会自动将其转换为 **`float64` (double)** 类型以兼容 MATLAB，在 `.mat` 文件中变量名为 `'BPs'`。 |
@@ -185,6 +191,8 @@ searcher.run(param_grid, fixed_params)
 | `default_name` | `str` | `"base.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
 
 ### 1.4 save_results_csv 参数说明
+
+将实验结果列表导出为 CSV 文本文件，适合快速查看或作为轻量级数据交换格式。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -196,6 +204,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 1.5 save_results_xlsx 参数说明
 
+将实验结果导出为 Excel 文件，支持数值类型保留，便于后续在 Excel 中进行公式计算或制图。
+
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`data`** | **`List[Dict]`** | **必填** | **评估结果数据**<br>通常是包含多轮实验结果的字典列表。列表中的每个字典代表一行数据，字典的 Key 将成为 Excel 的列名 |
@@ -205,6 +215,8 @@ searcher.run(param_grid, fixed_params)
 | `excel_format` | `str` | `"0.0000"` | **Excel 数值格式控制**<br>指定 Excel 单元格的数字显示格式字符串。例如 `"0.0000"` 表示显示 4 位小数<br>相比 CSV，此方式能保持单元格为**数值类型**（便于在 Excel 中进行求和等后续计算），而非纯文本 |
 
 ### 1.6 save_results_mat 参数说明
+
+将实验结果保存为 MATLAB 结构化数据，方便在 MATLAB 环境中加载并进行后续分析。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -224,6 +236,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 2.1 litekmeans 参数和返回值说明
 
+基于 LiteKMeans 的高速基聚类生成器，适用于大规模数据的快速聚类池构建。
+
 #### 2.1.1 参数 (Parameters)
 
 | 参数名       | 类型             | 默认值   | 说明                                                         |
@@ -242,7 +256,10 @@ searcher.run(param_grid, fixed_params)
 | `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br>形状为 (n_samples, nBase)。每一列代表一次 KMeans 聚类的结果标签（注意：代码中已对标签进行了 +1 处理，适应 MATLAB 风格索引，或便于区分）   |
 | `Y`   | `np.ndarray` | **真实标签**<br>原样返回传入的 Y，便于后续流程直接调用                                                                                             |
 
-### 2.2 cdkmeans 参数和返回值说明 
+### 2.2 cdkmeans 参数和返回值说明
+
+基于约束条件（Constraints）的差异化 K-Means 生成器，旨在通过增加基聚类间的差异性来提升集成效果。
+
 #### 2.2.1 参数 (Parameters)
 
 | 参数名       | 类型             | 默认值   | 说明                                                         |
@@ -263,6 +280,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 2.3 litekmeans_old 参数说明
 
+LiteKMeans 的文件接口封装，直接处理 `.mat` 文件输入输出，适用于不依赖内存变量的独立脚本调用。
+
 | 参数名           | 类型      | 默认值         | 说明                                                         |
 | :-------------- | :-------- |:------------| :----------------------------------------------------------- |
 | **`file_path`** | **`str`** | **必填**     | **输入数据文件的完整路径（支持 `.mat` 格式，兼容 v7.3）**    |
@@ -273,6 +292,8 @@ searcher.run(param_grid, fixed_params)
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
 ### 2.4 cdkmeans_old 参数说明
+
+CDK-Means 的文件接口封装，直接处理 `.mat` 文件输入输出。
 
 | 参数名           | 类型      | 默认值         | 说明                                                         |
 | :--------------| :-------- |:------------| :----------------------------------------------------------- |
@@ -294,6 +315,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 3.1 cspa 参数和返回值说明
 
+基于聚类集成共协矩阵（Cluster-based Similarity Partitioning Algorithm）的集成方法，利用共协矩阵度量样本对的成对相似性，并通过谱聚类获得最终划分。
+
 #### 3.1.1 参数 (Parameters)
 
 | 参数名     | 类型      | 默认值         | 说明                                                                                                                                                       |
@@ -312,6 +335,8 @@ searcher.run(param_grid, fixed_params)
 | `Y`           | `np.ndarray`       | **真实标签**<br>原样返回传入的 `Y`，便于后续流程直接调用     |
 
 ### 3.2 mcla 参数说明和返回值说明
+
+基于元聚类算法（Meta-Clustering Algorithm）的集成方法，通过对基聚类的簇标记（Label）进行聚类来解决标记对应问题，适合处理大规模数据。
 
 #### 3.2.1 参数 (Parameters)
 
@@ -332,6 +357,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 3.3 hgpa 参数和返回值说明
 
+基于超图分割（HyperGraph Partitioning Algorithm）的集成方法，将基聚类中的簇建模为超边，通过分割超图来寻找最佳共识划分。
+
 #### 3.3.1 参数 (Parameters)
 
 | 参数名      | 类型      | 默认值         | 说明                                                        |
@@ -351,6 +378,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 3.4 cspa_old 参数说明
 
+CSPA 的文件接口封装，直接读取 `.mat` 文件进行计算，适合不依赖 Python 变量环境的独立调用。
+
 | 参数名           | 类型      | 默认值         | 说明                                                        |
 | :-------------- | :-------- |:------------| :----------------------------------------------------------- |
 | **`file_path`** | **`str`** | **必填**     | **输入数据文件的完整路径（`.mat` 格式）**<br>**文件内必须包含变量 `BPs` (基聚类矩阵) 和 `Y` (真实标签)** |
@@ -361,6 +390,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 3.5 mcla_old 参数说明
 
+MCLA 的文件接口封装，直接读取 `.mat` 文件进行计算。
+
 | 参数名           | 类型      | 默认值         | 说明                                                        |
 | :-------------- | :-------- |:------------| :----------------------------------------------------------- |
 | **`file_path`** | **`str`** | **必填**     | **输入数据文件的完整路径（`.mat` 格式）**<br>**文件内必须包含变量 `BPs` (基聚类矩阵) 和 `Y` (真实标签)**  |
@@ -370,6 +401,8 @@ searcher.run(param_grid, fixed_params)
 | `seed`          | `int`     | `2024`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
 
 ### 3.6 hgpa_old 参数说明
+
+HGPA 的文件接口封装，直接读取 `.mat` 文件进行计算。
 
 | 参数名           | 类型      | 默认值         | 说明                                                        |
 | :-------------- | :-------- |:------------| :----------------------------------------------------------- |
@@ -390,6 +423,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 4.1 evaluation_single 参数和返回值说明
 
+用于评估单个预测标签向量（Predict Label）与真实标签（Ground Truth）之间的聚类性能，一次性返回 14 种指标。
+
 #### 4.1.1 参数 (Parameters)
 
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -404,6 +439,8 @@ searcher.run(param_grid, fixed_params)
 | **`res`** | `List[float]` | **评估指标列表**<br>包含14个浮点数的列表，顺序依次为：<br>`[ACC, NMI, Purity, AR, RI, MI, HI, F-Score, Precision, Recall, Entropy, SDCS, RME, Bal]` |
 
 ### 4.2 evaluation_batch 参数和返回值说明
+
+用于批量评估多轮实验（例如 nRepeat 次重复实验）的结果，返回包含所有实验指标的列表，适合后续进行均值和方差统计。
 
 #### 4.2.1 参数 (Parameters)
 
@@ -429,7 +466,7 @@ searcher.run(param_grid, fixed_params)
 
 ### 5.1 plot_2d_scatter 参数说明
 
-用于绘制原始数据或聚类结果的 2D 散点图，若数据维度大于 2，自动调用 t-SNE 或 PCA 进行降维
+用于绘制原始数据或聚类结果的 2D 散点图，若数据维度大于 2，自动调用 t-SNE 或 PCA 进行降维。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -443,7 +480,7 @@ searcher.run(param_grid, fixed_params)
 
 ### 5.2 plot_coassociation_heatmap 参数说明
 
-绘制排序后的共协矩阵（Co-association Matrix）热力图，用于直观评估基聚类的集成一致性
+绘制排序后的共协矩阵（Co-association Matrix）热力图，用于直观评估基聚类的集成一致性。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -457,7 +494,7 @@ searcher.run(param_grid, fixed_params)
 
 ### 5.3 plot_metric_line 参数说明
 
-绘制多轮实验的性能变化折线图（Trace Plot），适用于展示算法的稳定性或收敛趋势
+绘制多轮实验的性能变化折线图（Trace Plot），适用于展示算法的稳定性或收敛趋势。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -471,7 +508,7 @@ searcher.run(param_grid, fixed_params)
 
 ### 5.4 plot_parameter_sensitivity 参数说明
 
-基于网格搜索结果绘制单参数敏感性分析图，支持“控制变量法”逻辑，自动筛选特定背景参数下的性能曲线
+基于网格搜索结果绘制单参数敏感性分析图，支持“控制变量法”逻辑，自动筛选特定背景参数下的性能曲线。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -493,6 +530,8 @@ searcher.run(param_grid, fixed_params)
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
 ### 6.1 consensus_batch 参数说明
+
+全自动集成流水线接口，支持目录扫描、基聚类自动生成（如果缺失）、集成运算、指标评估及结果保存（支持 CSV/Excel/MAT）。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -521,12 +560,16 @@ searcher.run(param_grid, fixed_params)
 
 #### 7.1.1 初始化 (init)
 
+初始化网格搜索器，设定输入输出路径及基础配置。
+
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`input_dir`** | **`str`** | **必填** | **输入数据集目录**<br>包含待实验 `.mat` 文件的文件夹路径，支持直接读取包含 `BPs` 的文件（跳过生成步骤）或仅包含 `X` 的文件（自动调用生成器） |
 | **`output_dir`** | **`str`** | **必填** | **结果输出根目录**<br>所有实验结果、日志、JSON 配置将按数据集名称分类保存到此目录下 |
 
 #### 7.1.2 运行 (run)
+
+执行网格搜索任务，自动遍历参数组合并调用集成算法。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -544,6 +587,8 @@ searcher.run(param_grid, fixed_params)
 
 ### 8.1 show_function_params 参数说明
 
+打印指定函数的参数列表，并智能区分超参数（Hyper）与固定配置参数（Fixed），辅助构建网格搜索配置。
+
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`method_name`** | **`str`** | **必填** | **目标函数名称**<br>例如 `'cspa'`, `'cdkmeans'` 等，需确保该名称在指定的 `module_type` 中存在 |
@@ -557,34 +602,34 @@ searcher.run(param_grid, fixed_params)
 
 ### ✅ 已完成特性 (Implemented Features)
 
-**1. 基础架构与 IO**
-- [x] **MATLAB 深度兼容**: 完美支持 `.mat` v7.3 格式读取，自动处理 1-based/0-based 索引转换。
-- [x] **多格式导出**: 支持将实验结果导出为 CSV、Excel (自动保留小数位格式) 及 MAT 文件。
-- [x] **开发辅助**: 提供 `utils` 模块，支持查看算法参数签名及网格搜索兼容性。
+**1. 基础架构与 IO (Infrastructure & IO)**
+- [x] **MATLAB 深度兼容**: 完美支持 `.mat` v7.3 格式读取，自动处理 1-based/0-based 索引转换
+- [x] **多格式导出**: 支持将实验结果导出为 CSV、Excel (自动保留小数位格式) 及 MAT 文件
+- [x] **开发辅助**: 提供 `utils` 模块，支持查看算法参数签名及网格搜索兼容性
 
-**2. 核心算法**
-- [x] **基聚类生成器**: 支持 `LiteKMeans` (高速实现) 与 `CDK-Means` (约束性差异化生成)。
-- [x] **集成共识算法**: 实现了 `CSPA` (基于相似度)、`MCLA` (基于元聚类) 及 `HGPA` (基于超图) 等经典算法。
-- [x] **评估指标**: 内置 NMI, ARI, ACC, Purity, F-Score 等 14 种常用聚类指标。
+**2. 核心算法 (Core Algorithms)**
+- [x] **基聚类生成器**: 支持 `LiteKMeans` (高速实现) 与 `CDK-Means` (约束性差异化生成)
+- [x] **集成共识算法**: 实现了 `CSPA` (基于相似度)、`MCLA` (基于元聚类) 及 `HGPA` (基于超图) 等经典算法
+- [x] **评估指标**: 内置 NMI, ARI, ACC, Purity, F-Score 等 14 种常用聚类指标
 
-**3. 自动化与实验**
-- [x] **批处理流水线**: `consensus_batch` 支持目录级扫描，一键完成“生成-集成-评估”全流程。
-- [x] **智能网格搜索**: `GridSearcher` 支持参数笛卡尔积生成，并具备**自动去重 (Pruning)** 功能，避免无效计算。
+**3. 可视化分析 (Visualization & Analysis)**
+- [x] **降维可视化**: 集成 t-SNE 与 PCA，支持原始数据及聚类结果的 2D 散点图绘制
+- [x] **共协矩阵热力图**: 支持绘制排序后的共协矩阵 (Co-association Matrix) 以观察集成一致性
+- [x] **性能分析**: 支持绘制多轮实验的指标折线图 (Trace Plot) 及超参数敏感性分析图
+
+**4. 自动化与实验 (Automation)**
+- [x] **批处理流水线**: `consensus_batch` 支持目录级扫描，一键完成“生成-集成-评估-保存”全流程
+- [x] **智能网格搜索**: `GridSearcher` 支持参数笛卡尔积生成，具备**自动剪枝 (Pruning)** 功能，并自动记录详细日志
 
 ### 🚧 开发计划 (Future Plans)
 
-**1. 可视化 (Visualization)**
-- [ ] **共识矩阵热力图**: 可视化展示基聚类之间的共协矩阵 (Co-association Matrix)。
-- [ ] **聚类结果投影**: 集成 t-SNE 或 PCA，提供高维数据的聚类结果 2D/3D 可视化。
+**1. 算法扩展 (Algorithm Expansion)**
+- [ ] **更多共识算法**: 计划新增 EAC (Evidence Accumulation), NMF-based 等集成策略
+- [ ] **更多生成策略**: 计划新增基于随机投影或数据采样的基聚类生成器
 
-**2. 算法扩展 (Algorithm Expansion)**
-- [ ] **加权集成**: 引入基于基聚类质量或多样性的加权机制 (Weighted Ensemble)。
-- [ ] **更多算法**: 计划新增 EAC (Evidence Accumulation), LWE (Locally Weighted Ensemble) 等算法。
-
-**3. 工程化与发布 (Engineering)**
-- [ ] **文档完善**: 部署 ReadTheDocs 在线文档与 API 索引。
-- [ ] **单元测试**: 完善核心模块的 PyTest 覆盖率。
-- [ ] **PyPI 发布**: 完成 v1.0.0 正式版发布流程。
+**2. 工程化与发布 (Engineering)**
+- [ ] **文档完善**: 部署 ReadTheDocs 在线文档与详细 API 索引
+- [ ] **PyPI 发布**: 完成 v1.0.0 正式版发布流程
 
 ---
 
@@ -634,7 +679,6 @@ searcher.run(param_grid, fixed_params)
    
 
    
-
 
 
 
