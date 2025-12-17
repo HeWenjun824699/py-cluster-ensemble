@@ -129,8 +129,57 @@ searcher.run(param_grid, fixed_params)
 # pce.utils.show_function_params('cspa', module_type='consensus')
 ~~~
 
----
+### 场景 D: 论文级可视化 (Visualization)
 
+PCE 内置了符合学术标准的绘图模块，能够直接利用上述场景生成的数据，一键绘制高质量插图。**所有绘图结果均支持通过 `save_path` 后缀自动保存为 `.png` (位图) 或 `.pdf` (矢量图)**。
+
+~~~
+import pce.io as io
+import pce.analysis as ana
+
+# 1. 降维散点图 (t-SNE/PCA)
+# 适用场景: 原始数据分布展示 / 聚类结果可视化
+X, Y = io.load_mat_X_Y('data/isolet.mat')
+ana.plot_2d_scatter(
+    X, Y, 
+    method='tsne', 
+    title='Ground Truth Visualization (t-SNE)',
+    save_path='output/tsne_plot.png'
+)
+
+# 2. 共协矩阵热力图 (Co-association Heatmap)
+# 适用场景: 观察集成的一致性结构 (需先运行场景 B 生成 BPs)
+BPs, Y = io.load_mat_BPs_Y('data/base_partitions.mat')
+ana.plot_coassociation_heatmap(
+    BPs, Y,
+    title='Ensemble Consensus Matrix',
+    save_path='output/heatmap.png'
+)
+
+# 3. 性能趋势折线图 (Metric Trace)
+# 适用场景: 展示场景 B 中 nRepeat 次实验的稳定性
+# results_list 是场景 B 中 evaluation_batch 的返回值
+ana.plot_metric_line(
+    results_list, 
+    metrics=['ACC', 'NMI', 'ARI'], 
+    xlabel='Run ID',
+    title='Performance Stability over 10 Runs',
+    save_path='output/trace_plot.png'
+)
+
+# 4. 参数敏感度分析 (Sensitivity Analysis)
+# 适用场景: 分析场景 C 网格搜索中某个参数(如 t)对性能的影响
+# csv_file 是场景 C 生成的汇总表
+ana.plot_parameter_sensitivity(
+    csv_file='grid_results/isolet_summary.csv',
+    target_param='t',    # X轴: 变化的参数
+    metric='ACC',        # Y轴: 观察的指标
+    fixed_params={'k': 10}, # 控制变量: 固定其他参数
+    save_path='output/sensitivity_t.png'
+)
+~~~
+
+---
 
 ## <span id="api_reference">📚 核心模块 API (API Reference)</span>
 
