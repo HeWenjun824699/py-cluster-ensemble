@@ -17,7 +17,22 @@ def evaluation_batch(labels, Y):
 
     Returns:
     res : list or array
-          [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal]
+          [{
+            "ACC": acc,
+            "NMI": nmi,
+            "Purity": purity,
+            "AR": AR,
+            "RI": RI,
+            "MI": MI,
+            "HI": HI,
+            "F-Score": fscore,
+            "Precision": precision,
+            "Recall": recall,
+            "Entropy": entropy,
+            "SDCS": SDCS,
+            "RME": RME,
+            "Bal": bal
+          }]
     """
     res_list = []
     for y in labels:

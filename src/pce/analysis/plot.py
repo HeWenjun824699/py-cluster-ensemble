@@ -1,100 +1,201 @@
-import os
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-from typing import Union, List, Dict, Optional
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+from typing import Optional, List, Dict, Any, Union
+from .utils import set_paper_style, save_fig
 
 
-def plot(
-        data: Union[str, List[Dict], pd.DataFrame],
-        metric: str,
+def plot_2d_scatter(
+        X: np.ndarray,
+        labels: np.ndarray,
+        method: str = 'tsne',
         title: Optional[str] = None,
-        xlabel: str = "Round",
-        ylabel: Optional[str] = None,
-        output_dir: str = "./plots",
-        file_name: Optional[str] = None
-):
+        save_path: Optional[str] = None,
+        **kwargs: Any
+) -> None:
     """
-    绘制指定指标随实验轮次变化的趋势图。
+    绘制 2D 散点图
 
     Args:
-        data: 数据源。可以是 CSV 文件路径、结果列表 (List[Dict]) 或 DataFrame。
-        metric: 要绘制的指标名称 (例如 'ACC', 'NMI')。只接收一个字符串参数。
-        title: 图表标题。如果为 None，默认生成 "Trend of {metric}"。
-        xlabel: X 轴标签，默认为 "Round"。
-        ylabel: Y 轴标签。如果为 None，默认使用 metric 名称。
-        output_dir: 图片保存目录。
-        file_name: 图片保存文件名。如果为 None，默认生成 "{metric}_trend.png"。
+        X: 特征矩阵，通常是 (n_samples, n_features) 的浮点数数组
+        labels: 标签向量，通常是 (n_samples,) 的整数数组
+        method: 降维方法，字符串，默认 'tsne'
+        title: 图表标题，可选字符串
+        save_path: 保存路径，可选字符串
+        **kwargs: 传递给降维算法的其他参数
     """
+    set_paper_style()
 
-    # --- 1. 数据加载与标准化 ---
-    try:
-        if isinstance(data, str):
-            # 如果是 CSV 文件路径
-            if os.path.exists(data):
-                df = pd.read_csv(data)
-            else:
-                raise FileNotFoundError(f"File not found: {data}")
-        elif isinstance(data, list):
-            # 如果是内存中的结果列表 (res)
-            df = pd.DataFrame(data)
-        elif isinstance(data, pd.DataFrame):
-            df = data.copy()
+    # 1. 降维处理
+    n_samples, n_features = X.shape
+    if n_features > 2:
+        print(f"[Analysis] Running {method.upper()} reduction from {n_features}d to 2d...")
+        if method.lower() == 'tsne':
+            reducer = TSNE(n_components=2, random_state=2024, init='pca', learning_rate='auto', **kwargs)
         else:
-            raise TypeError("Data must be a csv path, list of dicts, or DataFrame.")
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return
-
-    # --- 2. 检查指标是否存在 ---
-    if metric not in df.columns:
-        print(f"Error: Metric '{metric}' not found in data. Available columns: {list(df.columns)}")
-        return
-
-    # --- 3. 准备绘图数据 ---
-    # 构造 X 轴数据：如果有 'Round' 列就用，没有就用索引 (1-based)
-    if 'Round' in df.columns:
-        x_data = df['Round']
+            reducer = PCA(n_components=2, **kwargs)
+        X_2d = reducer.fit_transform(X)
     else:
-        x_data = range(1, len(df) + 1)
+        X_2d = X
 
-    y_data = df[metric]
+    # 2. 绘图
+    plt.figure(figsize=(8, 6))
 
-    # --- 4. 绘图配置 ---
-    # 设置风格
-    sns.set_theme(style="whitegrid")
-    plt.figure(figsize=(8, 5))
+    # 使用 seaborn 处理颜色和图例，palette='tab10' 适合区分明显的类别
+    scatter = sns.scatterplot(
+        x=X_2d[:, 0],
+        y=X_2d[:, 1],
+        hue=labels,
+        palette='tab10',
+        s=60,  # 点的大小
+        alpha=0.8,  # 透明度
+        edgecolor='w',  # 点的白边，增加对比度
+        legend='full'
+    )
 
-    # 绘制折线图
-    sns.lineplot(x=x_data, y=y_data, marker='o', linewidth=2, label=metric)
+    # 3. 装饰
+    if title:
+        plt.title(title, pad=15)
+    else:
+        plt.title(f'{method.upper()} Visualization (N={n_samples})', pad=15)
 
-    # 设置标签和标题
-    final_title = title if title else f"Trend of {metric}"
-    final_ylabel = ylabel if ylabel else metric
-    final_filename = file_name if file_name else f"{metric}_trend.png"
+    plt.xlabel(f'{method.upper()} Dimension 1')
+    plt.ylabel(f'{method.upper()} Dimension 2')
 
-    plt.title(final_title, fontsize=14, fontweight='bold', pad=15)
-    plt.xlabel(xlabel, fontsize=12)
-    plt.ylabel(final_ylabel, fontsize=12)
+    # 优化图例位置
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Cluster')
 
-    # 强制 X 轴显示整数刻度 (因为是轮次)
-    from matplotlib.ticker import MaxNLocator
-    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    save_fig(plt.gcf(), save_path)
+    plt.show()
 
-    plt.legend()
-    plt.tight_layout()
 
-    # --- 5. 保存图片 ---
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        print(f"Created directory: {output_dir}")
+def plot_metric_line(
+        results_list: List[Dict[str, float]],
+        metrics: Union[List[str], str] = 'ACC',
+        title: Optional[str] = None,
+        save_path: Optional[str] = None
+) -> None:
+    """
+    绘制多轮实验的折线图 (Trace Plot)。
+    X轴为实验轮次(Run ID)，Y轴为指标得分。
 
-    save_path = os.path.join(output_dir, final_filename)
+    Args:
+        results_list: 实验结果列表
+        metrics: 要展示的指标，支持单个字符串或列表
+    """
+    set_paper_style()
 
-    try:
-        plt.savefig(save_path, dpi=300)
-        print(f"Plot saved to: {save_path}")
-    except Exception as e:
-        print(f"Failed to save plot: {e}")
-    finally:
-        plt.close()  # 关闭画布，释放内存
+    # 1. 参数标准化
+    if isinstance(metrics, str):
+        metrics = [metrics]
+
+    # 2. 数据转换
+    df = pd.DataFrame(results_list)
+    n_runs = len(df)  # <--- 获取动态的实验轮数
+
+    # 检查指标
+    valid_metrics = [m for m in metrics if m in df.columns]
+    if not valid_metrics:
+        raise ValueError(f"None of {metrics} found in results.")
+
+    # 3. 增加“轮次”列 (Run ID)
+    df['Run ID'] = range(1, n_runs + 1)
+
+    # 4. 转换长格式
+    df_melt = df.melt(id_vars=['Run ID'], value_vars=valid_metrics,
+                      var_name='Metric', value_name='Score')
+
+    # 5. 绘图
+    plt.figure(figsize=(8, 6))  # <--- 高度稍微调大一点(从5改为6)，给底部的文字留出空间
+
+    sns.lineplot(
+        data=df_melt,
+        x='Run ID',
+        y='Score',
+        hue='Metric',
+        style='Metric',
+        markers=True,
+        dashes=False,
+        palette='tab10',
+        linewidth=2,
+        markersize=8
+    )
+
+    # 6. 装饰
+    if title:
+        plt.title(title)
+    else:
+        plt.title(f'Performance Trace over {n_runs} Runs')
+
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    plt.xlabel('Experiment Run ID')
+    plt.ylabel('Score')
+    plt.grid(True, linestyle='--', alpha=0.5)
+
+    # 图例放外面
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+    # =================================================================
+    # 新增：添加动态脚注说明
+    # =================================================================
+    caption_text = (
+        f"Note: Results over {n_runs} independent runs, where each run uses a distinct non-overlapping subset of base partitions."
+    )
+
+    plt.text(0.5, -0.10, caption_text,
+             ha='center', va='top',
+             transform=plt.gca().transAxes,
+             fontsize=10, style='italic', color='black')
+
+    # =================================================================
+
+    save_fig(plt.gcf(), save_path)
+    # plt.show()
+
+
+def plot_grid_heatmap(
+        csv_path: str,
+        x_param: str,
+        y_param: str,
+        metric: str = 'NMI',
+        save_path: Optional[str] = None
+) -> None:
+    """
+    绘制网格搜索热力图
+
+    Args:
+        csv_path: 网格搜索结果 CSV 文件的路径
+        x_param: 用作 X 轴的参数列名（如 'nBase'）
+        y_param: 用作 Y 轴的参数列名（如 'k'）
+        metric: 用作热力图颜色的指标列名，默认 'NMI'
+        save_path: 保存路径，可选字符串
+    """
+    set_paper_style()
+
+    # 1. 读取数据
+    df = pd.read_csv(csv_path)
+
+    # 2. 数据透视表 (Pivot)
+    # 计算每个 (x, y) 组合的 metric 均值（防止有重复实验）
+    pivot_table = df.pivot_table(index=y_param, columns=x_param, values=metric, aggfunc='mean')
+
+    # 3. 绘图
+    plt.figure(figsize=(8, 6))
+
+    sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap="viridis",
+                cbar_kws={'label': metric})
+
+    plt.title(f'Grid Search: {metric} vs ({x_param}, {y_param})')
+    plt.xlabel(x_param)
+    plt.ylabel(y_param)
+
+    # 翻转Y轴，让坐标原点在左下角（符合通常直觉）
+    plt.gca().invert_yaxis()
+
+    save_fig(plt.gcf(), save_path)
+    plt.show()
+

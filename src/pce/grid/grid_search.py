@@ -12,6 +12,7 @@ from .. import io
 from .. import consensus
 from .. import generators
 from .. import metrics
+from .. import analysis
 
 
 class GridSearcher:
@@ -226,6 +227,11 @@ class GridSearcher:
                     # 计算各个指标的平均值
                     metrics_avg = self._compute_avg_metrics(metrics_res)
                     logger.info(f"Metrics (Avg): {metrics_avg}")
+
+                    # 绘制指标折线图
+                    plot_metrics = ["ACC", "NMI", "Purity", "AR", "RI", "MI", "HI", "F-Score", "Precision", "Recall", "Entropy", "SDCS", "RME", "Bal"]
+                    analysis.plot_metric_line(results_list=metrics_res, metrics=plot_metrics, title=f"{dataset_name} - {exp_id}", save_path=f"{exp_dir / 'line_plot.png'}")
+                    logger.info(f"Line plot saved in {exp_dir / 'line_plot.png'}")
 
                     # 保存参数
                     with open(exp_dir / "params.json", 'w') as f:
