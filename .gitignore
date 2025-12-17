@@ -5,7 +5,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# 2. 排除虚拟环境 (你刚才生成的)
+# 2. 排除虚拟环境
 .venv/
 venv/
 env/
@@ -20,7 +20,7 @@ dist/
 build/
 *.egg-info/
 
-# 5. 排除 macOS 垃圾文件 (如果你用 Mac)
+# 5. 排除 macOS 垃圾文件
 .DS_Store
 
 # 6. 排除测试文件

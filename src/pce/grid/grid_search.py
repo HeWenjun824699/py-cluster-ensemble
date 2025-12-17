@@ -238,7 +238,8 @@ class GridSearcher:
                         xlabel='Experiment Run ID',
                         ylabel='Score',
                         title=f"{dataset_name} - {exp_id}",
-                        save_path=f"{exp_dir / 'line_plot.png'}"
+                        save_path=f"{exp_dir / 'line_plot.png'}",
+                        show=False
                     )
                     logger.info(f"Line plot saved in {exp_dir / 'line_plot.png'}")
 

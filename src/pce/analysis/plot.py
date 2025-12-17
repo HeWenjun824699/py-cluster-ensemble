@@ -19,6 +19,7 @@ def plot_2d_scatter(
         method: Optional[str] = 'tsne',
         title: Optional[str] = None,
         save_path: Optional[str] = None,
+        show: Optional[bool] = True,
         **kwargs: Any
 ) -> None:
     """
@@ -71,7 +72,11 @@ def plot_2d_scatter(
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Cluster')
 
     save_fig(plt.gcf(), save_path)
-    # plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
 def plot_coassociation_heatmap(
@@ -80,7 +85,8 @@ def plot_coassociation_heatmap(
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
         title: Optional[str] = None,
-        save_path: Optional[str] = None
+        save_path: Optional[str] = None,
+        show: Optional[bool] = True
 ):
     """
     绘制排序后的共协矩阵热力图
@@ -117,7 +123,11 @@ def plot_coassociation_heatmap(
     plt.ylabel(ylabel if ylabel else "")
 
     save_fig(plt.gcf(), save_path)
-    # plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
 def plot_metric_line(
@@ -126,7 +136,8 @@ def plot_metric_line(
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
         title: Optional[str] = None,
-        save_path: Optional[str] = None
+        save_path: Optional[str] = None,
+        show: Optional[bool] = True
 ) -> None:
     """
     绘制多轮实验的折线图 (Trace Plot)。
@@ -199,7 +210,11 @@ def plot_metric_line(
     # # =================================================================
 
     save_fig(plt.gcf(), save_path)
-    # plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
 def plot_parameter_sensitivity(
@@ -208,7 +223,8 @@ def plot_parameter_sensitivity(
         metric: Optional[str] = 'NMI',
         fixed_params: Optional[Dict[str, Any]] = None,
         method_name: Optional[str] = None,  # 如果csv含多种方法，需指定一种
-        save_path: Optional[str] = None
+        save_path: Optional[str] = None,
+        show: Optional[bool] = True
 ):
     """
     绘制单参数敏感性折线图（控制变量法）。
@@ -322,5 +338,8 @@ def plot_parameter_sensitivity(
     plt.xlabel(target_param)
 
     save_fig(plt.gcf(), save_path)
-    # plt.show()
 
+    if show:
+        plt.show()
+    else:
+        plt.close()
