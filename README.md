@@ -711,7 +711,12 @@ HGPA 的文件接口封装，直接读取 `.mat` 文件进行计算。
    - [x] evaluation_batch.py（评估多轮指标）
 
 5. 分析(analysis)
+
     - [x] plot.py（绘图）
+      - [x] plot_2d_scatter.py（原始数据 T-SNE 散点图）
+      - [x] plot_coassociation_heatmap.py（共协矩阵热力图）
+      - [x] plot_metric_line.py（聚类指标折线图）
+      - [x] plot_parameter_sensitivity.py（参数敏感度分析折线图）
 
 6. 流水线(pipelines)
 
