@@ -7,9 +7,9 @@ from . import io
 from . import generators
 from . import consensus
 from . import metrics
+from . import analysis
 from . import pipelines
 from . import grid
-from . import analysis
 from . import utils
 
 # 定义当用户使用 'from pce import *' 时导出什么
@@ -18,8 +18,8 @@ __all__ = [
     "generators",
     "consensus",
     "metrics",
+    "analysis",
     "pipelines",
     "grid",
-    "analysis",
     "utils"
 ]
