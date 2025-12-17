@@ -7,7 +7,7 @@
 **py-cluster-ensemble (PCE)** 是一款专为科研与学术界打造的 Python 聚类集成（Cluster Ensemble）通用框架。
 
 它致力于解决 Python 生态中缺乏统一聚类集成工具的痛点，提供从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化流水线。PCE 特别针对科研实验场景进行了深度优化，完美兼容 MATLAB (`.mat`) 数据交互，并内置 **智能网格搜索**、**自动化批处理** 及 **论文级可视化** 模块，旨在打造从 MATLAB 到 Python 的无缝迁移体验。
-你好，欢迎来到 PCE ！
+
 ---
 
 ## 📋 目录 (Table of Contents) 
