@@ -158,6 +158,8 @@ class GridSearcher:
             dataset_name = file_path.stem
             print(f"\n[{file_idx + 1}/{len(mat_files)}] Dataset: {dataset_name}")
 
+            current_dataset_summary = []  # 当前数据集的汇总表数据
+
             # 2.1 数据集根目录
             ds_output_dir = self.output_dir / dataset_name
             ds_output_dir.mkdir(exist_ok=True)
@@ -230,7 +232,14 @@ class GridSearcher:
 
                     # 绘制指标折线图
                     plot_metrics = ["ACC", "NMI", "Purity", "AR", "RI", "MI", "HI", "F-Score", "Precision", "Recall", "Entropy", "SDCS", "RME", "Bal"]
-                    analysis.plot_metric_line(results_list=metrics_res, metrics=plot_metrics, title=f"{dataset_name} - {exp_id}", save_path=f"{exp_dir / 'line_plot.png'}")
+                    analysis.plot_metric_line(
+                        results_list=metrics_res,
+                        metrics=plot_metrics,
+                        xlabel='Experiment Run ID',
+                        ylabel='Score',
+                        title=f"{dataset_name} - {exp_id}",
+                        save_path=f"{exp_dir / 'line_plot.png'}"
+                    )
                     logger.info(f"Line plot saved in {exp_dir / 'line_plot.png'}")
 
                     # 保存参数
@@ -271,6 +280,7 @@ class GridSearcher:
                     **params,
                     **metrics_avg
                 }
+                current_dataset_summary.append(summary_record)
                 all_summary.append(summary_record)
 
                 if status == "SUCCESS":
@@ -279,6 +289,15 @@ class GridSearcher:
                     ari = metrics_avg.get('AR', 0)
                     # 简单打印进度
                     print(f"  - {exp_id}: ACC={acc:.4f}  NMI={nmi:.4f}  ARI={ari:.4f}  Time={elapsed:.4f}s")
+
+            # =================================================================
+            # 【在此处添加代码】: 循环结束后，保存当前数据集的 Summary
+            # =================================================================
+            if current_dataset_summary:
+                save_path = ds_output_dir / f"{dataset_name}_summary.csv"
+                pd.DataFrame(current_dataset_summary).to_csv(save_path, index=False)
+                print(f"  >> Dataset summary saved: {save_path}")
+            # =================================================================
 
         # 5. 保存总汇总表
         if all_summary:

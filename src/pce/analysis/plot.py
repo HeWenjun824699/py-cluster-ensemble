@@ -202,45 +202,125 @@ def plot_metric_line(
     # plt.show()
 
 
-def plot_grid_heatmap(
-        csv_path: str,
-        x_param: str,
-        y_param: str,
-        metric: str = 'NMI',
+def plot_parameter_sensitivity(
+        csv_file: str,
+        target_param: str,
+        metric: Optional[str] = 'NMI',
+        fixed_params: Optional[Dict[str, Any]] = None,
+        method_name: Optional[str] = None,  # 如果csv含多种方法，需指定一种
         save_path: Optional[str] = None
-) -> None:
+):
     """
-    绘制网格搜索热力图
+    绘制单参数敏感性折线图（控制变量法）。
 
     Args:
-        csv_path: 网格搜索结果 CSV 文件的路径
-        x_param: 用作 X 轴的参数列名（如 'nBase'）
-        y_param: 用作 Y 轴的参数列名（如 'k'）
-        metric: 用作热力图颜色的指标列名，默认 'NMI'
-        save_path: 保存路径，可选字符串
+        target_param: 研究的参数 (例如 't')
+        metric: Y轴: 评价指标
+        fixed_params: 用户手动指定的固定参数
+        method_name: 如果csv含多种方法，需指定一种
+
+    逻辑：
+    1. 锁定特定算法。
+    2. 确定除了 target_param 以外还有哪些参数在变化。
+    3. 确定这些背景参数的固定值：
+       - 如果用户在 fixed_params 里指定了，就用用户的。
+       - 如果没指定，就自动选择该方法在全局最优结果下的参数值 (Best Practice)。
+    4. 筛选数据并绘图。
     """
-    set_paper_style()
 
     # 1. 读取数据
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_file)
 
-    # 2. 数据透视表 (Pivot)
-    # 计算每个 (x, y) 组合的 metric 均值（防止有重复实验）
-    pivot_table = df.pivot_table(index=y_param, columns=x_param, values=metric, aggfunc='mean')
+    # 2. 筛选特定算法
+    if method_name:
+        df = df[df['consensus_method'] == method_name]
 
-    # 3. 绘图
-    plt.figure(figsize=(8, 6))
+    if df.empty:
+        print(f"Error: No data found for method '{method_name}'")
+        return
 
-    sns.heatmap(pivot_table, annot=True, fmt=".3f", cmap="viridis",
-                cbar_kws={'label': metric})
+    # 3. 识别所有的超参数列 (你需要根据实际情况维护这个列表，或者自动检测)
+    # 自动检测逻辑：列名不在黑名单中，且nunique > 1
+    exclude_cols = {'Dataset', 'Exp_id', 'Status', 'Time', 'consensus_method',
+                    'ACC', 'NMI', 'ARI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score',
+                    'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal'}
 
-    plt.title(f'Grid Search: {metric} vs ({x_param}, {y_param})')
-    plt.xlabel(x_param)
-    plt.ylabel(y_param)
+    potential_params = [c for c in df.columns if c not in exclude_cols]
 
-    # 翻转Y轴，让坐标原点在左下角（符合通常直觉）
-    plt.gca().invert_yaxis()
+    # 背景参数 = 所有潜在参数 - 目标参数
+    background_params = [p for p in potential_params if p != target_param]
+
+    # [建议新增] 检查用户是否传入了无效参数并给予提示
+    if fixed_params:
+        # 计算 CSV 里真正能用的参数集合
+        valid_keys = set(background_params)
+        user_keys = set(fixed_params.keys())
+
+        # 找出用户传了但 CSV 里没有的参数
+        ignored_keys = user_keys - valid_keys
+
+        if ignored_keys:
+            print(f"Warning: 以下固定参数在 CSV 中未找到或无法使用，已被忽略: {ignored_keys}")
+
+    # 4. 确定固定值 (Context Context)
+    current_fixed = {}
+
+    # 先找到全局最优的那一行 (作为默认基准)
+    # idxmax 返回最大值的索引
+    best_row_idx = df[metric].idxmax()
+    best_row = df.loc[best_row_idx]
+
+    for param in background_params:
+        # A. 用户指定了 -> 用用户的
+        if fixed_params and param in fixed_params:
+            val = fixed_params[param]
+            current_fixed[param] = val
+        # B. 用户没指定 -> 用最优行的数据 (Auto-Best)
+        else:
+            # 注意：如果某参数列全是NaN (如 mcla 的 t)，直接忽略
+            if pd.isna(best_row[param]):
+                continue
+            current_fixed[param] = best_row[param]
+
+    # 5. 构建筛选条件 Query
+    query_parts = []
+    for param, val in current_fixed.items():
+        # 处理字符串还是数值的查询差异
+        if isinstance(val, str):
+            query_parts.append(f"{param} == '{val}'")
+        else:
+            query_parts.append(f"{param} == {val}")
+
+    query_str = " & ".join(query_parts)
+
+    # 6. 执行筛选
+    if query_str:
+        plot_df = df.query(query_str).copy()
+    else:
+        plot_df = df.copy()  # 没有背景参数，直接画
+
+    # 排序，保证折线连贯
+    if not plot_df.empty:
+        plot_df = plot_df.sort_values(by=target_param)
+    else:
+        print(f"Error: 找不到符合条件的数据组合: {current_fixed}")
+        print("建议检查 fixed_params 是否在网格搜索空间内。")
+        return
+
+    # 7. 绘图
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=plot_df, x=target_param, y=metric, marker='o', linewidth=2)
+
+    # 标题生成：展示我们固定了什么
+    fixed_info = ", ".join([f"{k}={v}" for k, v in current_fixed.items()])
+    if fixed_info:
+        plt.title(f"Sensitivity of {target_param} on {metric}\n(Fixed: {fixed_info})")
+    else:
+        plt.title(f"Sensitivity of {target_param} on {metric}")
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.ylabel(metric)
+    plt.xlabel(target_param)
 
     save_fig(plt.gcf(), save_path)
-    plt.show()
+    # plt.show()
 
