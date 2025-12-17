@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -30,8 +32,36 @@ def set_paper_style(context='paper', style='ticks', font_scale=1.2):
 
 def save_fig(fig, path, dpi=300):
     """
-    统一保存逻辑，自动去除白边
+    统一保存逻辑，自动去除白边，修复 PDF 损坏问题
     """
-    if path:
-        fig.savefig(path, bbox_inches='tight', dpi=dpi)
-        # print(f"[Analysis] Figure saved to {path}")
+    if not path:
+        return
+
+    # 1. 关键修复：设置 PDF 字体类型为 42 (TrueType)
+    # 这能解决 99% 的 PDF 打不开或无法编辑的问题
+    plt.rcParams['pdf.fonttype'] = 42
+    plt.rcParams['ps.fonttype'] = 42
+
+    # 2. 自动确保保存路径的文件夹存在 (防止 FileNotFoundError)
+    dirname = os.path.dirname(os.path.abspath(path))
+    if dirname and not os.path.exists(dirname):
+        try:
+            os.makedirs(dirname)
+        except OSError:
+            pass  # 忽略并发创建时的错误
+
+    # 3. 智能获取文件后缀 (如 .pdf, .png)
+    _, ext = os.path.splitext(path)
+    fmt = ext.lower().strip('.')
+
+    # 如果没有后缀，默认给个 png
+    if not fmt:
+        fmt = 'png'
+        path = f"{path}.png"
+
+    try:
+        # 4. 显式传入 format 参数
+        fig.savefig(path, bbox_inches='tight', dpi=dpi, format=fmt)
+        # print(f"[Save] Figure saved to: {path}")
+    except Exception as e:
+        print(f"[Error] Failed to save figure: {e}")

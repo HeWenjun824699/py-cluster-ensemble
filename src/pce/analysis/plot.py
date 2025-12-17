@@ -1,12 +1,11 @@
+from typing import Optional, List, Dict, Any, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-
-from typing import Optional, List, Dict, Any, Union
-
 from sklearn.metrics import pairwise_distances
 
 from .utils import set_paper_style, save_fig
@@ -15,7 +14,9 @@ from .utils import set_paper_style, save_fig
 def plot_2d_scatter(
         X: np.ndarray,
         labels: np.ndarray,
-        method: str = 'tsne',
+        xlabel: Optional[str] = None,
+        ylabel: Optional[str] = None,
+        method: Optional[str] = 'tsne',
         title: Optional[str] = None,
         save_path: Optional[str] = None,
         **kwargs: Any
@@ -36,7 +37,7 @@ def plot_2d_scatter(
     # 1. 降维处理
     n_samples, n_features = X.shape
     if n_features > 2:
-        print(f"[Analysis] Running {method.upper()} reduction from {n_features}d to 2d...")
+        # print(f"[Analysis] Running {method.upper()} reduction from {n_features}d to 2d...")
         if method.lower() == 'tsne':
             reducer = TSNE(n_components=2, random_state=2024, init='pca', learning_rate='auto', **kwargs)
         else:
@@ -49,7 +50,7 @@ def plot_2d_scatter(
     plt.figure(figsize=(8, 6))
 
     # 使用 seaborn 处理颜色和图例，palette='tab10' 适合区分明显的类别
-    scatter = sns.scatterplot(
+    sns.scatterplot(
         x=X_2d[:, 0],
         y=X_2d[:, 1],
         hue=labels,
@@ -61,24 +62,69 @@ def plot_2d_scatter(
     )
 
     # 3. 装饰
-    if title:
-        plt.title(title, pad=15)
-    else:
-        plt.title(f'{method.upper()} Visualization (N={n_samples})', pad=15)
+    plt.title(title if title else f'{method.upper()} Visualization (N={n_samples})')
 
-    plt.xlabel(f'{method.upper()} Dimension 1')
-    plt.ylabel(f'{method.upper()} Dimension 2')
+    plt.xlabel(xlabel if xlabel else "")
+    plt.ylabel(ylabel if ylabel else "")
 
     # 优化图例位置
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Cluster')
 
     save_fig(plt.gcf(), save_path)
-    plt.show()
+    # plt.show()
+
+
+def plot_coassociation_heatmap(
+        BPs: np.ndarray,
+        Y: np.ndarray,
+        xlabel: Optional[str] = None,
+        ylabel: Optional[str] = None,
+        title: Optional[str] = None,
+        save_path: Optional[str] = None
+):
+    """
+    绘制排序后的共协矩阵热力图
+    """
+    set_paper_style()
+
+    # 1. 计算共协矩阵 (S = 1 - Hamming Distance)
+    # BPs: (N, M)
+    # print("[Analysis] Calculating Co-association Matrix...")
+    D_hamming = pairwise_distances(BPs, metric='hamming')
+    S = 1.0 - D_hamming  # 相似度矩阵 (0~1)
+
+    # 2. 关键：根据真实标签 Y 对矩阵进行排序
+    # 这样同类的样本就会聚在一起，形成对角线上的方块
+    sort_indices = np.argsort(Y)
+    S_sorted = S[sort_indices][:, sort_indices]
+
+    # 3. 绘图
+    plt.figure(figsize=(7, 6))
+
+    # 使用 heatmap，颜色越深代表越相似
+    sns.heatmap(
+        S_sorted,
+        cmap='viridis',
+        xticklabels=False,
+        yticklabels=False,
+        cbar_kws={'label': 'Co-association Probability'},
+        rasterized=True
+    )
+
+    plt.title(title if title else f'Sorted Co-association Matrix (N={len(Y)})')
+
+    plt.xlabel(xlabel if xlabel else "")
+    plt.ylabel(ylabel if ylabel else "")
+
+    save_fig(plt.gcf(), save_path)
+    # plt.show()
 
 
 def plot_metric_line(
         results_list: List[Dict[str, float]],
         metrics: Union[List[str], str] = 'ACC',
+        xlabel: Optional[str] = None,
+        ylabel: Optional[str] = None,
         title: Optional[str] = None,
         save_path: Optional[str] = None
 ) -> None:
@@ -129,32 +175,28 @@ def plot_metric_line(
     )
 
     # 6. 装饰
-    if title:
-        plt.title(title)
-    else:
-        plt.title(f'Performance Trace over {n_runs} Runs')
+    plt.title(title if title else f'Performance Trace over {n_runs} Runs')
 
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
-    plt.xlabel('Experiment Run ID')
-    plt.ylabel('Score')
+    plt.xlabel(xlabel if xlabel is not None else "")
+    plt.ylabel(ylabel if ylabel is not None else "")
     plt.grid(True, linestyle='--', alpha=0.5)
 
     # 图例放外面
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
-    # =================================================================
-    # 新增：添加动态脚注说明
-    # =================================================================
-    caption_text = (
-        f"Note: Results over {n_runs} independent runs, where each run uses a distinct non-overlapping subset of base partitions."
-    )
-
-    plt.text(0.5, -0.10, caption_text,
-             ha='center', va='top',
-             transform=plt.gca().transAxes,
-             fontsize=10, style='italic', color='black')
-
-    # =================================================================
+    # # =================================================================
+    # # 新增：添加动态脚注说明
+    # # =================================================================
+    # caption_text = (
+    #     f"Note: Results over {n_runs} independent runs, where each run uses a distinct non-overlapping subset of base partitions."
+    # )
+    #
+    # plt.text(0.5, -0.10, caption_text,
+    #          ha='center', va='top',
+    #          transform=plt.gca().transAxes,
+    #          fontsize=10, style='italic', color='black')
+    # # =================================================================
 
     save_fig(plt.gcf(), save_path)
     # plt.show()
@@ -198,52 +240,6 @@ def plot_grid_heatmap(
 
     # 翻转Y轴，让坐标原点在左下角（符合通常直觉）
     plt.gca().invert_yaxis()
-
-    save_fig(plt.gcf(), save_path)
-    plt.show()
-
-
-def plot_coassociation_heatmap(
-        BPs: np.ndarray,
-        Y: np.ndarray,
-        title: str = None,
-        save_path: str = None
-):
-    """
-    绘制排序后的共协矩阵热力图
-    """
-    set_paper_style()
-
-    # 1. 计算共协矩阵 (S = 1 - Hamming Distance)
-    # BPs: (N, M)
-    print("[Analysis] Calculating Co-association Matrix...")
-    D_hamming = pairwise_distances(BPs, metric='hamming')
-    S = 1.0 - D_hamming  # 相似度矩阵 (0~1)
-
-    # 2. 关键：根据真实标签 Y 对矩阵进行排序
-    # 这样同类的样本就会聚在一起，形成对角线上的方块
-    sort_indices = np.argsort(Y)
-    S_sorted = S[sort_indices][:, sort_indices]
-
-    # 3. 绘图
-    plt.figure(figsize=(7, 6))
-
-    # 使用 heatmap，颜色越深代表越相似
-    sns.heatmap(
-        S_sorted,
-        cmap='viridis',
-        xticklabels=False,
-        yticklabels=False,
-        cbar_kws={'label': 'Co-association Probability'}
-    )
-
-    if title:
-        plt.title(title)
-    else:
-        plt.title(f'Sorted Co-association Matrix (N={len(Y)})')
-
-    plt.xlabel('Sample Index (Sorted by Ground Truth)')
-    plt.ylabel('Sample Index (Sorted by Ground Truth)')
 
     save_fig(plt.gcf(), save_path)
     plt.show()
