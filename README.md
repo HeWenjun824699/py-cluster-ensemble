@@ -131,7 +131,7 @@ searcher.run(param_grid, fixed_params)
 
 ### 场景 D: 论文级可视化 (Visualization)
 
-PCE 内置了符合学术标准的绘图模块，能够直接利用上述场景生成的数据，一键绘制高质量插图。**所有绘图结果均支持通过 `save_path` 后缀自动保存为 `.png` (位图) 或 `.pdf` (矢量图)**。
+PCE 内置了符合学术标准的绘图模块，能够直接利用上述场景生成的数据，一键绘制高质量插图。<br>**所有绘图结果均支持通过 `save_path` 后缀自动保存为 `.png` (位图) 或 `.pdf` (矢量图)**。
 
 ~~~
 import pce.io as io
