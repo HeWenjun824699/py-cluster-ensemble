@@ -137,6 +137,22 @@ class GridSearcher:
     def run(self, param_grid: Dict[str, List[Any]], fixed_params: Dict[str, Any] = None):
         if fixed_params is None: fixed_params = {}
 
+        # ================= NEW: 强制固定 consensus_method =================
+        # 逻辑：无论用户是否在 param_grid 里写了 consensus_method，
+        # 都将其移动到 fixed_params，防止发生笛卡尔积或字符串拆解。
+        if 'consensus_method' in param_grid:
+            val = param_grid.pop('consensus_method')
+
+            # 情况 A: 用户传入的是列表 (e.g., ["CSPA"]) -> 取第一个元素
+            if isinstance(val, list) and len(val) > 0:
+                fixed_params['consensus_method'] = val[0]
+                # print(f"\n[Info] 'consensus_method' ({val[0]}) moved from grid to fixed_params.")
+            # 情况 B: 用户传入的是纯字符串 (e.g., "CSPA") -> 直接使用
+            elif isinstance(val, str):
+                fixed_params['consensus_method'] = val
+                # print(f"\n[Info] 'consensus_method' ({val}) moved from grid to fixed_params.")
+        # =================================================================
+
         # 1. 生成原始参数组合
         keys = param_grid.keys()
         values = param_grid.values()
