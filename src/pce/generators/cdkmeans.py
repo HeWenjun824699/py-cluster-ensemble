@@ -5,7 +5,7 @@ from .methods.litekmeans_core import litekmeans_core
 from .methods.cdkm_fast_core import cdkm_fast_core
 
 
-def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2024, maxiter: int = 100, replicates: int = 1):
+def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2026, maxiter: int = 100, replicates: int = 1):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑
@@ -24,7 +24,7 @@ def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2024, m
 
     nRepeat = nBase
 
-    # 初始化随机数生成器 (对应 MATLAB: seed = 2024; rng(seed))
+    # 初始化随机数生成器 (对应 MATLAB: seed = 2026; rng(seed))
     # 我们先生成 200 个随机种子，用于控制每一次循环
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)

@@ -113,7 +113,7 @@ param_grid = {
 fixed_params = {
     'generator_method': 'cdkmeans',
     'nBase': 20,        # generators, consensus
-    'seed': 2024,       # generators, consensus
+    'seed': 2026,       # generators, consensus
     'maxiter': 100,     # generators
     'replicates': 1,    # generators
     'nRepeat': 10       # consensus
@@ -294,7 +294,7 @@ ana.plot_parameter_sensitivity(
 | **`X`**      | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状通常为 `(n_samples, n_features)`, 算法将在此数据上运行 KMeans |
 | **`Y`**      | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
 | `nBase`      | `int`            | `200`    | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`       | `int`            | `2024`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `seed`       | `int`            | `2026`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
 | `maxiter`    | `int`            | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates` | `int`            | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
@@ -316,7 +316,7 @@ ana.plot_parameter_sensitivity(
 | **`X`**      | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状通常为` (n_samples, n_features)`, 算法将在此数据上运行 KMeans 初始化及 CDKM 优化 |
 | **`Y`**      | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状通常为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 len(np.unique(Y)) 来确定数据集的真实类别数 nCluster，进而计算随机 K 值的范围 [minCluster, maxCluster] |
 | `nBase`      | `int`            | `200`    | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`       | `int`            | `2024`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `seed`       | `int`            | `2026`   | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
 | `maxiter`    | `int`            | `100`    | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates` | `int`            | `1`      | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
@@ -336,7 +336,7 @@ LiteKMeans 的文件接口封装，直接处理 `.mat` 文件输入输出，适�
 | **`file_path`** | **`str`** | **必填**     | **输入数据文件的完整路径（支持 `.mat` 格式，兼容 v7.3）**    |
 | `output_path`   | `str`     | `None`      | 输出 `.mat` 文件的保存路径（包含文件名）<br>如果为 `None`，默认保存到输入文件同目录下，文件名为 `[原文件名]_LKM[nBase].mat` |
 | `nBase`         | `int`     | `200`       | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`          | `int`     | `2024`      | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `seed`          | `int`     | `2026`      | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
 | `maxiter`       | `int`     | `100`       | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
@@ -349,7 +349,7 @@ CDK-Means 的文件接口封装，直接处理 `.mat` 文件输入输出。
 | **`file_path`** | **`str`** | **必填**     | **输入数据文件的完整路径（支持 `.mat` 格式，兼容 v7.3）**    |
 | `output_path`   | `str`     | `None`      | 输出 `.mat` 文件的保存路径（包含文件名）<br>如果为 `None`，默认保存到输入文件同目录下，文件名为 `[原文件名]_CDKM[nBase].mat` |
 | `nBase`         | `int`     | `200`       | 生成基聚类（Base Partitions）的数量，即结果矩阵的列数        |
-| `seed`          | `int`     | `2024`      | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
+| `seed`          | `int`     | `2026`      | 随机种子，用于控制 K 值的随机选择和算法初始化，保证结果可复现 |
 | `maxiter`       | `int`     | `100`       | 聚类算法（LiteKMeans）的最大迭代次数                         |
 | `replicates`    | `int`     | `1`         | 每次聚类尝试运行的重复次数，算法会返回其中目标函数最优的一次结果 |
 
@@ -374,7 +374,7 @@ CDK-Means 的文件接口封装，直接处理 `.mat` 文件输入输出。
 | **`Y`**   | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)`     |
 | `nBase`   | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成                                                                                   |
 | `nRepeat` | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat`                                                                                            |
-| `seed`    | `int`     | `2024`      | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性                                                                                                   |
+| `seed`    | `int`     | `2026`      | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性                                                                                                   |
 
 #### 3.1.2 返回值 (Returns)
 
@@ -395,7 +395,7 @@ CDK-Means 的文件接口封装，直接处理 `.mat` 文件输入输出。
 | **`Y`**    | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
 | `nBase`    | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成    |
 | `nRepeat`  | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat`             |
-| `seed`     | `int`     | `2024`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
+| `seed`     | `int`     | `2026`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
 
 #### 3.2.2 返回值 (Returns)
 
@@ -416,7 +416,7 @@ CDK-Means 的文件接口封装，直接处理 `.mat` 文件输入输出。
 | **`Y`**    | **`np.ndarray`** | **必填** | **真实标签向量**<br>形状为 `(n_samples,)` 或 `(n_samples, 1)` <br>**用途：**代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 `K(nCluster)` |
 | `nBase`    | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
 | `nRepeat`  | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
-| `seed`     | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
+| `seed`     | `int`     | `2026`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
 
 #### 3.3.2 返回值 (Returns)
 
@@ -435,7 +435,7 @@ CSPA 的文件接口封装，直接读取 `.mat` 文件进行计算，适合不�
 | `output_path`   | `str`     | `None`      | 输出 `.mat` 文件的保存路径 <br>如果为 `None`，默认在输入文件同级目录下新建 `CSPA_Results/[文件名]/` 保存结果 |
 | `nBase`         | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
-| `seed`          | `int`     | `2024`      | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性 |
+| `seed`          | `int`     | `2026`      | 随机种子，用于控制 CSPA 内部谱聚类（Spectral Clustering）的初始化状态，保证可复现性 |
 
 ### 3.5 mcla_old 参数说明
 
@@ -447,7 +447,7 @@ MCLA 的文件接口封装，直接读取 `.mat` 文件进行计算。
 | `output_path`   | `str`     | `None`      | 输出 `.mat` 文件的保存路径<br>如果为 `None`，默认在输入文件同级目录下新建 `MCLA_Results/[文件名]/` 保存结果 |
 | `nBase`         | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成    |
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat`             |
-| `seed`          | `int`     | `2024`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
+| `seed`          | `int`     | `2026`      | 随机种子，用于控制 MCLA 内部元聚类（Meta-Clustering）阶段的初始化状态（如谱聚类初始化），保证可复现性             |
 
 ### 3.6 hgpa_old 参数说明
 
@@ -459,7 +459,7 @@ HGPA 的文件接口封装，直接读取 `.mat` 文件进行计算。
 | `output_path`   | `str`     | `None`      | 输出 `.mat` 文件的保存路径<br>如果为 `None`，默认在输入文件同级目录下新建 `HGPA_Results/[文件名]/` 保存结果 |
 | `nBase`         | `int`     | `20`        | **单次实验**使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
 | `nRepeat`       | `int`     | `10`        | 实验重复次数，程序会进行 `nRepeat` 次独立实验，所需的基聚类总列数 = `nBase` × `nRepeat` |
-| `seed`          | `int`     | `2024`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
+| `seed`          | `int`     | `2026`      | 随机种子，用于控制 HGPA 内部超图分割（Hypergraph Partitioning）阶段的初始化状态，保证可复现性 |
 
 </details>
 
@@ -590,7 +590,7 @@ HGPA 的文件接口封装，直接读取 `.mat` 文件进行计算。
 | `consensus_method` | `str` | `'cspa'` | **集成算法名称**<br>对应 `pce.consensus` 模块中的函数名，如 `'cspa'`, `'mcla'`, `'hgpa'` |
 | `generator_method` | `str` | `'cdkmeans'` | **生成器名称**<br>当 `.mat` 文件中仅包含原始特征 `X` 时，使用此算法生成基聚类，如 `'cdkmeans'`, `'litekmeans'` |
 | `nBase` | `int` | `20` | **基聚类数量/切片大小**<br>单次集成实验使用的基聚类器数量。若需现场生成 BPs，此参数也作为生成器的目标列数 |
-| `seed` | `int` | `2024` | **随机种子**<br>用于控制基聚类生成和集成算法内部的随机性，保证结果可复现 |
+| `seed` | `int` | `2026` | **随机种子**<br>用于控制基聚类生成和集成算法内部的随机性，保证结果可复现 |
 | `maxiter` | `int` | `100` | **最大迭代次数**<br>仅在调用基聚类生成器（如 K-Means）时生效 |
 | `replicates` | `int` | `1` | **生成器重复次数**<br>仅在调用基聚类生成器时生效，表示每次聚类尝试的重复运行次数 |
 | `nRepeat` | `int` | `10` | **实验重复次数**<br>流水线将循环运行 `nRepeat` 次独立实验以评估算法稳定性 |

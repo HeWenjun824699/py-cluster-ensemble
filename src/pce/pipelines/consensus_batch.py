@@ -19,7 +19,7 @@ def consensus_batch(
         consensus_method: str = 'cspa',
         generator_method: str = 'cdkmeans',
         nBase: int = 20,
-        seed: int = 2024,
+        seed: int = 2026,
         maxiter: int = 100,
         replicates: int = 1,
         nRepeat: int = 10,

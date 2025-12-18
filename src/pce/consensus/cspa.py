@@ -4,7 +4,7 @@ import numpy as np
 from .methods.cspa_core import cspa_core
 
 
-def cspa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
+def cspa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。

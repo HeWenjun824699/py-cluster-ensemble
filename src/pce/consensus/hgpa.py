@@ -4,12 +4,12 @@ import numpy as np
 from .methods.hgpa_core import hgpa_core
 
 
-def hgpa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2024):
+def hgpa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):
     """
     HGPA (HyperGraph Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 HGPA，评估并保存结果。
     """
-    # 3. 提取数据 (加载 BPs 和 Y)
+    # 1. 提取数据 (加载 BPs 和 Y)
     # 【关键】处理 MATLAB 的 1-based 索引
     # HGPA 核心算法通常基于超图，需要 0-based 索引来构建关联矩阵
     if np.min(BPs) == 1:
