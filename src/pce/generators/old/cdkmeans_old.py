@@ -3,9 +3,9 @@ import math
 import numpy as np
 import scipy.io
 
-from .methods.litekmeans_core import litekmeans_core
-from .methods.cdkm_fast_core import cdkm_fast_core
-from .utils.extract_xy import extract_xy
+from pce.generators.methods.litekmeans_core import litekmeans_core
+from pce.generators.methods.cdkm_fast_core import cdkm_fast_core
+from pce.generators.utils.extract_xy import extract_xy
 
 
 def cdkmeans_old(file_path, output_path=None, nBase: int = 200, seed: int = 2026, maxiter: int = 100, replicates: int = 1):

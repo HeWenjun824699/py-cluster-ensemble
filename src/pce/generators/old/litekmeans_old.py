@@ -3,8 +3,8 @@ import math
 import numpy as np
 import scipy.io
 
-from .utils.extract_xy import extract_xy
-from .methods.litekmeans_core import litekmeans_core
+from pce.generators.utils.extract_xy import extract_xy
+from pce.generators.methods.litekmeans_core import litekmeans_core
 
 
 def litekmeans_old(file_path, output_path=None, nBase: int = 200, seed: int = 2026, maxiter: int = 100, replicates: int = 1):

@@ -31,3 +31,7 @@ matlab_methods/
 
 # 8. 排除输出文件
 output/
+
+# 9. 忽略generators和consensus中的old文件
+src/generators/old/
+src/consensus/old/

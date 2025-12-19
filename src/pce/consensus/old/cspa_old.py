@@ -3,8 +3,8 @@ import time
 import numpy as np
 import scipy.io
 
-from .methods.cspa_core import cspa_core
-from ..metrics.evaluation_single import evaluation_single
+from pce.consensus.methods.cspa_core import cspa_core
+from pce.metrics.evaluation_single import evaluation_single
 
 
 def cspa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):

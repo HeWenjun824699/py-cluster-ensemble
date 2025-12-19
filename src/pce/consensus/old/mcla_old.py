@@ -3,24 +3,24 @@ import time
 import numpy as np
 import scipy.io
 
-from .methods.hgpa_core import hgpa_core
-from ..metrics.evaluation_single import evaluation_single
+from pce.consensus.methods.mcla_core import mcla_core
+from pce.metrics.evaluation_single import evaluation_single
 
 
-def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):
+def mcla_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):
     """
-    HGPA (HyperGraph Partitioning Algorithm) Wrapper.
-    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 HGPA，评估并保存结果。
+    MCLA (Meta-Clustering Algorithm) Wrapper.
+    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 MCLA，评估并保存结果。
     """
     file_name = os.path.basename(file_path)
     data_name = os.path.splitext(file_name)[0]
 
     # 1. 路径与文件名处理
-    # 如果未指定输出路径，默认在输入文件同级目录下创建一个 HGPA_Results 文件夹
+    # 如果未指定输出路径，默认在输入文件同级目录下创建一个 MCLA_Results 文件夹
     if output_path is None:
         input_dir = os.path.dirname(file_path)
-        # 结构: .../data_dir/HGPA_Results/data_name/
-        output_path = os.path.join(input_dir, 'HGPA_Results', data_name)
+        # 结构: .../data_dir/MCLA_Results/data_name/
+        output_path = os.path.join(input_dir, 'MCLA_Results', data_name)
 
     # 如果输出目录不存在，创建它
     if not os.path.exists(output_path):
@@ -28,7 +28,7 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
         print(f"Created directory: {output_path}")
 
     # 构造输出文件名
-    out_file_name = f"{data_name}_HGPA.mat"
+    out_file_name = f"{data_name}_MCLA.mat"
     out_file_path = os.path.join(output_path, out_file_name)
 
     # 2. 检查结果是否已存在
@@ -48,7 +48,7 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
         Y = mat_data['Y'].flatten()
 
         # 【关键】处理 MATLAB 的 1-based 索引
-        # HGPA 核心算法通常基于超图，需要 0-based 索引来构建关联矩阵
+        # MCLA 核心算法通常也需要 0-based 索引来构建超图或矩阵
         if np.min(BPs) == 1:
             BPs = BPs - 1
 
@@ -61,7 +61,7 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
         return
 
     # 4. 实验循环
-    print(f"HGPA Processing {file_name} (Shape: {BPs.shape}, K={nCluster})...")
+    print(f"MCLA Processing {file_name} (Shape: {BPs.shape}, K={nCluster})...")
 
     # 准备结果容器
     results_list = []
@@ -87,7 +87,7 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 HGPA
+        # 步骤 B: 运行 MCLA
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
 
@@ -95,11 +95,11 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
 
         try:
             # 调用核心算法
-            # 注意：此处保留了您 mcla_old.py 中的 .T 风格
-            # 如果您的 hgpa_core 期望 (n_samples, n_estimators)，请去掉 .T
-            label_pred = hgpa_core(BPi.T, nCluster)
+            # 注意：Python 实现通常直接接收 (n_samples, n_estimators)
+            # 但 mcla_core (移植自 MATLAB) 期望 (n_clusterings, n_samples)
+            label_pred = mcla_core(BPi.T, nCluster)
         except Exception as e:
-            print(f"HGPA failed on repeat {iRepeat}: {e}")
+            print(f"MCLA failed on repeat {iRepeat}: {e}")
             label_pred = np.zeros_like(Y)
 
         t_cost = time.time() - t_start
@@ -122,9 +122,9 @@ def hgpa_old(file_path, output_path=None, nBase: int = 20, nRepeat: int = 10, se
 
     # 构造保存字典
     save_dict = {
-        'HGPA_result': results_mat,
-        'HGPA_result_summary': summary_mean,
-        'HGPA_result_summary_std': summary_std
+        'MCLA_result': results_mat,
+        'MCLA_result_summary': summary_mean,
+        'MCLA_result_summary_std': summary_std
     }
 
     scipy.io.savemat(out_file_path, save_dict)
