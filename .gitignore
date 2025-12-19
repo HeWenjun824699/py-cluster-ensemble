@@ -33,5 +33,4 @@ matlab_methods/
 output/
 
 # 9. 忽略generators和consensus中的old文件
-src/generators/old/
-src/consensus/old/
+src/pce/*/old/
