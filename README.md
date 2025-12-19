@@ -60,7 +60,7 @@ consensus_batch(
     overwrite=True                 # 是否覆盖已有结果
 )
 
-# consensus_batch 仅 input_dir 为必须参数，其他参数的默认值可在参数说明中查看
+# 注：仅 input_dir 为必填项，完整参数列表及默认值请参考下文 [核心模块 API (API Reference)] 章节
 ~~~
 
 ### 场景 B: 模块化分步调用
@@ -68,6 +68,7 @@ consensus_batch(
 如果您需要更细粒度的控制，可以独立调用各个模块：
 
 ~~~
+import numpy as np
 import pce.io as io
 import pce.generators as gen
 import pce.consensus as con
@@ -77,17 +78,23 @@ import pce.metrics as met
 X, Y = io.load_mat_X_Y('data/isolet.mat')
 
 # 2. 生成基聚类 (使用 CDK-Means)
-BPs, _ = gen.cdkmeans(X, Y, nBase=200)
+# 技巧: 传入 Y 可以让算法在一定范围内随机选择 K (增加多样性)
+# 如果想强制固定 K 值，也可传入 nClusters=26 (但不推荐用于生成阶段)
+BPs = gen.cdkmeans(X, Y, nPartitions=200)
 
 # 3. 执行集成 (使用 CSPA)
 # 将 200 个基聚类切分为 10 组，每组 20 个进行实验
-labels_list, _ = con.cspa(BPs, Y, nBase=20, nRepeat=10)
+# API 支持指定最终簇数 (这里显式计算目标类别数)
+k = len(np.unique(Y))
+labels_list = con.cspa(BPs, nClusters=k, nBase=20, nRepeat=10)
 
 # 4. 评估结果
 results = met.evaluation_batch(labels_list, Y)
 
 # 5. 保存结果为 Excel (保留 4 位小数格式)
 io.save_results_xlsx(results, 'output/isolet_report.xlsx')
+
+# 注意：上述代码仅展示了部分核心参数，完整参数列表及默认值请参考下文 [核心模块 API (API Reference)] 章节
 ~~~
 
 ### 场景 C: 超参数网格搜索(Grid Search)
@@ -114,11 +121,12 @@ param_grid = {
 # 所有实验共用的静态参数
 fixed_params = {
     'generator_method': 'cdkmeans',
-    'nBase': 20,        # generators, consensus
-    'seed': 2026,       # generators, consensus
-    'maxiter': 100,     # generators
-    'replicates': 1,    # generators
-    'nRepeat': 10       # consensus
+    'nPartitions': 200,     # generators
+    'seed': 2026,           # generators, consensus
+    'maxiter': 100,         # generators
+    'replicates': 1,        # generators
+    'nBase': 20,            # consensus
+    'nRepeat': 10           # consensus
 }
 
 # 4. 初始化并运行
