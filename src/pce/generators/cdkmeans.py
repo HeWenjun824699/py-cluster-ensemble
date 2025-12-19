@@ -1,28 +1,43 @@
-import math
+from typing import Optional
+
 import numpy as np
 
-from .methods.litekmeans_core import litekmeans_core
 from .methods.cdkm_fast_core import cdkm_fast_core
+from .methods.litekmeans_core import litekmeans_core
+from .utils.get_k_range import get_k_range
 
 
-def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2026, maxiter: int = 100, replicates: int = 1):
+def cdkmeans(
+        X: np.ndarray,
+        Y: Optional[np.ndarray] = None,
+        nClusters: Optional[int] = None,
+        nPartitions: int = 200,
+        seed: int = 2026,
+        maxiter: int = 100,
+        replicates: int = 1
+):
     """
     主函数：批量生成基聚类 (Base Partitions)
     对应 MATLAB 脚本的主逻辑
     """
     nSmp = X.shape[0]
-    nCluster = len(np.unique(Y))
 
-    # 计算 K 值范围 (minCluster, maxCluster)
-    # 对应 MATLAB: min(nCluster, ceil(sqrt(nSmp)))
-    sqrt_n = math.ceil(math.sqrt(nSmp))
-    minCluster = min(nCluster, sqrt_n)
-    maxCluster = max(nCluster, sqrt_n)
+    # # 原 nClusters 逻辑
+    # nCluster = len(np.unique(Y))
+    #
+    # # 计算 K 值范围 (minCluster, maxCluster)
+    # # 对应 MATLAB: min(nCluster, ceil(sqrt(nSmp)))
+    # sqrt_n = math.ceil(math.sqrt(nSmp))
+    # minCluster = min(nCluster, sqrt_n)
+    # maxCluster = max(nCluster, sqrt_n)
 
-    # --- 3. 生成基聚类 ---
-    BPs = np.zeros((nSmp, nBase), dtype=np.float64)
+    # --- 1. 调用辅助函数获取 K 值范围 ---
+    minCluster, maxCluster = get_k_range(n_smp=nSmp, n_clusters=nClusters, y=Y)
 
-    nRepeat = nBase
+    # --- 2. 生成基聚类 ---
+    BPs = np.zeros((nSmp, nPartitions), dtype=np.float64)
+
+    nRepeat = nPartitions
 
     # 初始化随机数生成器 (对应 MATLAB: seed = 2026; rng(seed))
     # 我们先生成 200 个随机种子，用于控制每一次循环
@@ -59,5 +74,5 @@ def cdkmeans(X: np.ndarray, Y: np.ndarray, nBase: int = 200, seed: int = 2026, m
 
         BPs[:, iRepeat] = label_refined + 1
 
-    return BPs, Y
+    return BPs
 

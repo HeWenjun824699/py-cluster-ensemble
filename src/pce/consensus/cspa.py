@@ -1,10 +1,20 @@
 import time
+from typing import Optional
+
 import numpy as np
 
 from .methods.cspa_core import cspa_core
+from .utils.get_k_target import get_k_target
 
 
-def cspa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, seed: int = 2026):
+def cspa(
+        BPs: np.ndarray,
+        Y: Optional[np.ndarray] = None,
+        nClusters: Optional[int] = None,
+        nBase: int = 20,
+        nRepeat: int = 10,
+        seed: int = 2026
+):
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。
@@ -18,7 +28,10 @@ def cspa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, see
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
-    nCluster = len(np.unique(Y))
+
+    # --- [修改点] 调用辅助函数获取唯一的 K 值 ---
+    # 一行代码解决，逻辑复用
+    nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
     # 2. 实验循环
     # 准备结果容器
@@ -69,5 +82,5 @@ def cspa(BPs: np.ndarray, Y: np.ndarray, nBase: int = 20, nRepeat: int = 10, see
         labels_list.append(label_pred)
         t_cost = time.time() - t_start
 
-    return labels_list, Y
+    return labels_list
 

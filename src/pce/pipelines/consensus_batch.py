@@ -2,7 +2,6 @@ import os
 import traceback
 from typing import Optional
 
-import numpy as np
 from pathlib import Path
 
 # 引入库组件
@@ -18,10 +17,11 @@ def consensus_batch(
         save_format: str = "csv",
         consensus_method: str = 'cspa',
         generator_method: str = 'cdkmeans',
-        nBase: int = 20,
+        nPartitions: int = 200,
         seed: int = 2026,
         maxiter: int = 100,
         replicates: int = 1,
+        nBase: int = 20,
         nRepeat: int = 10,
         overwrite: bool = False
 ):
@@ -34,10 +34,11 @@ def consensus_batch(
         save_format: 'csv', 'xlsx' (文件保存方式)
         consensus_method: 'cspa', 'mcla', 'hgpa' 等 (函数名字符串)
         generator_method: 如果数据是原始 X，使用该生成器 (如 'cdkmeans', 'litekmeans')
-        nBase: 基聚类器数量 (仅当需要生成 BPs 时使用)
+        nPartitions: 基聚类器数量 (仅当需要生成 BPs 时使用)
         seed: 随机种子
         maxiter: 基聚类生成中，算法最大迭代次数
         replicates: 基聚类生成中，重复聚类的次数
+        nBase: 集成算法中每次使用的基聚类器的数量
         nRepeat: 实验重复次数，配合nBase使用(nBase * nRepeat = 基聚类数量)
         overwrite: 是否覆盖原来的输出数据
     """
@@ -111,14 +112,11 @@ def consensus_batch(
                 print(f"    - Generating BPs using {generator_method}...")
 
                 # 运行基聚类生成器
-                BPs, Y = generator_func(X, Y, nBase=nBase, seed=seed, maxiter=maxiter, replicates=replicates)
-
-            # 确定 K (聚类数)
-            n_cluster = len(np.unique(Y))
+                BPs = generator_func(X, Y, nPartitions=nPartitions, seed=seed, maxiter=maxiter, replicates=replicates)
 
             # --- C. 运行集成 (Consensus) ---
             print(f"    - Running Consensus: {consensus_method}...")
-            labels, _ = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
+            labels = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
 
             # --- D. 评估 (Evaluation) ---
             print(f"    - Evaluating...")

@@ -9,7 +9,7 @@ NON_SEARCHABLE_PARAMS = {
 
 # 2.定义固定参数
 FIXED_PARAMS = {
-    'nBase', 'seed', 'maxiter', 'replicates', 'nRepeat',
+    'nClusters', 'nPartitions', 'seed', 'maxiter', 'replicates', 'nBase', 'nRepeat',
     'save_format', 'consensus_method', 'generator_method',
     'overwrite', 'module_type', 'default_name'
 }

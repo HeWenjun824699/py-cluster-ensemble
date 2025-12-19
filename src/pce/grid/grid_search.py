@@ -105,31 +105,41 @@ class GridSearcher:
                 json.dumps(c_valid, sort_keys=True)
             )
 
+            # =======================================================
+            # 1. 预先计算当前网格中属于各方法的“变动参数”
+            #    (放在 if/else 之前，确保两个分支都能用)
+            # =======================================================
+            g_grid_params = {k: v for k, v in params.items() if k in g_valid}
+            c_grid_params = {k: v for k, v in params.items() if k in c_valid}
+
+            # 2. 格式化显示的字符串（定义一个小函数或直接写逻辑）
+            # 如果字典有值显示 "name{...}"，没值只显示 "name"
+            g_str = f"{g_method_name}{g_grid_params}" if g_grid_params else g_method_name
+            c_str = f"{c_method_name}{c_grid_params}" if c_grid_params else c_method_name
+
             if signature not in seen_signatures:
                 seen_signatures.add(signature)
 
-                # ==========================================
-                # NEW: 参数清洗逻辑
-                # ==========================================
-                # 有效的键 = (Consensus需要的参数) + (Generator需要的参数) + (方法名本身)
+                # --- 2. 参数清洗 (存入任务列表) ---
                 allowed_keys = set(c_valid.keys()) | set(g_valid.keys()) | {'consensus_method', 'generator_method'}
-
-                # 只保留 params 中存在的、且在 allowed_keys 中的参数
                 cleaned_params = {k: v for k, v in params.items() if k in allowed_keys}
-
                 valid_tasks.append(cleaned_params)
-                # ==========================================
-            else:
-                # # 调试用：可以看到哪些被跳过了
-                # 1. 找出被忽略的参数名 (集合运算)
-                ignored_keys = set(params.keys()) - set(c_valid.keys()) - set(g_valid.keys())
 
-                # 2. 提取这些参数对应的值 (字典推导式)
+                # --- 3. [主日志] 新任务 ---
+                # 使用 g_grid_params 仅展示当前网格搜索中变化的参数，简洁明了
+                print(f"  + [Add Task {len(valid_tasks)}] Config: {g_str} + {c_str}")
+
+            else:
+                # --- 4. [次日志] 重复任务 ---
+                # 计算被忽略的冗余参数
+                ignored_keys = set(params.keys()) - set(c_valid.keys()) - set(g_valid.keys())
                 ignored_details = {k: params[k] for k in ignored_keys}
 
-                # 3. 打印详细信息
                 if ignored_details:
-                    print(f"    [Skipped] Redundant config for '{c_method_name}': {ignored_details}")
+                    # 同样使用 g_grid_params 展示归属，清晰指出是哪个组合的重复项
+                    print(f"    - [Skipped] Duplicate of {g_str} + {c_str}. Ignored: {ignored_details}")
+                else:
+                    print(f"    - [Skipped] Exact duplicate input.")
 
         print(f">>> Pruning finished. Effective tasks: {len(valid_tasks)} (Removed {len(raw_combinations) - len(valid_tasks)} redundant tasks)")
         return valid_tasks
@@ -193,6 +203,13 @@ class GridSearcher:
                 print(f"  [Error] Failed to load {dataset_name}: {e}")
                 continue
 
+            # =======================================================
+            # 【修改点 1】: 初始化运行时缓存变量
+            # =======================================================
+            last_gen_sig = None  # 上一次生成器的“指纹”
+            current_BPs_cache = None  # 当前内存中的 BPs 数据
+            # =======================================================
+
             # 3. 遍历去重后的任务列表 (Tasks)
             for task_idx, params in enumerate(tasks):
                 # 3.1 准备配置
@@ -220,23 +237,41 @@ class GridSearcher:
                     BPs = None
                     Y = None
 
-                    # --- A. 准备/生成基聚类 (Generators) ---
-                    g_method = full_config.get('generator_method', 'cdkmeans')
-
+                    # --- A. 准备/生成基聚类 (带缓存逻辑) ---
                     if data_source == "precomputed":
                         BPs, Y = BPs_cached, Y_cached
                         logger.info("Using precomputed BPs from .mat file.")
                     else:
-                        logger.info(f"Generating BPs using {g_method}...")
-                        gen_func = getattr(generators, g_method)
-                        gen_kwargs, _ = self._filter_kwargs(gen_func, full_config)
-                        BPs, Y = gen_func(X_cached, Y_cached, **gen_kwargs)
+                        # 1. 提取当前任务所需的生成器参数
+                        g_method = full_config.get('generator_method', 'cdkmeans')
+                        g_func = getattr(generators, g_method)
+                        g_kwargs, _ = self._filter_kwargs(g_func, full_config)
+                        # 2. 生成当前任务的“指纹” (方法名 + 参数JSON)
+                        # sort_keys=True 保证字典顺序不同但内容相同时指纹一致
+                        current_sig = (g_method, json.dumps(g_kwargs, sort_keys=True))
+                        # 3. 检查缓存
+                        if current_sig == last_gen_sig and current_BPs_cache is not None:
+                            # 【命中缓存】
+                            logger.info(">> [Cache Hit] Reusing BPs from previous task (Generator params unchanged).")
+                            BPs = current_BPs_cache
+                        else:
+                            # 【未命中，重新生成】
+                            logger.info(f">> [Cache Miss] Generating BPs using {g_method}...")
+                            gen_start = time.time()
+                            BPs = g_func(X_cached, Y_cached, **g_kwargs)
+                            gen_time = time.time() - gen_start
+                            logger.info(f"   Generation completed in {gen_time:.4f}s")
+
+                            # 更新缓存
+                            current_BPs_cache = BPs
+                            last_gen_sig = current_sig
+                        Y = Y_cached
 
                     # --- B. 聚类集成 (Consensus) ---
                     logger.info(f"Running Consensus: {c_method}...")
                     con_func = getattr(consensus, c_method)
                     con_kwargs, _ = self._filter_kwargs(con_func, full_config)
-                    labels, _ = con_func(BPs, Y, **con_kwargs)
+                    labels = con_func(BPs, Y, **con_kwargs)
                     logger.info(f"Labels: {labels}")
 
                     # --- C. 评估与保存 ---
