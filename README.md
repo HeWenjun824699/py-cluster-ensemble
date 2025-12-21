@@ -416,9 +416,6 @@ ana.plot_parameter_sensitivity(
 >
 > 这一组算法基于概率轨迹（Probability Trajectory）和微簇（Microclusters）的概念。通过计算微簇共伴矩阵（MCA）和随机游走概率轨迹相似度（PTS），挖掘数据间的深层结构信息。
 
-<details>
-<summary><strong>🔽 点击查看 TKDE-2016 系列算法参数详解 (Click to expand)</strong></summary>
-
 #### 3.2.1 ptaal (Probability Trajectory based Association for Active Learning)
 
 基于概率轨迹的关联算法（PTAAL）。该方法首先构建微簇与共伴矩阵，利用概率轨迹捕捉局部流形结构，适合挖掘复杂结构数据。
