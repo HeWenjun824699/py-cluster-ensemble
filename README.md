@@ -348,6 +348,8 @@ ana.plot_parameter_sensitivity(
 
 ### 3.1 CSPA-HGPA-MCLA-JMLR-2003
 
+> **来源：** Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions-JMLR-2003
+
 ### 3.1.1 cspa (Cluster-based Similarity Partitioning Algorithm)
 
 基于共协矩阵的集成方法。利用共协矩阵度量样本对的成对相似性，并通过谱聚类获得最终划分。计算复杂度较高，适合中小型数据集。
