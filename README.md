@@ -415,7 +415,7 @@ ana.plot_parameter_sensitivity(
 
 > **来源：** Robust Ensemble Clustering Using Probability Trajectories-TKDE-2016
 
-#### 3.2.1 ptaal (Probability Trajectory based Association for Active Learning)
+### 3.2.1 ptaal (Probability Trajectory based Association for Active Learning)
 
 基于概率轨迹的关联算法（PTAAL）。该方法首先构建微簇与共伴矩阵，利用概率轨迹捕捉局部流形结构，适合挖掘复杂结构数据。
 
@@ -436,9 +436,7 @@ ana.plot_parameter_sensitivity(
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTAAL 集成结果 |
 
----
-
-#### 3.2.2 ptacl (Probability Trajectory based Association with Complete Linkage)
+### 3.2.2 ptacl (Probability Trajectory based Association with Complete Linkage)
 
 基于概率轨迹与全连接（Complete Linkage）的集成方法。在计算出概率轨迹相似度（PTS）矩阵后，使用全连接层次聚类生成最终划分，倾向于生成紧凑的球形簇。
 
@@ -459,9 +457,7 @@ ana.plot_parameter_sensitivity(
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTACL 集成结果 |
 
----
-
-#### 3.2.3 ptasl (Probability Trajectory based Association with Single Linkage)
+### 3.2.3 ptasl (Probability Trajectory based Association with Single Linkage)
 
 基于概率轨迹与单连接（Single Linkage）的集成方法。在计算出概率轨迹相似度（PTS）矩阵后，使用单连接层次聚类生成最终划分，适合处理长链状或非凸形状的簇结构。
 
@@ -481,8 +477,6 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTASL 集成结果 |
-
----
 
 #### 3.2.4 ptgp (Probability Trajectory based Graph Partitioning)
 
