@@ -478,7 +478,7 @@ ana.plot_parameter_sensitivity(
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTASL 集成结果 |
 
-#### 3.2.4 ptgp (Probability Trajectory based Graph Partitioning)
+### 3.2.4 ptgp (Probability Trajectory based Graph Partitioning)
 
 基于概率轨迹的图分割算法。将概率轨迹相似度转化为图的权重矩阵，并使用谱聚类（Spectral Clustering）或归一化切分（Ncut）进行最终的共识划分。
 
