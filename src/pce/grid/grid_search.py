@@ -86,6 +86,9 @@ class GridSearcher:
             # 1. 获取当前的方法名
             c_method_name = full_config.get('consensus_method', 'unknown')
             g_method_name = full_config.get('generator_method', 'cdkmeans')
+            # c_method_name, g_method_name 转小写
+            c_method_name = c_method_name.lower()
+            g_method_name = g_method_name.lower()
 
             # 2. 获取函数对象
             c_func = getattr(consensus, c_method_name, None)
@@ -215,6 +218,9 @@ class GridSearcher:
                 # 3.1 准备配置
                 # 命名建议：不再单纯用 combo_idx，而是最好体现这组参数的特征，或者直接用 task_idx
                 c_method = params.get('consensus_method', fixed_params.get('consensus_method', 'unknown'))
+                # 转小写
+                c_method = c_method.lower()
+
                 # 使用 task_idx + 1 保证顺序编号
                 exp_id = f"Exp_{task_idx + 1:03d}_{c_method}"
                 exp_dir = ds_output_dir / exp_id
@@ -244,6 +250,8 @@ class GridSearcher:
                     else:
                         # 1. 提取当前任务所需的生成器参数
                         g_method = full_config.get('generator_method', 'cdkmeans')
+                        # 转小写
+                        g_method = g_method.lower()
                         g_func = getattr(generators, g_method)
                         g_kwargs, _ = self._filter_kwargs(g_func, full_config)
                         # 2. 生成当前任务的“指纹” (方法名 + 参数JSON)

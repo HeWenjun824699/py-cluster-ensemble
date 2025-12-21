@@ -55,6 +55,10 @@ def consensus_batch(
         print(f"Created output directory: {output_path}")
 
     # 2. 获取算法函数 (利用 getattr 动态获取)
+    # generator_method, consensus_method 转小写
+    generator_method = generator_method.lower()
+    consensus_method = consensus_method.lower()
+
     try:
         save_func = getattr(io, "save_results_" + save_format)
     except AttributeError:
@@ -82,7 +86,7 @@ def consensus_batch(
         dataset_name = file_path.stem  # 获取文件名（不含后缀）
 
         # 检测输出文件是否存在
-        save_path = output_path / f"{consensus_method}_result" / f"{dataset_name}_result.{save_format}"
+        save_path = output_path / f"{consensus_method}_result" / f"{dataset_name}_{consensus_method}_result.{save_format}"
         if not overwrite and save_path.exists():
             print(f"    - Skipping: {save_path} already exists.")
             continue
@@ -123,7 +127,7 @@ def consensus_batch(
             res = metrics.evaluation_batch(labels, Y)
 
             # --- E. 保存 (Saving) ---
-            save_name = f"{dataset_name}_result.{save_format}"
+            save_name = f"{dataset_name}_{consensus_method}_result.{save_format}"
             save_path = output_path / f"{consensus_method}_result" / save_name
             save_func(res, str(save_path))
             print(f"    - Saved to: {save_name}")
