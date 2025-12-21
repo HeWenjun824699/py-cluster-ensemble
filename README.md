@@ -348,10 +348,9 @@ ana.plot_parameter_sensitivity(
 
 ### 3.1 CSPA-HGPA-MCLA-JMLR-2003
 
-### 3.1.1 cspa 参数和返回值说明
+### 3.1.1 cspa (Cluster-based Similarity Partitioning Algorithm)
 
-基于聚类集成共协矩阵（Cluster-based Similarity Partitioning Algorithm）的集成方法，利用共协矩阵度量样本对的成对相似性，并通过谱聚类获得最终划分。
-
+基于共协矩阵的集成方法。利用共协矩阵度量样本对的成对相似性，并通过谱聚类获得最终划分。计算复杂度较高，适合中小型数据集。
 **参数 (Parameters)**
 
 | 参数名        | 类型                   | 默认值   | 说明                                                                                                                                                                                                                                                                       |
@@ -369,10 +368,9 @@ ana.plot_parameter_sensitivity(
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CSPA 集成结果 |
 
-### 3.1.2 mcla 参数和返回值说明
+### 3.1.2 mcla (Meta-Clustering Algorithm)
 
-基于元聚类算法（Meta-Clustering Algorithm）的集成方法，通过对基聚类的簇标记（Label）进行聚类来解决标记对应问题，适合处理大规模数据。
-
+基于元聚类算法的集成方法。通过对基聚类的簇标记（Label）进行聚类来解决标记对应问题。计算效率高，适合处理大规模数据。
 **参数 (Parameters)**
 
 | 参数名        | 类型                   | 默认值   | 说明                                                                                                                                                                                                                                                                       |
@@ -390,9 +388,9 @@ ana.plot_parameter_sensitivity(
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MCLA 集成结果 |
 
-### 3.1.3 hgpa 参数和返回值说明
+### 3.1.3 hgpa (HyperGraph Partitioning Algorithm)
 
-基于超图分割（HyperGraph Partitioning Algorithm）的集成方法，将基聚类中的簇建模为超边，通过分割超图来寻找最佳共识划分。
+基于超图分割的集成方法。将基聚类中的簇建模为超边，通过分割超图来寻找最佳共识划分。
 
 **参数 (Parameters)**
 
@@ -412,9 +410,10 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 HGPA 集成结果 |
 
 ### 3.2 PTA(AL-CL-SL)-PTGP-TKDE-2016
-> **来源：** Huang D, Lai J H, Wang C D. Robust ensemble clustering using probability trajectories[J]. IEEE transactions on knowledge and data engineering, 2015, 28(5): 1312-1326.
+
+> **来源：** Robust Ensemble Clustering Using Probability Trajectories-TKDE-2016
 >
-> 这一组算法基于概率轨迹（Probability Trajectory）和微簇（Microclusters）的概念。通过计算微簇共伴矩阵（MCA）和随机游走概率轨迹相似度（PTS），挖掘数据间的深层结构信息。
+> 这一组算法引入微簇概念进行降维，通过精英邻域选择（ENS）构建仅保留高置信度连接的稀疏图，并利用随机游走概率轨迹捕捉数据的全局结构信息，从而有效解决连接不确定性问题并提升集成的鲁棒性。
 
 #### 3.2.1 ptaal (Probability Trajectory based Association for Active Learning)
 
