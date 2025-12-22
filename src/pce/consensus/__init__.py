@@ -12,6 +12,7 @@ from .usenc import usenc
 from .celta import celta
 from .ecpcs_hc import ecpcs_hc
 from .ecpcs_mc import ecpcs_mc
+from .spce import spce
 
 # 定义当用户 from pce.generators import * 时导出什么
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     "celta",
     "ecpcs_hc",
     "ecpcs_mc",
+    "spce"
 ]
 
