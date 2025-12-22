@@ -7,6 +7,7 @@ from .ptasl import ptasl
 from .ptgp import ptgp
 from .lwea import lwea
 from .lwgp import lwgp
+from .drec import drec
 
 # 定义当用户 from pce.generators import * 时导出什么
 __all__ = [
@@ -18,6 +19,7 @@ __all__ = [
     "ptasl",
     "ptgp",
     "lwea",
-    "lwgp"
+    "lwgp",
+    "drec",
 ]
 
