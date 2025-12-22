@@ -2,7 +2,7 @@ import numpy as np
 from scipy import sparse
 
 
-def litekmeans_core(X, k, distance='sqeuclidean', start='sample', maxiter=100, replicates=1, clustermaxiter=10):
+def litekmeans(X, k, distance='sqeuclidean', start='sample', maxiter=100, replicates=1, clustermaxiter=10):
     """
     LITEKMEANS K-means clustering, accelerated by numpy matrix operations.
 
@@ -105,7 +105,7 @@ def litekmeans_core(X, k, distance='sqeuclidean', start='sample', maxiter=100, r
             Xsubset = X[indices, :]
             # Recursive call
             # Note: MATLAB [dump, center] means we only need the center
-            _, center, _, _, _ = litekmeans_core(Xsubset, k, start='sample',
+            _, center, _, _, _ = litekmeans(Xsubset, k, start='sample',
                                             replicates=1, maxiter=clustermaxiter,
                                             distance=distance)
         elif start == 'numeric':
