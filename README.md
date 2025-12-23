@@ -878,13 +878,55 @@ ana.plot_parameter_sensitivity(
 
 > **来源：** Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering-TMS-2023
 
-### 3.14.1 kcc_uc
+### 3.14.1 kcc_uc (K-means Consensus Clustering with Category Utility)
 
+基于类别效用（Category Utility）的 K-Means 集成聚类算法。该方法将共识聚类问题转化为特征转换后的 K-Means 优化问题。通过最大化类别效用函数 $U_c$，高效地从基聚类中推导最终划分。
 
+**参数 (Parameters)**
 
-### 3.14.2 kcc_uh
+| 参数名 | 类型 | 默认值 | 说明                                                                                                                                                                       |
+| :--- | :--- | :--- |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引）。 |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数。                                                    |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断。                                                                          |
+| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优。                                                          |
+| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`。<br>控制 KCC 核心优化过程中的最大迭代轮数。                                                                                                      |
+| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`。<br>当目标函数的变化量小于该阈值时，算法提前终止迭代。                                                                                                    |
+| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`。<br>用于控制算法内部效用函数计算或调试信息的输出模式。                                                                                                  |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成。                                                                                      |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`。                                                                                          |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现。                                                                         |
 
+**返回值 (Returns)**
 
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_Uc 集成结果。 |
+
+### 3.14.2 kcc_uh (K-means Consensus Clustering with Harmonic Utility)
+
+基于调和效用（Harmonic Utility）的 K-Means 集成聚类算法。该方法是 KCC 框架的变体，通过最大化调和效用函数 $U_h$，将共识聚类问题转化为加权特征空间中的 K-Means 优化问题。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引）。 |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数。 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断。 |
+| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优。 |
+| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`。<br>控制 KCC 核心优化过程中的最大迭代轮数。 |
+| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`。<br>当目标函数的变化量小于该阈值时，算法提前终止迭代。 |
+| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`。<br>用于控制算法内部效用函数计算或调试信息的输出模式。 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成。 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`。 |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现。 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果。 |
 
 ### 3.15 AWEC-AAAI-2024
 

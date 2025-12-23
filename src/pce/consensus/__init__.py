@@ -20,6 +20,8 @@ from .mdechc import mdechc
 from .mdecsc import mdecsc
 from .eccms import eccms
 from .gtlec import gtlec
+from .kcc_uc import kcc_uc
+from .kcc_uh import kcc_uh
 
 # 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
@@ -44,6 +46,8 @@ __all__ = [
     "mdechc",
     "mdecsc",
     "eccms",
-    "gtlec"
+    "gtlec",
+    "kcc_uc",
+    "kcc_uh"
 ]
 
