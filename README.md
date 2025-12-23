@@ -755,7 +755,70 @@ ana.plot_parameter_sensitivity(
 
 ### 3.11 MDEC-TCYB-2022
 
-> **来源：** 
+> **来源：** Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond-TCYB-2022
+
+### 3.11.1 mdecbg (Multi-Diversity Ensemble Clustering via Bipartite Graph)
+
+基于二分图的多重多样性集成聚类算法（MDECBG）。该方法通过挖掘基聚类之间的微细结构（Segments）来增强集成效果。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 该算法会生成 `nRepeat` 个子种子以匹配 MATLAB 实现的随机行为，确保 Segments 构建和图划分过程的可复现性 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECBG 集成结果 |
+
+### 3.11.2 mdechc (Multi-Diversity Ensemble Clustering via Hierarchical Clustering)
+
+基于层次聚类的多重多样性集成聚类算法（MDECHC）。作为 MDEC 框架的变体，该方法同样利用 Segments 和 ECI 挖掘基聚类的细微结构，但在共识阶段，它通过局部加权共识关联（LWCA）构建相似度矩阵，并采用层次聚类（Hierarchical Clustering）生成最终的集成划分。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量。**注意：** 在 MDECHC 中，该参数不仅用于切片，还用于 LWCA 矩阵计算中的归一化处理 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器，确保 Segments 构建及后续集成过程的可复现性 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECHC 集成结果 |
+
+### 3.11.3 mdecsc (Multi-Diversity Ensemble Clustering via Spectral Clustering)
+
+基于谱聚类的多重多样性集成聚类算法（MDECSC）。作为 MDEC 框架的变体，该方法同样利用 Segments 和 ECI 挖掘基聚类的细微结构。与 MDECHC 类似，它通过局部加权共识关联（LWCA）构建相似度矩阵，但在最终划分阶段，它采用**谱聚类**（Spectral Clustering）来获得全局最优的集成结果。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量。**注意：** 该参数不仅用于切片，还用于 LWCA 矩阵计算中的归一化处理 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器，确保 Segments 构建及谱聚类过程的可复现性 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECSC 集成结果 |
 
 ### 3.12 ECCMS-TNNLS-2023
 

@@ -15,6 +15,9 @@ from .ecpcs_mc import ecpcs_mc
 from .spce import spce
 from .trce import trce
 from .cdkm import cdkm
+from .mdecbg import mdecbg
+from .mdechc import mdechc
+from .mdecsc import mdecsc
 
 # 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
@@ -34,6 +37,9 @@ __all__ = [
     "ecpcs_mc",
     "spce",
     "trce",
-    "cdkm"
+    "cdkm",
+    "mdecbg",
+    "mdechc",
+    "mdecsc"
 ]
 
