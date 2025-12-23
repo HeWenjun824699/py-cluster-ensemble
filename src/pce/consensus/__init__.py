@@ -19,6 +19,7 @@ from .mdecbg import mdecbg
 from .mdechc import mdechc
 from .mdecsc import mdecsc
 from .eccms import eccms
+from .gtlec import gtlec
 
 # 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
@@ -42,6 +43,7 @@ __all__ = [
     "mdecbg",
     "mdechc",
     "mdecsc",
-    "eccms"
+    "eccms",
+    "gtlec"
 ]
 

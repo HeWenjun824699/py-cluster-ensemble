@@ -851,9 +851,28 @@ ana.plot_parameter_sensitivity(
 
 > **来源：** On regularizing multiple clusterings for ensemble clustering by graph tensor learning-MM-2023
 
-### 3.13.1 gtlec
+### 3.13.1 gtlec (Graph-Based Tensor Learning for Ensemble Clustering)
 
+基于图张量学习的集成聚类算法（GTLEC）。该方法将集成聚类问题建模为张量优化问题，通过构建基聚类的共协张量（Co-association Tensor），并引入图正则化项来学习全局一致性矩阵，最后通过谱聚类获得最终划分。
 
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `alpha` | `float` | `0.05` | **张量稀疏性参数**<br>对应原论文及 MATLAB 代码中的参数 `alpha`<br>用于控制优化过程中张量误差项的稀疏性权重 |
+| `beta` | `float` | `7.0` | **图正则化参数**<br>对应原论文及 MATLAB 代码中的参数 `beta`<br>用于控制拉普拉斯正则化项的权重，以保持局部流形结构 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保结果可复现 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 GTLEC 集成结果 |
 
 ### 3.14 KCC-TMS-2023
 
