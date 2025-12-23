@@ -14,8 +14,9 @@ from .ecpcs_hc import ecpcs_hc
 from .ecpcs_mc import ecpcs_mc
 from .spce import spce
 from .trce import trce
+from .cdkm import cdkm
 
-# 定义当用户 from pce.generators import * 时导出什么
+# 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
     "cspa",
     "mcla",
@@ -32,6 +33,7 @@ __all__ = [
     "ecpcs_hc",
     "ecpcs_mc",
     "spce",
-    "trce"
+    "trce",
+    "cdkm"
 ]
 
