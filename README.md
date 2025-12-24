@@ -370,6 +370,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CSPA 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.1.2 mcla (Meta-Clustering Algorithm)
 
@@ -391,6 +392,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MCLA 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.1.3 hgpa (HyperGraph Partitioning Algorithm)
 
@@ -412,6 +414,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 HGPA 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.2 PTA(AL-CL-SL)-PTGP-TKDE-2016
 
@@ -437,6 +440,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTAAL 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.2.2 ptacl (Probability Trajectory based Association with Complete Linkage)
 
@@ -458,6 +462,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTACL 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.2.3 ptasl (Probability Trajectory based Association with Single Linkage)
 
@@ -479,6 +484,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTASL 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.2.4 ptgp (Probability Trajectory based Graph Partitioning)
 
@@ -500,6 +506,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTGP 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.3 LWEA-LWGP-TCYB-2018
 
@@ -526,6 +533,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 LWEA 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.3.2 lwgp (Locally Weighted Graph Partitioning)
 
@@ -548,6 +556,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 LWGP 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.4 DREC-Neurocomputing-2018
 
@@ -574,6 +583,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 DREC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.5 USENC-TKDE-2020
 
@@ -599,6 +609,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 USENC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.6 CELTA-AAAI-2021
 
@@ -625,6 +636,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CELTA 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.7 ECPCS-TSMC-2021
 
@@ -651,6 +663,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 ECPCS-HC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.7.2 ecpcs_mc (Ensemble Clustering by Propagation of Cluster-wise Similarities via Meta-Clustering)
 
@@ -673,6 +686,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 ECPCS-MC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.8 SPCE-TNNLS-2021
 
@@ -699,6 +713,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 SPCE 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.9 TRCE-AAAI-2021
 
@@ -725,6 +740,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 TRCE 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.10 CDKM-TPAMI-2022
 
@@ -751,7 +767,7 @@ ana.plot_parameter_sensitivity(
 | 变量名        | 类型               | 说明                                                                                                                    |
 | :------------ | :----------------- | :---------------------------------------------------------------------------------------------------------------------- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CDKM 集成结果 |
-
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.11 MDEC-TCYB-2022
 
@@ -777,6 +793,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECBG 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.11.2 mdechc (Multi-Diversity Ensemble Clustering via Hierarchical Clustering)
 
@@ -798,6 +815,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECHC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.11.3 mdecsc (Multi-Diversity Ensemble Clustering via Spectral Clustering)
 
@@ -819,6 +837,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 MDECSC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.12 ECCMS-TNNLS-2023
 
@@ -846,6 +865,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 ECCMS 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.13 GTLEC-MM-2023
 
@@ -873,6 +893,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 GTLEC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.14 KCC-TMS-2023
 
@@ -902,6 +923,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_Uc 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.14.2 kcc_uh (K-means Consensus Clustering with Harmonic Utility)
 
@@ -927,6 +949,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.15 CEAM-TKDE-2024
 
@@ -954,6 +977,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CEAM 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.16 SPACE-TNNLS-2024
 
@@ -983,6 +1007,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 SPACE 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 ### 3.17 CDEC-TCSVT-2025
 
@@ -1010,6 +1035,7 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CDEC 集成结果 |
+| `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
 </details>
 
