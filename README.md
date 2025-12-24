@@ -988,9 +988,28 @@ ana.plot_parameter_sensitivity(
 
 > **来源：** Towards Balance Adaptive Weighted Ensemble Clustering-TCSVT-2025
 
-### 3.17.1 cdec
+### 3.17.1 cdec (Consensus Clustering with Balance Adaptive Weighted)
 
+基于平衡自适应加权集成聚类（CDEC）。该算法引入了平衡约束与自适应加权机制，通过优化包含正则化项的目标函数来获得高质量的共识划分。算法利用参数 `lamb` ($\lambda$) 和 `gamma` ($\gamma$) 来调节模型对簇规模平衡性及不同基聚类权重的敏感度。
 
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `lamb` | `float` | `1e-3` | **正则化参数**<br>对应原论文及 MATLAB 代码中的参数 `lambda` ($\lambda$)<br>由于 `lambda` 是 Python 保留关键字，故参数命名为 `lamb`，用于控制优化过程中的正则化强度 |
+| `gamma` | `float` | `1e-1` | **平衡/加权参数**<br>对应原论文及 MATLAB 代码中的参数 `gamma` ($\gamma$)<br>用于调节自适应加权或簇平衡约束的强度 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保结果可复现 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CDEC 集成结果 |
 
 </details>
 
