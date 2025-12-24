@@ -928,39 +928,11 @@ ana.plot_parameter_sensitivity(
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果 |
 
-### 3.15 AWEC-AAAI-2024
-
-> **来源：** Enhancing Ensemble Clustering with Adaptive High-Order Topological Weights-AAAI-2024
-
-### 3.15.1 awec (Adaptive Weighted Ensemble Clustering)
-
-基于自适应加权集成聚类算法（AWEC）。该方法旨在通过引入自适应加权机制和高阶拓扑信息来增强集成效果。算法首先计算基聚类的共协矩阵，利用局部核计算（Local Kernel Calculation）构建局部相似度，并通过优化求解器（solver_AWTP）联合学习一致性矩阵与权重，最后通过谱聚类获得最终划分。
-
-**参数 (Parameters)**
-
-| 参数名 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
-| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
-| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
-| `lamb` | `float` | `0.2` | **正则化参数**<br>对应原论文及 MATLAB 代码中的参数 `lambda`<br>它是 `solver_AWTP` 函数中的正则化参数，用于控制权重分布的稀疏性或模型平滑度 |
-| `gamma` | `float` | `10.0` | **优化参数**<br>对应原论文及 MATLAB 代码中的参数 `gamma`<br>用于 `solver_AWTP` 优化求解过程中的参数 |
-| `nn_rate` | `float` | `0.5` | **近邻比例 (NNRate)**<br>对应 MATLAB 代码中的参数 `NNRate`<br>传递给 `V9_LocalKernelCalculation` 函数，用于控制局部核计算时考虑的最近邻比例或阈值 |
-| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
-| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
-| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保结果可复现 |
-
-**返回值 (Returns)**
-
-| 变量名 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 AWEC 集成结果 |
-
-### 3.16 CEAM-TKDE-2024
+### 3.15 CEAM-TKDE-2024
 
 > **来源：** Clustering Ensemble via Diffusion on Adaptive Multiplex-TKDE-2024
 
-### 3.16.1 ceam (Clustering Ensemble via Diffusion on Adaptive Multiplex)
+### 3.15.1 ceam (Clustering Ensemble via Diffusion on Adaptive Multiplex)
 
 基于自适应多层网络扩散的集成聚类算法（CEAM）。该方法将基聚类构建为多路复用网络（Multiplex Network），通过自适应权重的扩散过程（Diffusion Process）挖掘数据在不同基聚类下的高阶结构信息，从而获得稳健的共识划分。
 
@@ -983,19 +955,40 @@ ana.plot_parameter_sensitivity(
 | :--- | :--- | :--- |
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CEAM 集成结果 |
 
-### 3.17 SPACE-TNNLS-2024
+### 3.16 SPACE-TNNLS-2024
 
 > **来源：** Active Clustering Ensemble With Self-Paced Learning-TNNLS-2024
 
-### 3.17.1 space
+### 3.16.1 space (Active Clustering Ensemble with Self-Paced Learning)
 
+基于自步学习的主动聚类集成算法（SPACE）。该方法创新性地结合了**主动学习**（Active Learning）与**自步学习**（Self-Paced Learning）机制。算法模拟用户作为“Oracle”的角色，在多轮迭代中主动查询最具信息量的样本对约束（Must-Link/Cannot-Link），并利用自步学习策略逐步将这些约束纳入一致性学习过程，从而在少量人工干预下显著提升集成性能。
 
+**参数 (Parameters)**
 
-### 3.18 CDEC-TCSVT-2025
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量 (Oracle Role)**<br>形状为 `(n_samples,)`<br>**注意：** 虽然类型标记为可选，但在 SPACE 算法中，**此参数是必需的**。它充当主动学习中的“专家（Oracle）”角色，算法会使用它来模拟用户反馈，回答关于样本对是“同类”还是“异类”的查询，从而生成成对约束（Pairwise Constraints） |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `gamma` | `float` | `4.0` | **尺度超参数**<br>对应原论文及 MATLAB 代码中的参数 `gam`。该参数用于控制高斯核函数的带宽或相似度矩阵的尺度<br>内部计算逻辑为：`internal_gamma = ((gamma - 1) * 0.1)^2 / nBase` |
+| `batch_size` | `int` | `50` | **查询批次大小**<br>每一轮主动学习迭代中，算法向 Oracle 查询的样本对数量。该值决定了每次迭代获取的新约束（Constraints）的规模 |
+| `delta` | `float` | `0.1` | **自步衰减率**<br>自步学习参数 `qq` 的衰减步长。算法利用 `qq` 控制对困难样本的容忍度，随着迭代进行（`qq = qq - delta`），逐渐将更难的样本纳入训练，直至 `qq <= 0.5` |
+| `n_active_rounds` | `int` | `10` | **主动学习轮数**<br>对应 MATLAB 代码中的参数 `T`。指定算法执行主动查询和约束更新的总迭代次数。轮数越多，获取的监督信息越多，但计算耗时也会相应增加 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保主动查询序列和自步学习过程的可复现性 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 SPACE 集成结果 |
+
+### 3.17 CDEC-TCSVT-2025
 
 > **来源：** Towards Balance Adaptive Weighted Ensemble Clustering-TCSVT-2025
 
-### 3.18.1 cdec
+### 3.17.1 cdec
 
 
 
