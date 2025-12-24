@@ -1252,9 +1252,52 @@ ana.plot_parameter_sensitivity(
 
 3. 集成算法(consensus)
 
-   - [x] cspa.py（cspa集成算法）
-   - [x] mcla.py（mcla集成算法）
-   - [x] hgpa.py（hgpa集成算法）
+   17大类、27小类
+
+   - [x] CSPA-HGPA-MCLA-JMLR-2003
+     - [x] cspa.py（cspa集成算法）
+     - [x] mcla.py（mcla集成算法）
+     - [x] hgpa.py（hgpa集成算法）
+   - [x] PTA(AL-CL-SL)-PTGP-TKDE-2016
+     - [x] ptaal.py（ptaal集成算法）
+     - [x] ptacl.py（ptacl集成算法）
+     - [x] ptasl.py（ptasl集成算法）
+     - [x] ptgp.py（ptgp集成算法）
+   - [x] LWEA-LWGP-TCYB-2018
+     - [x] lwea.py（lwea集成算法）
+     - [x] lwgp.py（lwgp集成算法）
+   - [x] DREC-Neurocomputing-2018
+     - [x] drec.py（drec集成算法）
+   - [x] USENC-TKDE-2020
+     - [x] usenc.py（usenc集成算法）
+   - [x] CELTA-AAAI-2021
+     - [x] celta.py（celta集成算法）
+   - [x] ECPCS-TSMC-2021
+     - [x] ecpcs_hc.py（ecpcs_hc集成算法）
+     - [x] ecpcs_mc.py（ecpcs_mc集成算法）
+   - [x] SPCE-TNNLS-2021
+     - [x] spce.py（spce集成算法）
+   - [x] TRCE-AAAI-2021
+     - [x] trce.py（trce集成算法）
+   - [x] CDKM-TPAMI-2022
+     - [x] cdkm.py（cdkm集成算法）
+   - [x] MDEC-TCYB-2022
+     - [x] mdecbg.py（mdecbg集成算法）
+     - [x] mdechc.py（mdechc集成算法）
+     - [x] mdecsc.py（mdecsc集成算法）
+   - [x] ECCMS-TNNLS-2023
+     - [x] eccms.py（eccms集成算法）
+   - [x] GTLEC-MM-2023
+     - [x] gtlec.py（gtlec集成算法）
+   - [x] KCC-TMS-2023
+     - [x] kcc_uc.py（kcc_uc集成算法）
+     - [x] kcc_sh.py（kcc_sh集成算法）
+   - [x] CEAM-TKDE-2024
+     - [x] ceam.py（ceam集成算法）
+   - [x] SPACE-TNNLS-2024
+     - [x] space.py（space集成算法）
+   - [x] CDEC-TCSVT-2025
+     - [x] cdec.py（cdec集成算法）
 
 4. 评估指标(metrics)
 
@@ -1276,7 +1319,7 @@ ana.plot_parameter_sensitivity(
 7. 网格搜索(grid)
 
     - [x] grid_search.py（网格搜索）
-   
+
 8. utils
 
    - [x] show_function_params.py（显示函数参数）
