@@ -86,10 +86,10 @@ BPs = gen.cdkmeans(X, Y, nPartitions=200)
 # 将 200 个基聚类切分为 10 组，每组 20 个进行实验
 # API 支持指定最终簇数 (这里显式计算目标类别数)
 k = len(np.unique(Y))
-labels_list = con.cspa(BPs, nClusters=k, nBase=20, nRepeat=10)
+labels_list, time_list = con.cspa(BPs, nClusters=k, nBase=20, nRepeat=10)
 
 # 4. 评估结果
-results = met.evaluation_batch(labels_list, Y)
+results = met.evaluation_batch(labels_list, Y, time_list)
 
 # 5. 保存结果为 Excel (保留 4 位小数格式)
 io.save_results_xlsx(results, 'output/isolet_report.xlsx')

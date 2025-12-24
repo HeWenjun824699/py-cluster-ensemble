@@ -18,7 +18,30 @@ def cspa(
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。
+
+    Parameters
+    ----------
+    BPs : np.ndarray
+        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+    Y : np.ndarray, optional
+        真实标签，用于推断聚类数 k
+    nClusters : int, optional
+        目标聚类簇数 k
+    nBase : int, default=20
+        每次重复实验使用的基聚类器数量
+    nRepeat : int, default=10
+        实验重复次数
+    seed : int, default=2026
+        随机种子
+
+    Returns
+    -------
+    tuple[list[np.ndarray], list[float]]
+        A tuple containing:
+        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
+        - time_list   : A list of execution times (float) for each repetition.
     """
+
     # 1.处理数据
     # 【关键】处理 MATLAB 的 1-based 索引
     # 如果 BPs 是从 MATLAB 生成的 (litekmeans + 1)，最小值是 1

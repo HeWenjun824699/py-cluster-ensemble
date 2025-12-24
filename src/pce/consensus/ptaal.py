@@ -36,8 +36,10 @@ def ptaal(
 
     Returns
     -------
-    labels_list : List[np.ndarray]
-        包含 nRepeat 次实验结果的列表，每个元素是一个 shape 为 (n_samples,) 的预测标签数组
+    tuple[list[np.ndarray], list[float]]
+        A tuple containing:
+        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
+        - time_list   : A list of execution times (float) for each repetition.
     """
 
     # 1. 数据预处理

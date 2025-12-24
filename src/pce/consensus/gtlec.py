@@ -42,8 +42,10 @@ def gtlec(
 
     Returns
     -------
-    labels_list : List[np.ndarray]
-        List containing the consensus labels for each repetition.
+    tuple[list[np.ndarray], list[float]]
+        A tuple containing:
+        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
+        - time_list   : A list of execution times (float) for each repetition.
     """
 
     # 1. Preprocessing

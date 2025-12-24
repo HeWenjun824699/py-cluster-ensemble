@@ -279,11 +279,11 @@ class GridSearcher:
                     logger.info(f"Running Consensus: {c_method}...")
                     con_func = getattr(consensus, c_method)
                     con_kwargs, _ = self._filter_kwargs(con_func, full_config)
-                    labels = con_func(BPs, Y, **con_kwargs)
+                    labels, time_list = con_func(BPs, Y, **con_kwargs)
                     logger.info(f"Labels: {labels}")
 
                     # --- C. 评估与保存 ---
-                    metrics_res = metrics.evaluation_batch(labels, Y)
+                    metrics_res = metrics.evaluation_batch(labels, Y, time_list)
                     logger.info(f"Metrics (Raw): {metrics_res}")
                     # 计算各个指标的平均值
                     metrics_avg = self._compute_avg_metrics(metrics_res)
@@ -336,7 +336,7 @@ class GridSearcher:
                     "Dataset": dataset_name,
                     "Exp_id": exp_id,
                     "Status": status,
-                    "Time": round(elapsed, 4),
+                    "Total_Time": round(elapsed, 4),
                     **params,
                     **metrics_avg
                 }
