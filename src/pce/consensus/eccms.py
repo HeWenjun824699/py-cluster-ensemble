@@ -16,7 +16,7 @@ def eccms(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     ECCMS (Ensemble Clustering via Co-association Matrix and Spectral Clustering) Wrapper.
     Corresponding to the main logic of MATLAB script run_ECCMS_TNNLS_2023.m.
@@ -63,6 +63,7 @@ def eccms(
 
     # 2. Experiment Loop Configuration
     labels_list = []
+    time_list = []
 
     # Initialize Random State (matches MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -121,6 +122,7 @@ def eccms(
         labels_list.append(final_label)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"Repeat {iRepeat+1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

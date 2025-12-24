@@ -18,7 +18,7 @@ def space(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     SPACE Wrapper.
     Replicates the logic of run_SPACE_TNNLS_2024.m.
@@ -66,6 +66,7 @@ def space(
 
     # 2. Experiment Loop Setup
     labels_list = []
+    time_list = []
 
     # Initialize Random State (matches MATLAB's rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -124,6 +125,7 @@ def space(
         labels_list.append(final_label)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"SPACE Repeat {iRepeat + 1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

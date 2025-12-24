@@ -7,13 +7,14 @@ from .utils.compute_f import compute_f
 from .utils.balance_evl import balance_evl
 
 
-def evaluation_batch(labels, Y):
+def evaluation_batch(labels, Y, time_list=None):
     """
     Evaluates clustering performance.
     
     Parameters:
     labels : Predicted labels
     Y : Ground truth labels
+    time_list: Optional list of execution times for each run
 
     Returns:
     res : list or array
@@ -31,11 +32,18 @@ def evaluation_batch(labels, Y):
             "Entropy": entropy,
             "SDCS": SDCS,
             "RME": RME,
-            "Bal": bal
+            "Bal": bal,
+            "Time": time(optional)
           }]
     """
     res_list = []
-    for y in labels:
+
+    # Check if time_list is provided and has same length as labels
+    if time_list is not None and len(time_list) != len(labels):
+        print("Warning: time_list length does not match labels length. Ignoring time_list.")
+        time_list = None
+
+    for i, y in enumerate(labels):
         y = np.array(y).flatten()
         Y = np.array(Y).flatten()
 
@@ -148,9 +156,10 @@ def evaluation_batch(labels, Y):
             "Entropy": entropy,
             "SDCS": SDCS,
             "RME": RME,
-            "Bal": bal
+            "Bal": bal,
+            "Time": time_list[i] if time_list is not None else None
         }
-        # res = [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal]
+        # res = [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal, time]
         res_list.append(res)
 
     return res_list

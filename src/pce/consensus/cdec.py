@@ -1,7 +1,8 @@
 import time
-from typing import Optional, List
+from typing import Optional, List, Tuple, Any
 
 import numpy as np
+from numpy import ndarray, dtype
 
 from .methods.cdec_core import cdec_core
 from .utils.get_k_target import get_k_target
@@ -16,7 +17,7 @@ def cdec(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     CDEC Wrapper.
     Replicates the logic of run_CDEC_TCSVT_2025.m.
@@ -59,6 +60,7 @@ def cdec(
 
     # 2. Experiment Loop Setup
     labels_list = []
+    time_list = []
 
     # Initialize Random State (matches MATLAB's rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -109,6 +111,7 @@ def cdec(
         labels_list.append(final_label)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"CDEC Repeat {iRepeat + 1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

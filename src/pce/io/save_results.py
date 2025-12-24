@@ -176,8 +176,8 @@ def save_results_mat(
         # 2. 数据处理
         results_list = []
         for item in data:
-            acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal = item.values()
-            results_list.append([acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal])
+            acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal, time = item.values()
+            results_list.append([acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal, time])
 
         # 3. 汇总与保存
         results_mat = np.array(results_list)

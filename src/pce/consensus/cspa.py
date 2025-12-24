@@ -14,7 +14,7 @@ def cspa(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-):
+) -> tuple[list[np.ndarray], list[float]]:
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
     对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。
@@ -37,6 +37,7 @@ def cspa(
     # 准备结果容器
     # MATLAB: CSPA_result = zeros(nRepeat, nMeasure);
     labels_list = []
+    time_list = []
 
     # 初始化随机数生成器
     rs = np.random.RandomState(seed)
@@ -81,6 +82,7 @@ def cspa(
 
         labels_list.append(label_pred)
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
 
-    return labels_list
+    return labels_list, time_list
 

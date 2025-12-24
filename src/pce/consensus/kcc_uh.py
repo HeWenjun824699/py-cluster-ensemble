@@ -18,7 +18,7 @@ def kcc_uh(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     KCC_UH (K-means Consensus Clustering with Harmonic Utility) Wrapper.
     Replicates the logic of run_KCC_UH_TMS_2023.m.
@@ -71,6 +71,7 @@ def kcc_uh(
 
     # 2. Experiment Loop Setup
     labels_list = []
+    time_list = []
 
     # Initialize Random State (matches MATLAB's rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -135,6 +136,7 @@ def kcc_uh(
         labels_list.append(final_label)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"KCC_UH Repeat {iRepeat + 1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

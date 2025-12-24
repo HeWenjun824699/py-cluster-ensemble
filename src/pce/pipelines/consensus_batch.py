@@ -120,11 +120,11 @@ def consensus_batch(
 
             # --- C. 运行集成 (Consensus) ---
             print(f"    - Running Consensus: {consensus_method}...")
-            labels = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
+            labels, time_list = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
 
             # --- D. 评估 (Evaluation) ---
             print(f"    - Evaluating...")
-            res = metrics.evaluation_batch(labels, Y)
+            res = metrics.evaluation_batch(labels, Y, time_list)
 
             # --- E. 保存 (Saving) ---
             save_name = f"{dataset_name}_{consensus_method}_result.{save_format}"

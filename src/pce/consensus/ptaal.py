@@ -14,7 +14,7 @@ def ptaal(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     PTAAL (Probability Trajectory based Association for Active Learning) Wrapper.
     对应 MATLAB 脚本 run_PTAAL_TKDE_2016.m 的主逻辑。
@@ -53,6 +53,7 @@ def ptaal(
 
     # 2. 实验循环配置
     labels_list = []
+    time_list = []
 
     # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -98,8 +99,8 @@ def ptaal(
 
         labels_list.append(label_pred)
 
-        # 记录时间 (如果需要像 MATLAB 那样统计时间，可在此处理)
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"Repeat {iRepeat+1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

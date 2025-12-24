@@ -14,7 +14,7 @@ def mdecsc(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     MDECSC (Multi-Diversity Ensemble Clustering via Spectral Clustering) Wrapper.
     对应 MATLAB 脚本 run_MDECSC_TCYB_2022.m 的主逻辑。
@@ -64,6 +64,7 @@ def mdecsc(
 
     # 2. 实验循环配置
     labels_list = []
+    time_list = []
 
     # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -113,6 +114,7 @@ def mdecsc(
         labels_list.append(final_label)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"Repeat {iRepeat+1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

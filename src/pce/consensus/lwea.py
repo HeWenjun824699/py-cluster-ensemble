@@ -15,7 +15,7 @@ def lwea(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2026
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     LWEA (Locally Weighted Ensemble Clustering) Wrapper.
     对应 MATLAB 脚本 run_LWEA_TCYB_2018.m 的主逻辑。
@@ -61,6 +61,7 @@ def lwea(
 
     # 2. 实验循环配置
     labels_list = []
+    time_list = []
 
     # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -109,6 +110,7 @@ def lwea(
         labels_list.append(label_pred)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"Repeat {iRepeat+1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list

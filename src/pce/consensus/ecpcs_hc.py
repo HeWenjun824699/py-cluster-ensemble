@@ -15,7 +15,7 @@ def ecpcs_hc(
         nBase: int = 20,
         nRepeat: int = 10,
         seed: int = 2024
-) -> List[np.ndarray]:
+) -> tuple[list[np.ndarray], list[float]]:
     """
     ECPCS-HC (Ensemble Clustering by Propagation of Cluster-wise Similarities via Hierarchical Clustering) Wrapper.
     对应 MATLAB 脚本 run_ECPCSHC_t20_TSMC_2021.m 的主逻辑。
@@ -57,6 +57,7 @@ def ecpcs_hc(
 
     # 2. 实验循环配置
     labels_list = []
+    time_list = []
 
     # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
@@ -108,6 +109,7 @@ def ecpcs_hc(
         labels_list.append(label_pred)
 
         t_cost = time.time() - t_start
+        time_list.append(t_cost)
         # print(f"Repeat {iRepeat+1}/{nRepeat} finished in {t_cost:.4f}s")
 
-    return labels_list
+    return labels_list, time_list
