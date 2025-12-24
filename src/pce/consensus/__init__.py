@@ -22,6 +22,9 @@ from .eccms import eccms
 from .gtlec import gtlec
 from .kcc_uc import kcc_uc
 from .kcc_uh import kcc_uh
+from .ceam import ceam
+from .space import space
+from .cdec import cdec
 
 # 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
@@ -48,6 +51,9 @@ __all__ = [
     "eccms",
     "gtlec",
     "kcc_uc",
-    "kcc_uh"
+    "kcc_uh",
+    "ceam",
+    "space",
+    "cdec"
 ]
 
