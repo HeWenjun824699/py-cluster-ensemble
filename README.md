@@ -663,7 +663,7 @@ ana.plot_parameter_sensitivity(
 | **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引）                                                                |
 | `Y`        | `Optional[np.ndarray]` | `None`   | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数                                                                                                                 |
 | `nClusters`| `Optional[int]`        | `None`   | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断                                                                                                                  |
-| `theta`    | `float`                | `20`     | **相似度传播阈值**<br>对应原论文及 MATLAB 代码中的参数 `t`。用于控制簇间相似度传播过程中的筛选阈值或强度，默认值为 20。                                                                                                                                                                      |
+| `theta`    | `float`                | `20`     | **相似度传播阈值**<br>对应原论文及 MATLAB 代码中的参数 `t`<br>用于控制簇间相似度传播过程中的筛选阈值或强度，默认值为 20                                                                                                                                                                  |
 | `nBase`    | `int`                  | `20`     | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成                                                                                                                                |
 | `nRepeat`  | `int`                  | `10`     | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`                                                                                                                                                              |
 | `seed`     | `int`                  | `2024`   | **随机种子**<br>用于初始化随机数生成器。**注意：** 该算法默认种子为 **2024**（与 `ecpcs_hc` 保持一致），内部会显式设置 NumPy 全局随机种子以确保结果可复现                                                                                                                                                    |
@@ -886,22 +886,22 @@ ana.plot_parameter_sensitivity(
 
 | 参数名 | 类型 | 默认值 | 说明                                                                                                                                                                       |
 | :--- | :--- | :--- |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引）。 |
-| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数。                                                    |
-| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断。                                                                          |
-| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优。                                                          |
-| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`。<br>控制 KCC 核心优化过程中的最大迭代轮数。                                                                                                      |
-| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`。<br>当目标函数的变化量小于该阈值时，算法提前终止迭代。                                                                                                    |
-| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`。<br>用于控制算法内部效用函数计算或调试信息的输出模式。                                                                                                  |
-| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成。                                                                                      |
-| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`。                                                                                          |
-| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现。                                                                         |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数                                                    |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断                                                                          |
+| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优                                                          |
+| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`<br>控制 KCC 核心优化过程中的最大迭代轮数                                                                                                      |
+| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`<br>当目标函数的变化量小于该阈值时，算法提前终止迭代                                                                                                    |
+| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`<br>用于控制算法内部效用函数计算或调试信息的输出模式                                                                                                  |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成                                                                                      |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`                                                                                          |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现                                                                         |
 
 **返回值 (Returns)**
 
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_Uc 集成结果。 |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_Uc 集成结果 |
 
 ### 3.14.2 kcc_uh (K-means Consensus Clustering with Harmonic Utility)
 
@@ -911,38 +911,77 @@ ana.plot_parameter_sensitivity(
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引）。 |
-| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数。 |
-| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断。 |
-| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优。 |
-| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`。<br>控制 KCC 核心优化过程中的最大迭代轮数。 |
-| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`。<br>当目标函数的变化量小于该阈值时，算法提前终止迭代。 |
-| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`。<br>用于控制算法内部效用函数计算或调试信息的输出模式。 |
-| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成。 |
-| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat`。 |
-| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现。 |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果。代码内部会自动将数据转换为 `int` 类型，并检测处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `rep` | `int` | `5` | **内层重启次数**<br>对应 MATLAB 代码中的参数 `rep`<br>表示 KCC 核心算法内部的随机重启次数（类似 K-Means 的 `n_init`），算法会返回其中目标函数最优的一次结果，以避免局部最优 |
+| `max_iter` | `int` | `100` | **最大迭代次数**<br>对应 MATLAB 代码中的参数 `maxIter`<br>控制 KCC 核心优化过程中的最大迭代轮数 |
+| `min_thres` | `float` | `1e-5` | **收敛阈值**<br>对应 MATLAB 代码中的参数 `minThres`<br>当目标函数的变化量小于该阈值时，算法提前终止迭代 |
+| `util_flag` | `int` | `0` | **效用计算标志**<br>对应 MATLAB 代码中的参数 `utilFlag`<br>用于控制算法内部效用函数计算或调试信息的输出模式 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保每次实验选取的基聚类切片及 KCC 初始化过程可复现 |
 
 **返回值 (Returns)**
 
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果。 |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果 |
 
 ### 3.15 AWEC-AAAI-2024
 
 > **来源：** Enhancing Ensemble Clustering with Adaptive High-Order Topological Weights-AAAI-2024
 
-### 3.15.1 awec
+### 3.15.1 awec (Adaptive Weighted Ensemble Clustering)
 
+基于自适应加权集成聚类算法（AWEC）。该方法旨在通过引入自适应加权机制和高阶拓扑信息来增强集成效果。算法首先计算基聚类的共协矩阵，利用局部核计算（Local Kernel Calculation）构建局部相似度，并通过优化求解器（solver_AWTP）联合学习一致性矩阵与权重，最后通过谱聚类获得最终划分。
 
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `lamb` | `float` | `0.2` | **正则化参数**<br>对应原论文及 MATLAB 代码中的参数 `lambda`<br>它是 `solver_AWTP` 函数中的正则化参数，用于控制权重分布的稀疏性或模型平滑度 |
+| `gamma` | `float` | `10.0` | **优化参数**<br>对应原论文及 MATLAB 代码中的参数 `gamma`<br>用于 `solver_AWTP` 优化求解过程中的参数 |
+| `nn_rate` | `float` | `0.5` | **近邻比例 (NNRate)**<br>对应 MATLAB 代码中的参数 `NNRate`<br>传递给 `V9_LocalKernelCalculation` 函数，用于控制局部核计算时考虑的最近邻比例或阈值 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保结果可复现 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 AWEC 集成结果 |
 
 ### 3.16 CEAM-TKDE-2024
 
 > **来源：** Clustering Ensemble via Diffusion on Adaptive Multiplex-TKDE-2024
 
-### 3.16.1 ceam
+### 3.16.1 ceam (Clustering Ensemble via Diffusion on Adaptive Multiplex)
 
+基于自适应多层网络扩散的集成聚类算法（CEAM）。该方法将基聚类构建为多路复用网络（Multiplex Network），通过自适应权重的扩散过程（Diffusion Process）挖掘数据在不同基聚类下的高阶结构信息，从而获得稳健的共识划分。
 
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br>形状为 `(n_samples,)`<br>**用途：** 当 `nClusters` 为 `None` 时，代码内部使用 `len(np.unique(Y))` 来确定最终集成聚类的目标类别数 |
+| `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
+| `alpha` | `float` | `0.85` | **扩散衰减系数**<br>对应原论文及 MATLAB 代码中的参数 `alpha`<br>用于控制扩散过程中的信息衰减程度或重启概率，值越大通常表示更关注局部结构 |
+| `knn_size` | `int` | `20` | **近邻数**<br>对应原论文及 MATLAB 代码中的参数 `knn_size`<br>用于在构建局部关联或扩散过程中定义邻域的大小 |
+| `nBase` | `int` | `20` | **单次集成基聚类数**<br>每次实验使用的基聚类数量（切片大小）<br>例如：池中共有 200 个基聚类，设为 20 表示每次实验只使用其中 20 个来进行集成 |
+| `nRepeat` | `int` | `10` | **实验重复次数**<br>程序会进行 `nRepeat` 次独立实验，循环切片 `BPs`。所需的基聚类总列数 = `nBase` × `nRepeat` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于初始化随机数生成器。**注意：** 内部会显式设置 NumPy 全局随机种子以匹配 MATLAB 的逻辑，确保结果可复现 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CEAM 集成结果 |
 
 ### 3.17 SPACE-TNNLS-2024
 
