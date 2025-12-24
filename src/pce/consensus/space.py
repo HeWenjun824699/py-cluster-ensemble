@@ -9,7 +9,7 @@ from .utils.get_k_target import get_k_target
 
 def space(
         BPs: np.ndarray,
-        Y: Optional[np.ndarray] = None,
+        Y: np.ndarray,
         nClusters: Optional[int] = None,
         gamma: float = 4.0,
         batch_size: int = 50,
@@ -27,7 +27,7 @@ def space(
     ----------
     BPs : np.ndarray
         Base Partitions matrix, shape (n_samples, n_estimators).
-    Y : np.ndarray, optional
+    Y : np.ndarray
         True labels. Used to determine k if nClusters is not provided, 
         and passed to SPACE core if available.
     nClusters : int, optional

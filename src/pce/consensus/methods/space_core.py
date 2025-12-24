@@ -9,7 +9,7 @@ from .SPACE_TNNLS_2024.SPACE import SPACE
 def space_core(
         BPi: np.ndarray,
         nCluster: int,
-        Y: np.ndarray = None,
+        Y: np.ndarray,
         gamma: float = 4.0,
         batch_size: int = 50,
         delta: float = 0.1,
@@ -30,7 +30,7 @@ def space_core(
         Base Partitions subset (n_samples, n_base).
     nCluster : int
         Target number of clusters.
-    Y : np.ndarray, optional
+    Y : np.ndarray
         True labels. The MATLAB implementation passes this to SPACE, 
         likely for semi-supervised constraints or internal NMI calculation.
     gamma : float, default=4.0

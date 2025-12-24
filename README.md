@@ -968,7 +968,7 @@ ana.plot_parameter_sensitivity(
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵 (Base Partitions)**<br>形状通常为 `(n_samples, n_total_clusterings)`<br>每一列代表一个基聚类器的结果，代码内部会自动检测并处理 MATLAB 风格的 1-based 索引（将其转换为 Python 的 0-based 索引） |
-| **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量 (Oracle Role)**<br>形状为 `(n_samples,)`<br>**注意：** 虽然类型标记为可选，但在 SPACE 算法中，**此参数是必需的**。它充当主动学习中的“专家（Oracle）”角色，算法会使用它来模拟用户反馈，回答关于样本对是“同类”还是“异类”的查询，从而生成成对约束（Pairwise Constraints） |
+| **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量 (Oracle Role)**<br>形状为 `(n_samples,)`<br>**注意：** 在 SPACE 算法中，**此参数是必需的**。它充当主动学习中的“专家（Oracle）”角色，算法会使用它来模拟用户反馈，回答关于样本对是“同类”还是“异类”的查询，从而生成成对约束（Pairwise Constraints） |
 | `nClusters` | `Optional[int]` | `None` | **目标聚类簇数 (可选)**<br>**用途：** 显式指定集成结果的类别数<br>优先级高于 `Y`，若指定则直接使用该值作为最终聚类数；若未指定且 `Y` 存在，则从 `Y` 中推断 |
 | `gamma` | `float` | `4.0` | **尺度超参数**<br>对应原论文及 MATLAB 代码中的参数 `gam`。该参数用于控制高斯核函数的带宽或相似度矩阵的尺度<br>内部计算逻辑为：`internal_gamma = ((gamma - 1) * 0.1)^2 / nBase` |
 | `batch_size` | `int` | `50` | **查询批次大小**<br>每一轮主动学习迭代中，算法向 Oracle 查询的样本对数量。该值决定了每次迭代获取的新约束（Constraints）的规模 |
