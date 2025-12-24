@@ -39,7 +39,7 @@ def TensorEC(H, c, alpha, beta):
     start_time = time.time()
     
     while Isconverg == 0:
-        print(f'----processing iter {iter_ + 1}--------')
+        print(f'--------processing iter {iter_ + 1}--------')
         
         for v in range(V):
             # 1 update Z^k and S^k
@@ -102,13 +102,13 @@ def TensorEC(H, c, alpha, beta):
         
         for v in range(V):
             # Check S-A
-            norm_S_A = np.max(np.abs(S[v] - A[v])) # inf norm
+            norm_S_A = np.linalg.norm(S[v] - A[v], ord=np.inf) # inf norm
             if norm_S_A > epson:
                 maxvalue = max(maxvalue, norm_S_A)
                 Isconverg = 0
                 
             # Check S-Z
-            norm_S_Z = np.max(np.abs(S[v] - Z[v]))
+            norm_S_Z = np.linalg.norm(S[v] - Z[v], ord=np.inf)
             if norm_S_Z > epson:
                 maxvalue = max(maxvalue, norm_S_Z)
                 Isconverg = 0
