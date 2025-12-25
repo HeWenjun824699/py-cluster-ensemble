@@ -32,26 +32,57 @@ def save_results_csv(
         df.index = df.index + 1
 
         if add_summary and not df.empty:
-            # 2.1 计算统计量
-            stats = pd.DataFrame({
-                'Mean': df.mean(numeric_only=True),
-                'Std': df.std(numeric_only=True, ddof=1)
-            }).T
+            # 2.1 先计算统计量
+            means = df.mean(numeric_only=True)
+            stds = df.std(numeric_only=True, ddof=1)
 
-            # 2.2 【关键修改】构造一个空行
-            # values 使用 None，index 使用空字符串 ''，这样在 CSV 里这行就是全空的
+            stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
+
+            # ================= [新增逻辑开始] =================
+            # 2.2 构造 Str 行：格式为 "Mean±Std" (数值*100后保留2位小数)
+            str_data = {}
+            for col in df.columns:
+                if col in means.index:
+                    # 【修改点】判断列名是否包含 'time' (不区分大小写)
+                    if 'time' in str(col).lower():
+                        # Time 列：不乘 100，保留 2 位小数
+                        m_val = means[col]
+                        s_val = stds[col]
+                        str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
+                    else:
+                        # 指标列：乘 100，保留 2 位小数 (百分比格式)
+                        m_val = means[col] * 100
+                        s_val = stds[col] * 100
+                        str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
+                else:
+                    str_data[col] = ""
+            str_row_df = pd.DataFrame([str_data], index=['Str'])
+
+            # 2.3 【关键修改】手动格式化数值为字符串
+            # 将 .applymap() 替换为 .map()
+            format_func = lambda x: float_format % x
+
+            # 修复警告：使用 map 替代 applymap
+            df_str = df.map(format_func)
+            stats_str = stats.map(format_func)
+            # ================= [新增逻辑结束] =================
+
+            # 2.4 构造空行
             empty_row = pd.DataFrame(
-                [[np.nan] * df.shape[1]],
+                [[''] * df.shape[1]],
                 columns=df.columns,
                 index=['']
             )
 
-            # 2.3 拼接：原始数据 -> 空行 -> 统计数据
-            df = pd.concat([df, empty_row, stats])
+            # 2.5 拼接
+            df_final = pd.concat([df_str, empty_row, stats_str, str_row_df])
+
+        else:
+            df_final = df
 
         # --- 3. 保存 ---
         # na_rep='' 确保 None 被保存为空字符串而不是 'NaN'
-        df.to_csv(
+        df_final.to_csv(
             final_path,
             index=True,
             index_label="Round",
@@ -100,19 +131,44 @@ def save_results_xlsx(
         df[numeric_cols] = df[numeric_cols].astype(float)
 
         if add_summary and not df.empty:
-            stats = pd.DataFrame({
-                'Mean': df.mean(numeric_only=True),
-                'Std': df.std(numeric_only=True, ddof=1)
-            }).T
+            means = df.mean(numeric_only=True)
+            stds = df.std(numeric_only=True, ddof=1)
 
-            # 构造空行 (Excel 中 np.nan 会显示为空白单元格)
+            stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
+
+            # ================= [新增逻辑开始] =================
+            # 构造 Str 行：格式为 "Mean±Std" (数值*100后保留2位小数)
+            str_data = {}
+            for col in df.columns:
+                if col in means.index:
+                    # 【修改点】判断列名是否包含 'time'
+                    if 'time' in str(col).lower():
+                        # Time 列：不乘 100，保留 2 位小数
+                        m_val = means[col]
+                        s_val = stds[col]
+                        str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
+                    else:
+                        # 指标列：乘 100，保留 2 位小数 (百分比格式)
+                        m_val = means[col] * 100
+                        s_val = stds[col] * 100
+                        str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
+                else:
+                    str_data[col] = ""
+
+            str_row_df = pd.DataFrame([str_data], index=['Str'])
+            # ================= [新增逻辑结束] =================
+
+            # 构造空行
             empty_row = pd.DataFrame(
                 [[np.nan] * df.shape[1]],
                 columns=df.columns,
                 index=['']
             )
 
-            df = pd.concat([df, empty_row, stats])
+            # 拼接：原始数据 -> 空行 -> 统计数据 -> Str行
+            # 注意：拼接后，因为有了 Str 行，这些列在 Pandas 内部会变成 object 类型
+            # 但不影响 xlsxwriter 将其中的 float 写入为数字
+            df = pd.concat([df, empty_row, stats, str_row_df])
 
         # --- 3. 使用 XlsxWriter 引擎保存并设置格式 ---
         # 这一步是关键：直接操作 Excel 的格式对象
@@ -187,11 +243,32 @@ def save_results_mat(
             summary_mean = np.mean(results_mat, axis=0)
             summary_std = np.std(results_mat, axis=0, ddof=1)
 
+            # ================= [新增逻辑开始] =================
+            # 构造 Mean%±Std% 字符串列表
+            summary_str_list = []
+
+            # 遍历每一列的均值和标准差
+            for i, (m, s) in enumerate(zip(summary_mean, summary_std)):
+                # 【修改点】判断是否为最后一列 (Time 列)
+                if i == len(summary_mean) - 1:
+                    # Time 列：不乘 100
+                    val_str = f"{m:.2f}±{s:.2f}"
+                else:
+                    # 其他指标列：乘 100
+                    val_str = f"{m * 100:.2f}±{s * 100:.2f}"
+
+                summary_str_list.append(val_str)
+
+            # 转为 numpy object 数组，这样 savemat 会将其保存为 MATLAB 的 Cell Array
+            summary_str_arr = np.array(summary_str_list, dtype=object)
+            # ================= [新增逻辑结束] =================
+
             # 构造保存字典
             save_dict = {
                 'result': results_mat,
                 'result_summary': summary_mean,
-                'result_summary_std': summary_std
+                'result_summary_std': summary_std,
+                'result_summary_str': summary_str_arr  # 新增字段
             }
         else:
             save_dict = {

@@ -1061,7 +1061,7 @@ ana.plot_parameter_sensitivity(
 
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| **`res`** | `List[float]` | **评估指标列表**<br>包含14个浮点数的列表，顺序依次为：<br>`[ACC, NMI, Purity, AR, RI, MI, HI, F-Score, Precision, Recall, Entropy, SDCS, RME, Bal]` |
+| `res` | `List[float]` | **评估指标列表**<br>包含14个浮点数的列表，顺序依次为：<br>`[ACC, NMI, Purity, AR, RI, MI, HI, F-Score, Precision, Recall, Entropy, SDCS, RME, Bal]` |
 
 ### 4.2 evaluation_batch 参数和返回值说明
 
@@ -1070,15 +1070,16 @@ ana.plot_parameter_sensitivity(
 **参数 (Parameters)**
 
 | 参数名 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | ---- |
+| :--- | :--- | :--- | :--- |
 | **`labels`** | **`List[np.ndarray]`** | **必填** | **预测标签列表**<br>包含多个预测结果的列表，列表中的每个元素都是一个形状为 `(n_samples,)` 的一维数组（例如多次实验的聚类结果），函数将遍历此列表逐一评估 |
 | **`Y`** | **`np.ndarray`** | **必填** | **真实标签向量**<br>数据集的真实标签 (Ground Truth)，用于评估聚类性能，代码内部会自动展平为一维数组 |
+| `time_list` | `Optional[List[float]]` | `None` | **执行时间列表 (可选)**<br>包含对应每次实验运行耗时的列表（单位：秒）<br>若提供，其长度必须与 `labels` 一致，结果字典中将额外包含 `Time` 字段 |
 
 **返回值 (Returns)**
 
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| **`res_list`** | `List[Dict]` | **评估结果列表**<br>列表中的每个元素都是一个字典，对应 `labels` 中每一次预测的评估结果。字典包含以下 14 个 Key：<br>`['ACC', 'NMI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score', 'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal']` |
+| `res_list` | `List[Dict]` | **评估结果列表**<br>列表中的每个元素都是一个字典，对应 `labels` 中每一次预测的评估结果。字典包含以下 Key：<br>1. **基础指标**: `'ACC'`, `'NMI'`, `'Purity'`, `'AR'`, `'RI'`, `'MI'`, `'HI'`, `'F-Score'`, `'Precision'`, `'Recall'`<br>2. **熵与平衡指标**: `'Entropy'`, `'SDCS'`, `'RME'`, `'Bal'`<br>3. **耗时 (可选)**: `'Time'` (仅当输入提供了 `time_list` 时存在) |
 
 </details>
 
