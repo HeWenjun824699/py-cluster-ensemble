@@ -248,8 +248,8 @@ def plot_parameter_sensitivity(
     df = pd.read_csv(csv_file)
 
     # 2. 筛选特定算法
-    if method_name:
-        df = df[df['consensus_method'] == method_name]
+    # if method_name:
+    #     df = df[df['consensus_method'] == method_name]
 
     if df.empty:
         print(f"Error: No data found for method '{method_name}'")
@@ -257,9 +257,9 @@ def plot_parameter_sensitivity(
 
     # 3. 识别所有的超参数列 (你需要根据实际情况维护这个列表，或者自动检测)
     # 自动检测逻辑：列名不在黑名单中，且nunique > 1
-    exclude_cols = {'Dataset', 'Exp_id', 'Status', 'Time', 'consensus_method',
+    exclude_cols = {'Dataset', 'Exp_id', 'Status', 'Total_Time', 'consensus_method',
                     'ACC', 'NMI', 'ARI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score',
-                    'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal'}
+                    'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal', 'Time'}
 
     potential_params = [c for c in df.columns if c not in exclude_cols]
 

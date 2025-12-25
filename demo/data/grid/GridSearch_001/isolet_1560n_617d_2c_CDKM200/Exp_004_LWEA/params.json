@@ -1,0 +1,11 @@
+{
+    "generator_method": "cdkmeans",
+    "nPartitions": 200,
+    "seed": 2026,
+    "maxiter": 100,
+    "replicates": 1,
+    "nBase": 20,
+    "nRepeat": 10,
+    "consensus_method": "lwea",
+    "theta": 20
+}
