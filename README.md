@@ -4,9 +4,14 @@
 
 > **A Comprehensive Python Toolkit for Cluster Ensemble Generation, Consensus, and Automated Experimentation.**
 
-**py-cluster-ensemble (PCE)** 是一款专为科研与学术界打造的 Python 聚类集成（Cluster Ensemble）通用框架。
+**py-cluster-ensemble (PCE)** 是一款专为**科研与学术界**打造的 Python 聚类集成（Cluster Ensemble）通用框架。
 
-它致力于解决 Python 生态中缺乏统一聚类集成工具的痛点，提供从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化流水线。PCE 特别针对科研实验场景进行了深度优化，完美兼容 MATLAB (`.mat`) 数据交互，并内置 **智能网格搜索**、**自动化批处理** 及 **论文级可视化** 模块，旨在打造从 MATLAB 到 Python 的无缝迁移体验。
+针对 Python 生态缺乏统一集成工具的现状，PCE 提供了从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化全链路解决方案。它特别针对科研实验场景进行了深度优化，注重**实验的可复现性**与**MATLAB 迁移体验**，内置以下核心能力：
+
+* 🔄 **无缝迁移**：完美兼容 MATLAB (`.mat`) 数据格式，自动处理索引转换，降低转码成本。
+* 🛠️ **全栈流程**：收录 27+ 种主流集成算法（2003-2025）及 14+ 种聚类评估指标。
+* ⚡ **自动化实验**：内置智能网格搜索与批处理流水线，大幅提升实验效率。
+* 📊 **论文级绘图**：一键生成符合学术标准的高质量可视化图表。
 
 ---
 
@@ -336,6 +341,96 @@ ana.plot_parameter_sensitivity(
 | 变量名 | 类型         | 说明                                                                                                                                                                           |
 | :----- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BPs`  | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br>形状为 `(n_samples, nPartitions)`<br>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
+
+### 2.3 rskmeans 参数和返回值说明
+
+基于随机子空间（Random Subspace）的基聚类生成器。该方法通过在每次迭代中随机抽取特征子集来运行 K-Means，利用**特征扰动 (Feature Perturbation)** 增加集成的多样性，特别适用于高维数据。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状为 `(n_samples, n_features)`。算法将在该数据的随机特征子集上运行 |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br/>形状通常为 `(n_samples,)`<br/> **用途：** 当 `nClusters` 为 `None` 时，用于辅助推断 K 值范围<br/>1. **若提供**：利用真实类别数 `K_real`，设定 K 值随机范围为 `[min(K_real, sqrt(N)), max(K_real, sqrt(N))]`<br/>2. **若未提供**：完全无监督，K 值范围默认为 `[2, ceil(sqrt(N))]` |
+| `nClusters` | `Optional[int]` | `None` | **聚类簇数 (可选)**<br>用于控制 K 值的生成模式（固定或随机） |
+| `nPartitions` | `int` | `200` | **基聚类数量**<br>生成基聚类矩阵 `BPs` 的列数 |
+| `subspace_ratio` | `float` | `0.5` | **特征子空间采样率**<br>控制每次抽取特征的比例（范围 `0 < ratio <= 1`）<br>例如：`0.5` 表示每次随机使用 50% 的特征进行聚类。该参数对应 Fred & Jain (TPAMI 2005) 论文中的经典设置 |
+| `seed` | `int` | `2026` | **随机种子**<br>用于控制特征抽样、K 值选择及 K-Means 初始化的随机性 |
+| `maxiter` | `int` | `100` | **最大迭代次数**<br>内部 K-Means 算法的最大迭代次数 |
+| `replicates` | `int` | `1` | **重复运行次数**<br>每次在子空间上运行 K-Means 的尝试次数，取最优结果 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br/>形状为 `(n_samples, nPartitions)`<br/>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
+
+### 2.4 rpkmeans 参数和返回值说明
+
+基于随机投影（Random Projection）的基聚类生成器。该方法利用 Johnson-Lindenstrauss 引理，通过高斯随机矩阵将高维数据投影到低维空间，在保持样本间距离结构的同时改变数据的几何分布。属于**数据投影策略**，适合超高维或稀疏数据。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状为 `(n_samples, n_features)`。算法将在投影后的低维数据上运行 |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br/>形状通常为 `(n_samples,)`<br/> **用途：** 当 `nClusters` 为 `None` 时，用于辅助推断 K 值范围<br/>1. **若提供**：利用真实类别数 `K_real`，设定 K 值随机范围为 `[min(K_real, sqrt(N)), max(K_real, sqrt(N))]`<br/>2. **若未提供**：完全无监督，K 值范围默认为 `[2, ceil(sqrt(N))]` |
+| `nClusters` | `Optional[int]` | `None` | **聚类簇数 (可选)**<br>用于控制 K 值的生成模式（固定或随机） |
+| `nPartitions` | `int` | `200` | **基聚类数量**<br>生成基聚类矩阵 `BPs` 的列数 |
+| `projection_ratio` | `float` | `0.5` | **投影维度比率**<br>控制目标低维空间的维度相对于原始维度的比例（范围 `0 < ratio <= 1`）<br>例如：原始 1000 维，`0.5` 表示投影到 500 维空间 |
+| `seed` | `int` | `2026` | **随机种子**<br>用于控制随机投影矩阵的生成、K 值选择及 K-Means 初始化 |
+| `maxiter` | `int` | `100` | **最大迭代次数**<br>内部 K-Means 算法的最大迭代次数 |
+| `replicates` | `int` | `1` | **重复运行次数**<br>每次在投影空间上运行 K-Means 的尝试次数 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br/>形状为 `(n_samples, nPartitions)`<br/>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
+
+### 2.5 bagkmeans 参数和返回值说明
+
+基于 Bagging（Bootstrap Aggregating）的基聚类生成器。该方法通过对样本进行重采样（Subsampling）训练聚类中心，并将未被选中的样本指派给最近的质心。利用**数据扰动 (Data Perturbation)** 显著提升集成的抗噪性和鲁棒性。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状为 `(n_samples, n_features)` |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br/>形状通常为 `(n_samples,)`<br/> **用途：** 当 `nClusters` 为 `None` 时，用于辅助推断 K 值范围<br/>1. **若提供**：利用真实类别数 `K_real`，设定 K 值随机范围为 `[min(K_real, sqrt(N)), max(K_real, sqrt(N))]`<br/>2. **若未提供**：完全无监督，K 值范围默认为 `[2, ceil(sqrt(N))]` |
+| `nClusters` | `Optional[int]` | `None` | **聚类簇数 (可选)**<br>用于控制 K 值的生成模式（固定或随机） |
+| `nPartitions` | `int` | `200` | **基聚类数量**<br>生成基聚类矩阵 `BPs` 的列数 |
+| `subsample_ratio` | `float` | `0.8` | **样本重采样率**<br>每次聚类使用的样本比例（范围 `0 < ratio <= 1`）<br>默认为 `0.8`，即随机抽取 80% 的样本进行训练，剩余 20% 通过最近邻归类 |
+| `seed` | `int` | `2026` | **随机种子**<br>用于控制样本重采样索引、K 值选择及 K-Means 初始化 |
+| `maxiter` | `int` | `100` | **最大迭代次数**<br>内部 K-Means 算法的最大迭代次数 |
+| `replicates` | `int` | `1` | **重复运行次数**<br>每次在子样本上运行 K-Means 的尝试次数 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br/>形状为 `(n_samples, nPartitions)`<br/>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
+
+### 2.6 hetero_clustering 参数和返回值说明
+
+异构集成生成器（Heterogeneous Ensemble Generator）。该方法通过混合使用具有不同**归纳偏置 (Inductive Bias)** 的算法（如谱聚类、层次聚类、GMM、K-Means），在**模型层面 (Model Perturbation)** 引入最大化的多样性，适合处理非凸或复杂结构的簇。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **输入特征矩阵**<br>形状为 `(n_samples, n_features)` |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签向量 (可选)**<br/>形状通常为 `(n_samples,)`<br/> **用途：** 当 `nClusters` 为 `None` 时，用于辅助推断 K 值范围<br/>1. **若提供**：利用真实类别数 `K_real`，设定 K 值随机范围为 `[min(K_real, sqrt(N)), max(K_real, sqrt(N))]`<br/>2. **若未提供**：完全无监督，K 值范围默认为 `[2, ceil(sqrt(N))]` |
+| `nClusters` | `Optional[int]` | `None` | **聚类簇数 (可选)**<br>用于控制 K 值的生成模式（固定或随机） |
+| `nPartitions` | `int` | `200` | **基聚类数量**<br>生成基聚类矩阵 `BPs` 的列数 |
+| `algorithms` | `Union[str, List[str]]` | `'auto'` | **算法池配置**<br>指定用于生成基聚类的算法集合<br>1. **`'auto'` (默认)**: 随机混合所有可用算法 `['spectral', 'ward', 'average', 'complete', 'gmm', 'kmeans']`<br>2. **List[str]**: 指定算法子集，如 `['spectral', 'ward']`<br>3. **str**: 固定使用单一算法，如 `'spectral'` |
+| `seed` | `int` | `2026` | **随机种子**<br>用于控制算法选择、K 值选择及各算法内部的随机过程（如 Spectral 和 GMM 的初始化） |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br/>形状为 `(n_samples, nPartitions)`<br/>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
 
 </details>
 
@@ -1229,34 +1324,34 @@ ana.plot_parameter_sensitivity(
 
 ### ✅ 已完成特性 (Implemented Features)
 
-**1. 基础架构与 IO (Infrastructure & IO)**
-- [x] **MATLAB 深度兼容**: 完美支持 `.mat` v7.3 格式读取，自动处理 1-based/0-based 索引转换
-- [x] **多格式导出**: 支持将实验结果导出为 CSV、Excel (自动保留小数位格式) 及 MAT 文件
-- [x] **开发辅助**: 提供 `utils` 模块，支持查看算法参数签名及网格搜索兼容性
+**1. 核心算法库 (Core Algorithms Library)**
+> 👑 **行业领先的算法覆盖度**: 收录 **17 大类、27 小类** 聚类集成算法，时间跨度覆盖 **2003 至 2025** 年。
 
-**2. 核心算法 (Core Algorithms)**
-- [x] **基聚类生成器**: 支持 `LiteKMeans` (高速实现) 与 `CDK-Means` (约束性差异化生成)
-- [x] **集成共识算法**: 实现了 `CSPA` (基于相似度)、`MCLA` (基于元聚类) 及 `HGPA` (基于超图) 等经典算法
-- [x] **评估指标**: 内置 NMI, ARI, ACC, Purity, F-Score 等 14 种常用聚类指标
+- [x] **基聚类生成 (Generators)**: 6 种差异化生成策略
+  - **K-Means 变体**: `LiteKMeans` (高速), `CDK-Means` (坐标下降)
+  - **扰动策略**: `RSKMeans` (随机子空间), `RPKMeans` (随机投影), `BagKMeans` (Bagging 重采样)
+  - **异构策略**: `Hetero-Clustering` (混合模型)
+- [x] **经典集成 (Classics)**: `CSPA`, `MCLA`, `HGPA` (JMLR-03)
+- [x] **图与谱聚类集成 (Graph & Spectral)**: `LWEA`, `LWGP`, `PTGP`, `SPCE`, `ECCMS`
+- [x] **矩阵与张量分解 (Matrix & Tensor)**: `CELTA`, `GTLEC`, `TRCE`
+- [x] **深度/高级策略 (Advanced)**: `SPACE` (自步主动学习), `CDEC` (自适应加权-2025), `CEAM` (多层网络扩散)
 
-**3. 可视化分析 (Visualization & Analysis)**
-- [x] **降维可视化**: 集成 t-SNE 与 PCA，支持原始数据及聚类结果的 2D 散点图绘制
-- [x] **共协矩阵热力图**: 支持绘制排序后的共协矩阵 (Co-association Matrix) 以观察集成一致性
-- [x] **性能分析**: 支持绘制多轮实验的指标折线图 (Trace Plot) 及超参数敏感性分析图
+**2. 基础设施与自动化 (Infrastructure & Automation)**
+- [x] **IO 增强**: 完美兼容 MATLAB v7.3 (`.mat`), 支持 CSV/Excel/MAT 多格式导出
+- [x] **自动化流水线**: `consensus_batch` 实现从“目录扫描 -> 生成 -> 集成 -> 评估”的全链路自动化
+- [x] **智能网格搜索**: `GridSearcher` 支持超参数笛卡尔积扫描、自动剪枝与日志记录
 
-**4. 自动化与实验 (Automation)**
-- [x] **批处理流水线**: `consensus_batch` 支持目录级扫描，一键完成“生成-集成-评估-保存”全流程
-- [x] **智能网格搜索**: `GridSearcher` 支持参数笛卡尔积生成，具备**自动剪枝 (Pruning)** 功能，并自动记录详细日志
+**3. 评估与可视化 (Evaluation & Visualization)**
+- [x] **全维评估**: 内置 NMI, ARI, ACC, Purity 等 14 种聚类指标
+- [x] **论文级绘图**:
+  - 数据分布: 2D Scatter (t-SNE/PCA)
+  - 结构分析: Co-association Matrix Heatmap
+  - 实验分析: Metric Trace Plot (折线图) & Parameter Sensitivity (敏感度分析)
 
-### 🚧 开发计划 (Future Plans)
+### 🚀 v1.0.0 发布准备 (Preparation for v1.0.0)
 
-**1. 算法扩展 (Algorithm Expansion)**
-- [ ] **更多共识算法**: 计划新增 EAC (Evidence Accumulation), NMF-based 等集成策略
-- [ ] **更多生成策略**: 计划新增基于随机投影或数据采样的基聚类生成器
-
-**2. 工程化与发布 (Engineering)**
-- [ ] **文档完善**: 部署 ReadTheDocs 在线文档与详细 API 索引
-- [ ] **PyPI 发布**: 完成 v1.0.0 正式版发布流程
+- [ ] **文档建设 (Documentation)**: 部署 ReadTheDocs 在线文档，提供详细 API 索引与教程
+- [ ] **正式发布 (Release)**: 完成 PyPI 发包流程，发布 v1.0.0 正式版
 
 ---
 
@@ -1276,6 +1371,10 @@ ana.plot_parameter_sensitivity(
 
    - [x] litekmeans.py（litekmeans生成基聚类）
    - [x] cdkmeans.py（cdkmeans生成基聚类）
+   - [x] rskmeans.py（rskmeans生成基聚类）
+   - [x] rpkmeans.py（rpkmeans生成基聚类）
+   - [x] bagkmeans.py（bagkmeans生成基聚类）
+   - [x] hetero_clustering.py（hetero_clustering生成基聚类）
 
 3. 集成算法(consensus)
 
