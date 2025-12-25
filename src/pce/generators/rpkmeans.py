@@ -2,6 +2,7 @@ from typing import Optional
 import numpy as np
 
 from .methods.rpkmeans_core import rpkmeans_core
+from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 
 
@@ -25,6 +26,9 @@ def rpkmeans(
     该方法特别适合高维数据，计算速度通常快于 Random Subspace。
     """
     nSmp = X.shape[0]
+
+    # 【核心修改】自动处理所有格式问题
+    X = check_array(X, accept_sparse=False)
 
     # --- 1. 调用辅助函数获取 K 值范围 ---
     # 保持与 litekmeans/cdkmeans/rskmeans 一致的 Random-k 逻辑

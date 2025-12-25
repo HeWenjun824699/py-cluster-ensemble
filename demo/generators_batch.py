@@ -1,13 +1,11 @@
 import os
 
-import scipy
-
 import pce
 
 # ================= Configuration =================
 
 DATA_DIR = r"./data"
-OUT_ROOT = r"./data"
+OUT_ROOT = r"./data/generators"
 OVERWRITE = False
 
 COMMON_ARGS = {
@@ -55,14 +53,6 @@ for filename in mat_files:
     # Load data
     data_path = os.path.join(DATA_DIR, filename)
     X, Y = pce.io.load_mat_X_Y(data_path)
-
-    # [FIX] Convert sparse matrix to dense array if needed
-    if scipy.sparse.issparse(X):
-        print(f"    Notice: Converting sparse matrix to dense array...")
-        X = X.toarray()
-    # Fallback for other sparse types that might not trigger issparse but have toarray
-    elif hasattr(X, 'toarray'):
-        X = X.toarray()
 
     dataset_name = os.path.splitext(filename)[0]
 

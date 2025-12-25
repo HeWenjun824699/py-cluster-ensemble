@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 
+from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 from .methods.litekmeans_core import litekmeans_core
 
@@ -20,6 +21,9 @@ def litekmeans(
     对应 MATLAB 脚本的主逻辑
     """
     nSmp = X.shape[0]
+
+    # 【核心修改】自动处理所有格式问题
+    X = check_array(X, accept_sparse=False)
 
     # # 原 nClusters 逻辑
     # nCluster = len(np.unique(Y))

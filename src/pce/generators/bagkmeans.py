@@ -2,6 +2,7 @@ from typing import Optional
 import numpy as np
 
 from .methods.bagkmeans_core import bagkmeans_core
+from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 
 
@@ -25,6 +26,9 @@ def bagkmeans(
     该方法通过在不同的数据子集上训练，显著提高了集成的抗噪性和鲁棒性。
     """
     nSmp = X.shape[0]
+
+    # 【核心修改】自动处理所有格式问题
+    X = check_array(X, accept_sparse=False)
 
     # --- 1. 调用辅助函数获取 K 值范围 ---
     # 保持与 litekmeans/cdkmeans/rskmeans/rpkmeans 一致的 Random-k 逻辑

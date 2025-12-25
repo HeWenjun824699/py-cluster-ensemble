@@ -2,6 +2,7 @@ from typing import Optional, List, Union
 import numpy as np
 
 from .methods.hetero_clustering_core import hetero_clustering_core
+from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 
 
@@ -29,6 +30,9 @@ def hetero_clustering(
         - str: Fix one algorithm, e.g. 'spectral'
     """
     nSmp = X.shape[0]
+
+    # 【核心修改】自动处理所有格式问题
+    X = check_array(X, accept_sparse=False)
 
     # --- 1. 配置算法池 ---
     if algorithms == 'auto':

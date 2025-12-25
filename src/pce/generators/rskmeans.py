@@ -2,6 +2,7 @@ from typing import Optional
 import numpy as np
 
 from .methods.rskmeans_core import rskmeans_core
+from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 
 
@@ -23,6 +24,9 @@ def rskmeans(
     2. Feature Perturbation: 随机特征子空间 (Random Subspace)
     """
     nSmp = X.shape[0]
+
+    # 【核心修改】自动处理所有格式问题
+    X = check_array(X, accept_sparse=False)
 
     # --- 1. 调用辅助函数获取 K 值范围 ---
     # 保持与 litekmeans/cdkmeans 一致的 Random-k 逻辑
