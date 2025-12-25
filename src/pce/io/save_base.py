@@ -62,7 +62,7 @@ def save_base_mat(
 
         # --- 4. 保存 ---
         scipy.io.savemat(final_path, save_dict)
-        print(f"Base clusterings saved to {final_path}")
+        # print(f"Base clusterings saved to {final_path}")
 
     except Exception as e:
         print(f"Failed to save base mat: {e}")

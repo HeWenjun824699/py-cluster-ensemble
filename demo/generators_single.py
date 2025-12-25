@@ -86,3 +86,5 @@ print(Y)
 
 print("====================Save Bases...====================")
 pce.io.save_base_mat(BPs, Y, base_output_path)
+
+print(f"Base clusterings saved to {base_output_path}")
