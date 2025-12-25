@@ -73,6 +73,7 @@ for filename in mat_files:
             continue
 
         print(f"    [Run] Generating {method_name}...")
+        print(f"          Arguments: {run_args}")
 
         # Prepare arguments
         run_args = {
