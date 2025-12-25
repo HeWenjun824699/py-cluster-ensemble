@@ -80,13 +80,13 @@ def consensus_batch(
         print(f"No .mat files found in {input_dir}")
         return
 
-    print(f"\nFound {len(mat_files)} datasets. Starting batch process with [{consensus_method}]...")
+    print(f"\nFound {len(mat_files)} datasets. Starting batch process with [{consensus_method.upper()}]...")
 
     for file_path in mat_files:
         dataset_name = file_path.stem  # 获取文件名（不含后缀）
 
         # 检测输出文件是否存在
-        save_path = output_path / f"{consensus_method}_result" / f"{dataset_name}_{consensus_method}_result.{save_format}"
+        save_path = output_path / f"{consensus_method.upper()}" / f"{dataset_name}_{consensus_method.upper()}.{save_format}"
         if not overwrite and save_path.exists():
             print(f"    - Skipping: {save_path} already exists.")
             continue
@@ -113,13 +113,13 @@ def consensus_batch(
                 # 如果这里也失败 (如文件损坏或无 X 无 Y)，会抛出 IOError 被外层 catch
                 X, Y = io.load_mat_X_Y(file_path)
 
-                print(f"    - Generating BPs using {generator_method}...")
+                print(f"    - Generating BPs using {generator_method.upper()}...")
 
                 # 运行基聚类生成器
                 BPs = generator_func(X, Y, nPartitions=nPartitions, seed=seed, maxiter=maxiter, replicates=replicates)
 
             # --- C. 运行集成 (Consensus) ---
-            print(f"    - Running Consensus: {consensus_method}...")
+            print(f"    - Running Consensus: {consensus_method.upper()}...")
             labels, time_list = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
 
             # --- D. 评估 (Evaluation) ---
@@ -127,8 +127,8 @@ def consensus_batch(
             res = metrics.evaluation_batch(labels, Y, time_list)
 
             # --- E. 保存 (Saving) ---
-            save_name = f"{dataset_name}_{consensus_method}_result.{save_format}"
-            save_path = output_path / f"{consensus_method}_result" / save_name
+            save_name = f"{dataset_name}_{consensus_method.upper()}.{save_format}"
+            save_path = output_path / f"{consensus_method.upper()}" / save_name
             save_func(res, str(save_path))
             print(f"    - Saved to: {save_name}")
 

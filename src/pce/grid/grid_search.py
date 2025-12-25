@@ -222,7 +222,7 @@ class GridSearcher:
                 c_method = c_method.lower()
 
                 # 使用 task_idx + 1 保证顺序编号
-                exp_id = f"Exp_{task_idx + 1:03d}_{c_method}"
+                exp_id = f"Exp_{task_idx + 1:03d}_{c_method.upper()}"
                 exp_dir = ds_output_dir / exp_id
                 exp_dir.mkdir(exist_ok=True)
 
@@ -264,7 +264,7 @@ class GridSearcher:
                             BPs = current_BPs_cache
                         else:
                             # 【未命中，重新生成】
-                            logger.info(f">> [Cache Miss] Generating BPs using {g_method}...")
+                            logger.info(f">> [Cache Miss] Generating BPs using {g_method.upper()}...")
                             gen_start = time.time()
                             BPs = g_func(X_cached, Y_cached, **g_kwargs)
                             gen_time = time.time() - gen_start
@@ -276,7 +276,7 @@ class GridSearcher:
                         Y = Y_cached
 
                     # --- B. 聚类集成 (Consensus) ---
-                    logger.info(f"Running Consensus: {c_method}...")
+                    logger.info(f"Running Consensus: {c_method.upper()}...")
                     con_func = getattr(consensus, c_method)
                     con_kwargs, _ = self._filter_kwargs(con_func, full_config)
                     labels, time_list = con_func(BPs, Y, **con_kwargs)
@@ -354,7 +354,7 @@ class GridSearcher:
             # 【在此处添加代码】: 循环结束后，保存当前数据集的 Summary
             # =================================================================
             if current_dataset_summary:
-                save_path = ds_output_dir / f"{dataset_name}_summary.csv"
+                save_path = ds_output_dir / f"{dataset_name}.csv"
                 pd.DataFrame(current_dataset_summary).to_csv(save_path, index=False)
                 print(f"  >> Dataset summary saved: {save_path}")
             # =================================================================

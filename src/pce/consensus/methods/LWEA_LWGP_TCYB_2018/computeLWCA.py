@@ -56,7 +56,6 @@ def computeLWCA(baseClsSegs, ECI, M):
     
     # Convert to dense for diagonal operations if it fits in memory?
     # Let's try to do it sparsely or densify.
-    # Assuming N isn't massive (demo code).
     LWCA = LWCA.toarray()
     
     # LWCA = LWCA - diag(diag(LWCA)) + eye(N)
