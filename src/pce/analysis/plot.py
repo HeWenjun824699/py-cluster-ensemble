@@ -224,7 +224,8 @@ def plot_parameter_sensitivity(
         fixed_params: Optional[Dict[str, Any]] = None,
         method_name: Optional[str] = None,  # 如果csv含多种方法，需指定一种
         save_path: Optional[str] = None,
-        show: Optional[bool] = True
+        show: Optional[bool] = True,
+        show_values: Optional[bool] = True
 ):
     """
     绘制单参数敏感性折线图（控制变量法）。
@@ -234,6 +235,9 @@ def plot_parameter_sensitivity(
         metric: Y轴: 评价指标
         fixed_params: 用户手动指定的固定参数
         method_name: 如果csv含多种方法，需指定一种
+        save_path: 图片保存路径
+        show: 图片绘制完成后是否弹出显示
+        show_values: 是否显示具体数值
 
     逻辑：
     1. 锁定特定算法。
@@ -326,6 +330,20 @@ def plot_parameter_sensitivity(
     # 7. 绘图
     plt.figure(figsize=(10, 6))
     sns.lineplot(data=plot_df, x=target_param, y=metric, marker='o', linewidth=2)
+
+    # =========== [修改开始：添加数值标注] ===========
+    if show_values:
+        for index, row in plot_df.iterrows():
+            plt.text(
+                x=row[target_param],
+                y=row[metric],
+                s=f"{row[metric]:.4f}",  # 格式化字符串：保留4位小数
+                ha='center',  # 水平对齐：居中
+                va='bottom',  # 垂直对齐：在点上方
+                fontsize=10,  # 字体大小
+                color='black'
+            )
+    # =========== [修改结束] ========================
 
     # 标题生成：展示我们固定了什么
     fixed_info = ", ".join([f"{k}={v}" for k, v in current_fixed.items()])
