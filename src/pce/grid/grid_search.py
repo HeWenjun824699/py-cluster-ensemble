@@ -290,7 +290,8 @@ class GridSearcher:
                     logger.info(f"Metrics (Avg): {metrics_avg}")
 
                     # 绘制指标折线图
-                    plot_metrics = ["ACC", "NMI", "Purity", "AR", "RI", "MI", "HI", "F-Score", "Precision", "Recall", "Entropy", "SDCS", "RME", "Bal"]
+                    # plot_metrics = ["ACC", "NMI", "Purity", "AR", "RI", "MI", "HI", "F-Score", "Precision", "Recall", "Entropy", "SDCS", "RME", "Bal"]
+                    plot_metrics = ["ACC", "NMI", "Purity", "AR", "RI", "MI", "HI", "F-Score", "Precision", "Recall", "Entropy", "RME", "Bal"]
                     analysis.plot_metric_line(
                         results_list=metrics_res,
                         metrics=plot_metrics,
