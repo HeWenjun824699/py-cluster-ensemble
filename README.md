@@ -300,6 +300,8 @@ ana.plot_parameter_sensitivity(
 
 ### 2.1 litekmeans 参数和返回值说明
 
+> **来源：** Litekmeans: the fastest matlab implementation of kmeans-2011
+
 基于 LiteKMeans 的高速基聚类生成器，适用于大规模数据的快速聚类池构建。该函数集成了自适应的 K 值选择策略。
 
 **参数 (Parameters)**
@@ -322,6 +324,8 @@ ana.plot_parameter_sensitivity(
 
 ### 2.2 cdkmeans 参数和返回值说明
 
+> **来源：** Coordinate Descent Method for k-means-TPAMI-2022
+
 基于约束条件（Constraints）的差异化 K-Means 生成器，旨在通过增加基聚类间的差异性来提升集成效果。
 
 **参数 (Parameters)**
@@ -343,6 +347,8 @@ ana.plot_parameter_sensitivity(
 | `BPs`  | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br>形状为 `(n_samples, nPartitions)`<br>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
 
 ### 2.3 rskmeans 参数和返回值说明
+
+> **来源：** Combining Multiple Clusterings Using Evidence Accumulation-TPAMI-2005
 
 基于随机子空间（Random Subspace）的基聚类生成器。该方法通过在每次迭代中随机抽取特征子集来运行 K-Means，利用**特征扰动 (Feature Perturbation)** 增加集成的多样性，特别适用于高维数据。
 
@@ -367,6 +373,8 @@ ana.plot_parameter_sensitivity(
 
 ### 2.4 rpkmeans 参数和返回值说明
 
+> **来源：** Random Projection for High Dimensional Data Clustering: A Cluster Ensemble Approach-ICML-2003
+
 基于随机投影（Random Projection）的基聚类生成器。该方法利用 Johnson-Lindenstrauss 引理，通过高斯随机矩阵将高维数据投影到低维空间，在保持样本间距离结构的同时改变数据的几何分布。属于**数据投影策略**，适合超高维或稀疏数据。
 
 **参数 (Parameters)**
@@ -390,6 +398,8 @@ ana.plot_parameter_sensitivity(
 
 ### 2.5 bagkmeans 参数和返回值说明
 
+> **来源：** Bootstrap aggregating-1996
+
 基于 Bagging（Bootstrap Aggregating）的基聚类生成器。该方法通过对样本进行重采样（Subsampling）训练聚类中心，并将未被选中的样本指派给最近的质心。利用**数据扰动 (Data Perturbation)** 显著提升集成的抗噪性和鲁棒性。
 
 **参数 (Parameters)**
@@ -412,6 +422,8 @@ ana.plot_parameter_sensitivity(
 | `BPs` | `np.ndarray` | **基聚类矩阵 (Base Partitions)**<br/>形状为 `(n_samples, nPartitions)`<br/>每一列代表一次 CDKM 聚类的结果标签（注意：代码中已对标签进行了 `+1` 处理，以适应 MATLAB 风格索引或便于区分） |
 
 ### 2.6 hetero_clustering 参数和返回值说明
+
+> **来源：** Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions-JMLR-2003
 
 异构集成生成器（Heterogeneous Ensemble Generator）。该方法通过混合使用具有不同**归纳偏置 (Inductive Bias)** 的算法（如谱聚类、层次聚类、GMM、K-Means），在**模型层面 (Model Perturbation)** 引入最大化的多样性，适合处理非凸或复杂结构的簇。
 
