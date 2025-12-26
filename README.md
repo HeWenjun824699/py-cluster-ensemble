@@ -1238,8 +1238,9 @@ ana.plot_parameter_sensitivity(
 | `metric` | `str` | `'NMI'` | **评价指标 (Y轴)**<br>用于衡量性能的指标列名 |
 | `fixed_params` | `Dict` | `None` | **固定背景参数**<br>字典格式（如 `{'k': 5}`）<br>若未指定，函数会自动寻找全局最优结果对应的参数作为固定背景 |
 | `method_name` | `str` | `None` | **算法过滤器**<br>若 CSV 包含多种算法，需指定具体算法名称（如 `'mcla'`）以避免数据混淆 |
-| `save_path` | `str` | `None` | **保存路径**<br>保存分析结果图 |
+| `save_path` | `str` | `None` | **保存路径**<br>保存分析结果图的文件路径 |
 | `show` | `bool` | `True` | **显示窗口**<br>是否弹出绘图窗口 |
+| `show_values` | `bool` | `True` | **显示数值标注**<br>是否在折线图的数据点上方显示具体的数值标签（保留4位小数） |
 
 </details>
 
