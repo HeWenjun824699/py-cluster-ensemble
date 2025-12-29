@@ -2,7 +2,7 @@ import numpy as np
 import warnings
 from sklearn.cluster import KMeans
 from sklearn.svm import SVC
-from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.cluster.hierarchy import linkage, fcluster, leaves_list
 from scipy.spatial.distance import pdist
 from .core_functions import calculate_distance, transformation, consensus_matrix, estkTW
 from .biology import get_de_genes, get_marker_genes, get_outl_cells
@@ -185,10 +185,32 @@ class SC3:
         
         cons_dists = pdist(self.consensus_matrix, metric='euclidean')
         Z = linkage(cons_dists, method='complete')
-        labels = fcluster(Z, t=n_clusters, criterion='maxclust')
+        cutree_labels = fcluster(Z, t=n_clusters, criterion='maxclust')
         
-        # 0-based
-        return labels - 1
+        # Re-index clusters to match dendrogram order (matches R's reindex_clusters)
+        # 1. Get leaf order from dendrogram
+        leaves_order = leaves_list(Z)
+        
+        # 2. Sort labels by their appearance in the dendrogram
+        ordered_labels = cutree_labels[leaves_order]
+        
+        # 3. Find unique labels in order of appearance
+        unique_labels_in_order = []
+        seen = set()
+        for lbl in ordered_labels:
+            if lbl not in seen:
+                unique_labels_in_order.append(lbl)
+                seen.add(lbl)
+        
+        # 4. Map old_label -> new_label (1..k)
+        # unique_labels_in_order[0] -> 1
+        # unique_labels_in_order[1] -> 2
+        mapping = {old: new for new, old in enumerate(unique_labels_in_order, 1)}
+        
+        new_labels = np.array([mapping[l] for l in cutree_labels])
+        
+        # Return 0-based for Python consistency
+        return new_labels - 1
 
     def run_svm(self, train_labels):
         """
@@ -219,7 +241,7 @@ class SC3:
         self.biology['marker'] = get_marker_genes(self.data, self.labels)
         self.biology['outl'] = get_outl_cells(self.data, self.labels)
 
-    def run(self, n_clusters=None, biology=False):
+    def run(self, n_clusters=None, biology=False, kmeans_nstart=10, kmeans_iter_max=300):
         """
         Run the SC3 pipeline (with optional SVM hybrid mode).
         """
@@ -229,7 +251,7 @@ class SC3:
             
         self.calc_dists()
         self.calc_transfs()
-        self.kmeans(n_clusters=n_clusters)
+        self.kmeans(n_clusters=n_clusters, n_init=kmeans_nstart, max_iter=kmeans_iter_max)
         
         # Clustering on training data
         train_labels = self.consensus(n_clusters=n_clusters)

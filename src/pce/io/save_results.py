@@ -1,13 +1,14 @@
 import os
-import pandas as pd
-import numpy as np
-from typing import List, Dict
+import traceback
+from typing import List, Dict, Union
 
+import numpy as np
+import pandas as pd
 import scipy
 
 
 def save_results_csv(
-        data: List[Dict],
+        data: Union[List[Dict], Dict],
         output_path: str,
         default_name: str = "result.csv",
         add_summary: bool = True,
@@ -15,8 +16,17 @@ def save_results_csv(
 ):
     """
     智能保存 CSV，支持自动追加均值和标准差，并用空行分隔。
+    改进点：
+    1. 支持直接传入单个 Dict（无需手动加 []）。
+    2. 只有一行数据时，自动将标准差设为 0，避免 NaN。
+    3. 遇到 None 或非数值列时自动跳过格式化，防止报错。
     """
     try:
+        # --- 输入兼容性处理 (新增) ---
+        # 如果用户只传了一个字典，自动把它变成列表
+        if isinstance(data, dict):
+            data = [data]
+
         # --- 1. 路径处理 (保持不变) ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
@@ -34,7 +44,7 @@ def save_results_csv(
         if add_summary and not df.empty:
             # 2.1 先计算统计量
             means = df.mean(numeric_only=True)
-            stds = df.std(numeric_only=True, ddof=1)
+            stds = df.std(numeric_only=True, ddof=1).fillna(0)
 
             stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
 
@@ -58,14 +68,16 @@ def save_results_csv(
                     str_data[col] = ""
             str_row_df = pd.DataFrame([str_data], index=['Str'])
 
-            # 2.3 【关键修改】手动格式化数值为字符串
-            # 将 .applymap() 替换为 .map()
-            format_func = lambda x: float_format % x
+            # 2.3 【关键修复】安全的格式化函数
+            # 如果 x 不是数字（比如 None 或字符串），直接返回 x，避免报错
+            def safe_format(x):
+                if isinstance(x, (int, float)) and not pd.isna(x):
+                    return float_format % x
+                return x
 
-            # 修复警告：使用 map 替代 applymap
-            df_str = df.map(format_func)
-            stats_str = stats.map(format_func)
-            # ================= [新增逻辑结束] =================
+            # 使用 map 替代 applymap (Pandas 2.1+ 推荐用法，旧版本也没问题)
+            df_str = df.map(safe_format)
+            stats_str = stats.map(safe_format)
 
             # 2.4 构造空行
             empty_row = pd.DataFrame(
@@ -97,7 +109,7 @@ def save_results_csv(
 
 
 def save_results_xlsx(
-        data: List[Dict],
+        data: Union[List[Dict], Dict],
         output_path: str,
         default_name: str = "result.xlsx",
         add_summary: bool = True,
@@ -108,6 +120,11 @@ def save_results_xlsx(
     优势：可以直接指定单元格显示格式，WPS/Excel 打开时即显示为 4 位小数，且保持数值类型。
     """
     try:
+        # --- [新增] 输入兼容性处理 ---
+        # 如果用户只传了一个字典，自动把它变成列表
+        if isinstance(data, dict):
+            data = [data]
+
         # --- 1. 路径处理 ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
@@ -132,7 +149,7 @@ def save_results_xlsx(
 
         if add_summary and not df.empty:
             means = df.mean(numeric_only=True)
-            stds = df.std(numeric_only=True, ddof=1)
+            stds = df.std(numeric_only=True, ddof=1).fillna(0)
 
             stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
 
@@ -199,23 +216,28 @@ def save_results_xlsx(
                     # 非数值列，只设置宽度
                     worksheet.set_column(i + 1, i + 1, 12)
 
-        print(f"Results saved to {final_path}")
+        # print(f"Results saved to {final_path}")
 
     except Exception as e:
         print(f"Failed to save xlsx: {e}")
 
 
 def save_results_mat(
-        data: List[Dict],
+        data: Union[List[Dict], Dict],
         output_path: str,
         default_name: str = "result.mat",
         add_summary: bool = True
 ):
     """
     保存为 .mat 格式。
+    改进：支持单行数据，修复 Std 为 NaN，自动处理 None 值。
     """
     try:
-        # 1. 路径处理
+        # --- 1. 输入兼容性处理 (新增) ---
+        if isinstance(data, dict):
+            data = [data]
+
+        # --- 2. 路径处理 ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
             final_path = os.path.join(output_path, default_name)
@@ -225,58 +247,55 @@ def save_results_mat(
             if parent_dir and not os.path.exists(parent_dir):
                 os.makedirs(parent_dir, exist_ok=True)
 
-        # 强制后缀名为 .mat
         if not final_path.endswith('.mat'):
             final_path = os.path.splitext(final_path)[0] + '.mat'
 
-        # 2. 数据处理
-        results_list = []
-        for item in data:
-            acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal, time = item.values()
-            results_list.append([acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal, time])
+        # --- 3. 数据处理 (升级) ---
+        # 【修改2】使用 DataFrame 处理数据，比 item.values() 更安全
+        # 它能自动把 None (如 Time) 变成 NaN，确保矩阵是数值类型
+        df = pd.DataFrame(data)
 
-        # 3. 汇总与保存
-        results_mat = np.array(results_list)
+        # 转换为 numpy float 矩阵
+        # 如果 Time 是 None，这里会变成 np.nan，不会报错
+        results_mat = df.astype(float).values
+
+        # 构造基础保存字典
+        save_dict = {'result': results_mat}
 
         if add_summary:
-            # 计算均值和方差 (注意标准差使用 ddof=1 以匹配 MATLAB std)
-            summary_mean = np.mean(results_mat, axis=0)
-            summary_std = np.std(results_mat, axis=0, ddof=1)
+            # --- 4. 统计计算 (修复 NaN 问题) ---
+            # 【修改3】使用 nanmean / nanstd 忽略 NaN 影响
+            summary_mean = np.nanmean(results_mat, axis=0)
 
-            # ================= [新增逻辑开始] =================
-            # 构造 Mean%±Std% 字符串列表
+            # 计算标准差 (ddof=1)
+            summary_std_raw = np.nanstd(results_mat, axis=0, ddof=1)
+            # 【核心修复】将 NaN (单行数据产生) 替换为 0.0
+            summary_std = np.nan_to_num(summary_std_raw, nan=0.0)
+
+            # --- 5. 构造字符串列表 ---
             summary_str_list = []
-
-            # 遍历每一列的均值和标准差
             for i, (m, s) in enumerate(zip(summary_mean, summary_std)):
-                # 【修改点】判断是否为最后一列 (Time 列)
+                # 最后一列 (Time) 不乘 100
                 if i == len(summary_mean) - 1:
-                    # Time 列：不乘 100
                     val_str = f"{m:.2f}±{s:.2f}"
                 else:
-                    # 其他指标列：乘 100
                     val_str = f"{m * 100:.2f}±{s * 100:.2f}"
-
                 summary_str_list.append(val_str)
 
-            # 转为 numpy object 数组，这样 savemat 会将其保存为 MATLAB 的 Cell Array
+            # 转为 numpy object 数组 (对应 MATLAB Cell Array)
             summary_str_arr = np.array(summary_str_list, dtype=object)
-            # ================= [新增逻辑结束] =================
 
-            # 构造保存字典
-            save_dict = {
-                'result': results_mat,
+            # 更新字典
+            save_dict.update({
                 'result_summary': summary_mean,
                 'result_summary_std': summary_std,
-                'result_summary_str': summary_str_arr  # 新增字段
-            }
-        else:
-            save_dict = {
-                'result': results_mat
-            }
+                'result_summary_str': summary_str_arr
+            })
 
+        # --- 6. 保存 ---
         scipy.io.savemat(final_path, save_dict)
-        print(f"Results saved to {final_path}")
+        # print(f"Results saved to {final_path}")
 
     except Exception as e:
-        print(f"Failed to save csv: {e}")
+        traceback.print_exc()
+        print(f"Failed to save mat: {e}")

@@ -96,7 +96,9 @@ def sc3(
         # nClusters=None will trigger internal estimate_k()
         labels, biology_res = model.run(
             n_clusters=nClusters, 
-            biology=run_biology
+            biology=run_biology,
+            kmeans_nstart=kmeans_nstart,
+            kmeans_iter_max=kmeans_iter_max
         )
         
         # Post-processing: Analysis and Export
