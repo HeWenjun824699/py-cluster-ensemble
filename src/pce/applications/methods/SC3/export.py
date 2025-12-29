@@ -9,8 +9,7 @@ def sc3_export_results(analysis_results, output_dir, file_name="sc3_results.xlsx
     Parameters
     ----------
     analysis_results : dict
-        Dictionary containing DataFrames. Keys will be used as sheet names.
-        Example: {'Cells': cells_df, 'Genes': genes_df}
+        Dictionary containing DataFrames: 'de_genes', 'marker_genes', 'outliers'.
     output_dir : str
         Directory to save the file.
     file_name : str
@@ -28,12 +27,21 @@ def sc3_export_results(analysis_results, output_dir, file_name="sc3_results.xlsx
         with pd.ExcelWriter(path) as writer:
             has_data = False
             
-            for sheet_name, df in analysis_results.items():
-                if df is not None and not df.empty:
-                    # Write index (row names) as per R implementation
-                    df.to_excel(writer, sheet_name=sheet_name, index=True)
+            if 'de_genes' in analysis_results and analysis_results['de_genes'] is not None:
+                if not analysis_results['de_genes'].empty:
+                    analysis_results['de_genes'].to_excel(writer, sheet_name='DE Genes', index=False)
                     has_data = True
-            
+                 
+            if 'marker_genes' in analysis_results and analysis_results['marker_genes'] is not None:
+                if not analysis_results['marker_genes'].empty:
+                    analysis_results['marker_genes'].to_excel(writer, sheet_name='Marker Genes', index=False)
+                    has_data = True
+                 
+            if 'outliers' in analysis_results and analysis_results['outliers'] is not None:
+                if not analysis_results['outliers'].empty:
+                    analysis_results['outliers'].to_excel(writer, sheet_name='Outliers', index=False)
+                    has_data = True
+                    
             if not has_data:
                 # Create a dummy sheet if all are empty to avoid error
                 pd.DataFrame({'Info': ['No significant results found']}).to_excel(writer, sheet_name='Info', index=False)

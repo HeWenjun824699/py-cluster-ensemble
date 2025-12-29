@@ -94,11 +94,10 @@ class SC3:
         # State storage
         self.distances = {}
         self.transformations = {}
-        # Changed to dictionaries to support multiple k
-        self.kmeans_partitions = {} # k -> np.ndarray
-        self.consensus_matrices = {} # k -> np.ndarray
-        self.labels = {} # k -> np.ndarray
-        self.biology = {} # k -> dict
+        self.kmeans_partitions = []
+        self.consensus_matrix = None
+        self.labels = None
+        self.biology = {}
         
         # Dimensions for K-means (n_dim)
         # Calculate based on training set size
@@ -148,141 +147,98 @@ class SC3:
                 except Exception as e:
                     warnings.warn(f"Failed to calculate transformation {key}: {e}")
 
-    def kmeans(self, n_clusters_list, n_init=10, max_iter=300):
+    def kmeans(self, n_clusters, n_init=10, max_iter=300):
         """
-        Run K-means on transformations of TRAINING data for multiple k.
+        Run K-means on transformations of TRAINING data.
         """
         if not self.transformations:
             self.calc_transfs()
             
-        # Reset partitions
-        self.kmeans_partitions = {}
+        self.kmeans_partitions = []
         
-        # Ensure input is a list
-        if isinstance(n_clusters_list, int):
-            n_clusters_list = [n_clusters_list]
+        for trans_key, trans_mat in self.transformations.items():
+            for d in self.n_dims:
+                if d > trans_mat.shape[1]:
+                    continue
+                
+                X_subset = trans_mat[:, :d]
+                
+                try:
+                    # Note: n_cores/n_jobs removed from KMeans as it is deprecated in newer sklearn
+                    km = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, 
+                                random_state=self.rng)
+                    km.fit(X_subset)
+                    self.kmeans_partitions.append(km.labels_)
+                except Exception as e:
+                    pass
+                    
+        self.kmeans_partitions = np.array(self.kmeans_partitions).T 
         
-        for k in n_clusters_list:
-            partitions_k = []
-            
-            for trans_key, trans_mat in self.transformations.items():
-                for d in self.n_dims:
-                    if d > trans_mat.shape[1]:
-                        continue
-                    
-                    X_subset = trans_mat[:, :d]
-                    
-                    try:
-                        # Note: n_cores/n_jobs removed from KMeans as it is deprecated in newer sklearn
-                        km = KMeans(n_clusters=k, n_init=n_init, max_iter=max_iter, 
-                                    random_state=self.rng)
-                        km.fit(X_subset)
-                        partitions_k.append(km.labels_)
-                    except Exception as e:
-                        pass
-            
-            if partitions_k:
-                self.kmeans_partitions[k] = np.array(partitions_k).T
-            else:
-                warnings.warn(f"No K-means partitions generated for k={k}")
-
-    def consensus(self):
+    def consensus(self, n_clusters):
         """
-        Calculate consensus matrix and clustering on TRAINING data for all k.
+        Calculate consensus matrix and clustering on TRAINING data.
         """
-        if not self.kmeans_partitions:
+        if len(self.kmeans_partitions) == 0:
             raise RuntimeError("No K-means partitions generated.")
             
-        self.consensus_matrices = {}
-        self.labels = {}
+        self.consensus_matrix = consensus_matrix(self.kmeans_partitions)
         
-        for k, partitions in self.kmeans_partitions.items():
-            consensus_mat = consensus_matrix(partitions)
-            self.consensus_matrices[k] = consensus_mat
-            
-            # Hierarchical clustering on consensus matrix
-            cons_dists = pdist(consensus_mat, metric='euclidean')
-            
-            # Handle edge case where consensus matrix is perfect (distance 0)
-            # or errors in linkage
-            try:
-                Z = linkage(cons_dists, method='complete')
-                labels = fcluster(Z, t=k, criterion='maxclust')
-                # 0-based
-                self.labels[k] = labels - 1
-            except Exception as e:
-                warnings.warn(f"Consensus clustering failed for k={k}: {e}")
+        cons_dists = pdist(self.consensus_matrix, metric='euclidean')
+        Z = linkage(cons_dists, method='complete')
+        labels = fcluster(Z, t=n_clusters, criterion='maxclust')
+        
+        # 0-based
+        return labels - 1
 
-    def run_svm(self):
+    def run_svm(self, train_labels):
         """
-        Train SVM on training cells and predict study cells for all k.
+        Train SVM on training cells and predict study cells.
         """
         if self.study_data is None:
-            return
+            return train_labels
             
-        # We need to update labels for each k
-        # Current self.labels contains training labels
+        clf = SVC(kernel='linear')
+        clf.fit(self.train_data, train_labels)
+        study_labels = clf.predict(self.study_data)
         
-        for k in list(self.labels.keys()):
-            train_labels = self.labels[k]
-            
-            clf = SVC(kernel='linear')
-            clf.fit(self.train_data, train_labels)
-            study_labels = clf.predict(self.study_data)
-            
-            # Merge labels
-            full_labels = np.zeros(self.n_cells, dtype=int)
-            full_labels[self.svm_train_inds] = train_labels
-            full_labels[self.svm_study_inds] = study_labels
-            
-            self.labels[k] = full_labels
+        # Merge labels
+        full_labels = np.zeros(self.n_cells, dtype=int)
+        full_labels[self.svm_train_inds] = train_labels
+        full_labels[self.svm_study_inds] = study_labels
+        
+        return full_labels
 
     def calc_biology(self):
         """
-        Calculate biological features using FULL dataset (filtered) and FULL labels for all k.
+        Calculate biological features using FULL dataset (filtered) and FULL labels.
         """
-        if not self.labels:
+        if self.labels is None:
             raise RuntimeError("Run clustering first.")
             
-        self.biology = {}
-        
-        for k, labels in self.labels.items():
-            self.biology[k] = {}
-            self.biology[k]['de'] = get_de_genes(self.data, labels)
-            self.biology[k]['marker'] = get_marker_genes(self.data, labels)
-            self.biology[k]['outl'] = get_outl_cells(self.data, labels)
+        self.biology['de'] = get_de_genes(self.data, self.labels)
+        self.biology['marker'] = get_marker_genes(self.data, self.labels)
+        self.biology['outl'] = get_outl_cells(self.data, self.labels)
 
     def run(self, n_clusters=None, biology=False):
         """
         Run the SC3 pipeline (with optional SVM hybrid mode).
-        
-        Parameters
-        ----------
-        n_clusters : int or list of int, optional
-            Number of clusters k. If None, estimated automatically.
-        biology : bool
-        
-        Returns
-        -------
-        tuple
-            (labels_dict, biology_dict)
-            Where keys are k.
         """
         if n_clusters is None:
-            estimated_k = self.estimate_k()
-            print(f"Estimated k: {estimated_k}")
-            n_clusters = [estimated_k]
-        elif isinstance(n_clusters, int):
-            n_clusters = [n_clusters]
+            n_clusters = self.estimate_k()
+            print(f"Estimated k: {n_clusters}")
             
         self.calc_dists()
         self.calc_transfs()
-        self.kmeans(n_clusters_list=n_clusters)
-        self.consensus()
+        self.kmeans(n_clusters=n_clusters)
         
-        # If SVM is active, extend labels to full dataset
+        # Clustering on training data
+        train_labels = self.consensus(n_clusters=n_clusters)
+        
         if self.svm_train_inds is not None:
-            self.run_svm()
+            # Predict rest
+            self.labels = self.run_svm(train_labels)
+        else:
+            self.labels = train_labels
             
         if biology:
             self.calc_biology()
