@@ -7,17 +7,34 @@ from .utils.compute_f import compute_f
 from .utils.balance_evl import balance_evl
 
 
-def evaluation_single(y, Y):
+def evaluation_single(y, Y, time=None):
     """
     Evaluates clustering performance.
     
     Parameters:
     y : Predicted labels
     Y : Ground truth labels
+    time: Optional parameter of execution time
 
     Returns:
-    res : list or array
-          [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal]
+    res : dict
+    {
+        "ACC": acc,
+        "NMI": nmi,
+        "Purity": purity,
+        "AR": AR,
+        "RI": RI,
+        "MI": MI,
+        "HI": HI,
+        "F-Score": fscore,
+        "Precision": precision,
+        "Recall": recall,
+        "Entropy": entropy,
+        "SDCS": SDCS,
+        "RME": RME,
+        "Bal": bal,
+        "Time": time(optional)
+    }
     """
     y = np.array(y).flatten()
     Y = np.array(Y).flatten()
@@ -118,5 +135,21 @@ def evaluation_single(y, Y):
     
     entropy, bal, SDCS, RME = balance_evl(nCluster, ys)
     
-    res = [acc, nmi, purity, AR, RI, MI, HI, fscore, precision, recall, entropy, SDCS, RME, bal]
+    res = {
+        "ACC": acc,
+        "NMI": nmi,
+        "Purity": purity,
+        "AR": AR,
+        "RI": RI,
+        "MI": MI,
+        "HI": HI,
+        "F-Score": fscore,
+        "Precision": precision,
+        "Recall": recall,
+        "Entropy": entropy,
+        "SDCS": SDCS,
+        "RME": RME,
+        "Bal": bal,
+        "Time": time if time is not None else None
+    }
     return res

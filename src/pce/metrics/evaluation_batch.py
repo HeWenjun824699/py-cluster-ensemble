@@ -17,7 +17,7 @@ def evaluation_batch(labels, Y, time_list=None):
     time_list: Optional list of execution times for each run
 
     Returns:
-    res : list or array
+    res : list
           [{
             "ACC": acc,
             "NMI": nmi,
