@@ -1,10 +1,12 @@
 import time
+import os
 from typing import Optional, Union, List
 import numpy as np
 
 from .methods.SC3 import SC3
 from .methods.SC3.analysis import organise_de_genes, organise_marker_genes, organise_outliers
 from .methods.SC3.export import sc3_export_results
+from .methods.SC3.plot import plot_consensus, plot_silhouette, plot_expression, plot_de_genes, plot_markers
 
 def sc3(
         X: np.ndarray,
@@ -102,7 +104,7 @@ def sc3(
         )
         
         # Post-processing: Analysis and Export
-        if output_directory is not None and biology_res:
+        if output_directory is not None:
             # Handle Gene Names (Filtering)
             if gene_names is None:
                 gene_names = np.array([f"Gene_{i}" for i in range(X.shape[1])])
@@ -121,14 +123,62 @@ def sc3(
             else:
                 cell_names = np.array(cell_names)
                 
-            # Organise results
-            analysis_res = {}
-            analysis_res['de_genes'] = organise_de_genes(biology_res, gene_names)
-            analysis_res['marker_genes'] = organise_marker_genes(biology_res, gene_names)
-            analysis_res['outliers'] = organise_outliers(biology_res, cell_names)
+            if biology_res:
+                # Organise results
+                analysis_res = {}
+                analysis_res['de_genes'] = organise_de_genes(biology_res, gene_names)
+                analysis_res['marker_genes'] = organise_marker_genes(biology_res, gene_names)
+                analysis_res['outliers'] = organise_outliers(biology_res, cell_names)
+                
+                # Export Excel
+                sc3_export_results(analysis_res, output_directory)
             
-            # Export
-            sc3_export_results(analysis_res, output_directory)
+            # Export Plots
+            try:
+                if not os.path.exists(output_directory):
+                    os.makedirs(output_directory)
+                    
+                # 1. Consensus Matrix
+                plot_consensus(
+                    model.consensus_matrix, 
+                    labels=labels, 
+                    file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
+                )
+                
+                # 2. Silhouette
+                plot_silhouette(
+                    model.consensus_matrix, 
+                    labels=labels, 
+                    file_path=os.path.join(output_directory, "png", "silhouette.png")
+                )
+                
+                # 3. Gene Expression (Filtered data)
+                plot_expression(
+                    model.data, 
+                    labels=labels, 
+                    file_path=os.path.join(output_directory, "png", "expression.png")
+                )
+                
+                # 4. DE Genes
+                if 'de' in biology_res:
+                    plot_de_genes(
+                        model.data,
+                        labels=labels,
+                        de_genes_dict=biology_res['de'],
+                        file_path=os.path.join(output_directory, "png", "de_genes.png")
+                    )
+                    
+                # 5. Marker Genes
+                if 'marker' in biology_res:
+                    plot_markers(
+                        model.data,
+                        labels=labels,
+                        marker_res=biology_res['marker'],
+                        file_path=os.path.join(output_directory, "png", "marker_genes.png")
+                    )
+                    
+            except Exception as plot_e:
+                print(f"Plot generation failed: {plot_e}")
         
     except Exception as e:
         print(f"SC3 execution failed: {e}")
