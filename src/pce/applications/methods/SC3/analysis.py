@@ -1,104 +1,121 @@
 import numpy as np
 import pandas as pd
 
-def organise_de_genes(biology_res, gene_names, p_val_threshold=0.05):
+def organise_de_genes(biology_res, gene_names, k, gene_mask=None):
     """
-    Organise DE genes results.
-    R equivalent: organise_de_genes
+    Organise DE genes results matching R SC3 export format.
     
     Parameters
     ----------
     biology_res : dict
         Raw biology results from SC3.run()
     gene_names : list or np.ndarray
-        Names of genes corresponding to columns of X.
-    p_val_threshold : float
-        Threshold for adjusted p-value.
-        
+        Original list of gene names (length = n_original_genes).
+    k : int
+        Number of clusters.
+    gene_mask : np.ndarray, optional
+        Boolean mask used for gene filtering. 
+        If None, assumes no filtering was done.
+
     Returns
     -------
     pd.DataFrame
-        Filtered and sorted DE genes.
+        DataFrame with columns: [feature_symbol, sc3_{k}_de_padj]
+        Includes ALL genes. Filtered-out genes have NA.
     """
     p_values = biology_res.get('de')
-    if p_values is None or len(p_values) == 0:
+    if p_values is None:
         return None
+
+    n_genes = len(gene_names)
+    full_p_values = np.full(n_genes, np.nan)
+
+    if gene_mask is not None:
+        # p_values corresponds to True values in gene_mask
+        if np.sum(gene_mask) == len(p_values):
+            full_p_values[gene_mask] = p_values
+        else:
+            # Dimension mismatch safeguard
+            pass
+    else:
+        full_p_values = p_values
+
+    col_name = f"sc3_{k}_de_padj"
     
-    # Ensure gene_names length matches p_values
-    if len(gene_names) != len(p_values):
-        # Fallback if filtered data was used but names correspond to original?
-        # In SC3 class gene_filter might drop genes.
-        # The gene_names passed to sc3() are likely original.
-        # We need to handle this. For now assume matching length or truncate.
-        # Ideally sc3 wrapper should handle filtering of names too.
-        # But SC3 class handles filtering internally.
-        pass
-        
     df = pd.DataFrame({
         'feature_symbol': gene_names,
-        'sc3_de_padj': p_values
+        col_name: full_p_values
     })
+
+    return df
+
+def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
+    """
+    Organise Marker genes results matching R SC3 export format.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: 
+        [feature_symbol, sc3_{k}_markers_clusts, sc3_{k}_markers_auroc, sc3_{k}_markers_padj]
+    """
+    marker_res = biology_res.get('marker')
+    if marker_res is None:
+        return None
+
+    n_genes = len(gene_names)
     
-    # Filter and sort
-    df = df[df['sc3_de_padj'] < p_val_threshold]
-    df = df.sort_values('sc3_de_padj')
+    # Initialize full arrays with NaNs
+    full_clusts = np.full(n_genes, np.nan)
+    full_auroc = np.full(n_genes, np.nan)
+    full_pvalue = np.full(n_genes, np.nan)
+
+    # Extract calculated values
+    # In Python code, get_marker_genes returns dict/df aligned with filtered data
+    calc_clusts = marker_res['clusts']
+    calc_auroc = marker_res['auroc']
+    calc_pvalue = marker_res['pvalue']
+
+    if gene_mask is not None:
+        if np.sum(gene_mask) == len(calc_clusts):
+            full_clusts[gene_mask] = calc_clusts
+            full_auroc[gene_mask] = calc_auroc
+            full_pvalue[gene_mask] = calc_pvalue
+    else:
+        full_clusts = calc_clusts
+        full_auroc = calc_auroc
+        full_pvalue = calc_pvalue
+
+    df = pd.DataFrame({
+        'feature_symbol': gene_names,
+        f"sc3_{k}_markers_clusts": full_clusts,
+        f"sc3_{k}_markers_auroc": full_auroc,
+        f"sc3_{k}_markers_padj": full_pvalue
+    })
     
     return df
 
-def organise_marker_genes(biology_res, gene_names, p_val_threshold=0.05, auroc_threshold=0.85):
+def organise_outliers(biology_res, cell_names, k):
     """
-    Organise Marker genes results.
-    R equivalent: organise_marker_genes
-    
-    Parameters
-    ----------
-    biology_res : dict
-    gene_names : list
-    p_val_threshold : float
-    auroc_threshold : float
+    Organise outlier cells results.
     
     Returns
     -------
     pd.DataFrame
-    """
-    marker_res = biology_res.get('marker')
-    if marker_res is None or len(marker_res.get('pvalue', [])) == 0:
-        return None
-        
-    df = pd.DataFrame({
-        'feature_symbol': gene_names,
-        'sc3_marker_clusts': marker_res['clusts'],
-        'sc3_marker_auroc': marker_res['auroc'],
-        'sc3_marker_padj': marker_res['pvalue']
-    })
-    
-    # Filter
-    mask = (df['sc3_marker_padj'] < p_val_threshold) & \
-           (df['sc3_marker_auroc'] > auroc_threshold) & \
-           (pd.notna(df['sc3_marker_clusts']))
-           
-    df = df[mask]
-    
-    # Sort by cluster then by AUROC (descending)
-    df = df.sort_values(by=['sc3_marker_clusts', 'sc3_marker_auroc'], ascending=[True, False])
-    
-    return df
-
-def organise_outliers(biology_res, cell_names=None):
-    """
-    Organise outlier cells results.
+        DataFrame with columns: [sc3_{k}_log2_outlier_score]
+        Indexed by cell_names if merged later, but here just returns the column.
     """
     outl = biology_res.get('outl')
-    if outl is None or len(outl) == 0:
+    if outl is None:
         return None
     
-    n_cells = len(outl)
-    if cell_names is None:
-        cell_names = [f"Cell_{i}" for i in range(n_cells)]
-        
-    df = pd.DataFrame({
-        'cell_id': cell_names,
-        'sc3_log2_outlier_score': np.log2(outl + 1)
-    })
+    # In R: log2(outl + 1)
+    scores = np.log2(outl + 1)
     
+    col_name = f"sc3_{k}_log2_outlier_score"
+    
+    df = pd.DataFrame({
+        col_name: scores
+    }, index=cell_names)
+
     return df

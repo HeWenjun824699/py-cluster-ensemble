@@ -25,6 +25,7 @@ tqdm = "^4.66"          # 进度条 (集成算法跑得慢时很有用)
 pandas = "^2.2"         # io 模块依赖
 xlsxwriter = "^3.2"     # 用于 save_xlsx 的格式化输出
 pyreadr = "^0.5.4"      # 用于 RData 文件的读入
+fastcluster = "^1.2.6"  # 用于 fastcluster
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"         # 测试框架
