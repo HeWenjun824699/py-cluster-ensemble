@@ -26,8 +26,9 @@ build/
 # 6. 排除本地测试文件
 local_demo/
 
-# 7. 排除 matlab 其他算法文件
-matlab_methods/
+# 7. 排除其他算法文件
+consensus_methods/
+applications_methods/
 
 # 8. 排除输出文件
 output/
