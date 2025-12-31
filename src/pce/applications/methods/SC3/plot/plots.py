@@ -7,7 +7,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.cluster.hierarchy import linkage
 from sklearn.metrics import silhouette_samples, silhouette_score
 
-# Define SC3-like colormap (Blue -> White -> Red seems standard for consensus, or Blue->Red)
+# Define SC3-Nature methods-2017-like colormap (Blue -> White -> Red seems standard for consensus, or Blue->Red)
 # R sc3_plot_consensus doc: "Similarity 0 (blue) ... similarity 1 (red)"
 sc3_cmap = LinearSegmentedColormap.from_list("sc3_consensus", ["blue", "red"])
 
@@ -139,14 +139,14 @@ def plot_silhouette(consensus_matrix, labels, file_path=None):
 
 def plot_expression(data, labels, file_path=None):
     """
-    Plot expression matrix used for SC3 clustering as a heatmap.
+    Plot expression matrix used for SC3-Nature methods-2017 clustering as a heatmap.
     Matches sc3_plot_expression in R.
     
     Parameters
     ----------
     data : np.ndarray
         Expression matrix (n_cells, n_genes) or (n_genes, n_cells).
-        R SC3 uses (genes, cells). Python SC3 usually (cells, genes).
+        R SC3-Nature methods-2017 uses (genes, cells). Python SC3-Nature methods-2017 usually (cells, genes).
         We will assume (cells, genes) and transpose for the heatmap (Genes x Cells).
     """
     # Transpose to (Genes, Cells) for visualization to match R style

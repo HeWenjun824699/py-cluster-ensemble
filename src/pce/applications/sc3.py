@@ -30,9 +30,9 @@ def sc3(
         seed: int = 2026
 ) -> tuple[np.ndarray, dict, float]:
     """
-    SC3 (Single-Cell Consensus Clustering) Wrapper.
+    SC3-Nature methods-2017 (Single-Cell Consensus Clustering) Wrapper.
 
-    Strict Python port of the SC3 R package.
+    Strict Python port of the SC3-Nature methods-2017 R package.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def sc3(
         Input data matrix, shape (n_samples, n_features).
         Corresponds to the 'counts' or 'logcounts' slot in R.
     Y : np.ndarray, optional
-        True labels. Not used by SC3 algorithm (strictly unsupervised).
+        True labels. Not used by SC3-Nature methods-2017 algorithm (strictly unsupervised).
         Retained in signature only for compatibility with framework interfaces.
     nClusters : int, optional
         Target number of clusters (k).
@@ -77,7 +77,7 @@ def sc3(
         - time_cost: Execution time (float).
     """
 
-    # Run SC3
+    # Run SC3-Nature methods-2017
     start_time = time.time()
     try:
         model = SC3(
@@ -206,7 +206,7 @@ def sc3(
                 print(f"Plot generation failed: {plot_e}")
 
     except Exception as e:
-        print(f"SC3 execution failed: {e}")
+        print(f"SC3-Nature methods-2017 execution failed: {e}")
         import traceback
         traceback.print_exc()
         labels = np.zeros(X.shape[0], dtype=int)

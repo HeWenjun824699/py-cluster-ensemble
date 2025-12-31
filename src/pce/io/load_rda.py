@@ -3,7 +3,7 @@ import pyreadr
 
 def load_rda_X_Y(rda_path):
     """
-    Load the standard SC3 demo dataset 'yan.rda'.
+    Load the standard SC3-Nature methods-2017 demo dataset 'yan.rda'.
     
     This function bridges the gap between R's data format and Python's input requirements.
     It requires the 'pyreadr' library to be installed.
@@ -39,7 +39,7 @@ def load_rda_X_Y(rda_path):
     # Preprocessing to match R's SingleCellExperiment construction:
     # R: logcounts = log2(as.matrix(yan) + 1)
     # Note: 'yan' in R is usually raw counts or RPKM. 
-    # For SC3, we need log-transformed data.
+    # For SC3-Nature methods-2017, we need log-transformed data.
     X_raw = yan_df.values.T # Transpose to (Cells, Genes)
     X = np.log2(X_raw + 1)
     

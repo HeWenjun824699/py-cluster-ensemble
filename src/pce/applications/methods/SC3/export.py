@@ -4,7 +4,7 @@ import pandas as pd
 def sc3_export_results(cells_df, genes_df, output_dir, file_name="sc3_results.xlsx"):
     """
     Export organized results to Excel.
-    Matches the R SC3 structure:
+    Matches the R SC3-Nature methods-2017 structure:
     - Sheet "Cells": Row names are cells, columns are clusters/outliers.
     - Sheet "Genes": Row names are genes, columns are DE/Marker stats.
 
@@ -45,8 +45,8 @@ def sc3_export_results(cells_df, genes_df, output_dir, file_name="sc3_results.xl
                 else:
                     genes_df.to_excel(writer, sheet_name='Genes', index=True)
 
-        print(f"SC3 results exported to: {path}")
+        print(f"SC3-Nature methods-2017 results exported to: {path}")
         return path
     except Exception as e:
-        print(f"Failed to export SC3 results: {e}")
+        print(f"Failed to export SC3-Nature methods-2017 results: {e}")
         return None

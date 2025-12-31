@@ -9,8 +9,8 @@ from .biology import get_de_genes, get_marker_genes, get_outl_cells
 
 class SC3:
     """
-    Python implementation of the SC3 algorithm.
-    Mirrors the logic of the R SC3 package.
+    Python implementation of the SC3-Nature methods-2017 algorithm.
+    Mirrors the logic of the R SC3-Nature methods-2017 package.
     """
     
     def __init__(self, data, gene_filter=True, pct_dropout_min=10, pct_dropout_max=90, 
@@ -18,7 +18,7 @@ class SC3:
                  svm_num_cells=None,
                  n_cores=None, seed=None):
         """
-        Initialize SC3 object.
+        Initialize SC3-Nature methods-2017 object.
         
         Parameters
         ----------
@@ -243,7 +243,7 @@ class SC3:
 
     def run(self, n_clusters=None, biology=False, kmeans_nstart=10, kmeans_iter_max=300):
         """
-        Run the SC3 pipeline (with optional SVM hybrid mode).
+        Run the SC3-Nature methods-2017 pipeline (with optional SVM hybrid mode).
         """
         if n_clusters is None:
             n_clusters = self.estimate_k()

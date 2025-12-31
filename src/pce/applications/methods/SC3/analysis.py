@@ -3,12 +3,12 @@ import pandas as pd
 
 def organise_de_genes(biology_res, gene_names, k, gene_mask=None):
     """
-    Organise DE genes results matching R SC3 export format.
+    Organise DE genes results matching R SC3-Nature methods-2017 export format.
     
     Parameters
     ----------
     biology_res : dict
-        Raw biology results from SC3.run()
+        Raw biology results from SC3-Nature methods-2017.run()
     gene_names : list or np.ndarray
         Original list of gene names (length = n_original_genes).
     k : int
@@ -51,7 +51,7 @@ def organise_de_genes(biology_res, gene_names, k, gene_mask=None):
 
 def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
     """
-    Organise Marker genes results matching R SC3 export format.
+    Organise Marker genes results matching R SC3-Nature methods-2017 export format.
 
     Returns
     -------
