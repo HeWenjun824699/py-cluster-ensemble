@@ -34,3 +34,6 @@ local_demo/output/
 
 # 9. 忽略generators和consensus中的old文件
 src/pce/*/old/
+
+# 10. 排除文档打包文件
+docs/_build/
