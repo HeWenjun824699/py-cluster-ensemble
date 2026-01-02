@@ -10,5 +10,5 @@ Welcome to PCE documentation!
    :maxdepth: 2
    :caption: API
 
-   api/modules
+   api/pce
 

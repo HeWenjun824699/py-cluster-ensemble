@@ -1,10 +1,7 @@
-pce.io package
+pce.io
 ==============
 
-Submodules
-----------
-
-pce.io.load\_mat module
+pce.io.load\_mat
 -----------------------
 
 .. automodule:: pce.io.load_mat
@@ -12,7 +9,7 @@ pce.io.load\_mat module
    :show-inheritance:
    :undoc-members:
 
-pce.io.load\_rda module
+pce.io.load\_rda
 -----------------------
 
 .. automodule:: pce.io.load_rda
@@ -20,7 +17,7 @@ pce.io.load\_rda module
    :show-inheritance:
    :undoc-members:
 
-pce.io.save\_base module
+pce.io.save\_base
 ------------------------
 
 .. automodule:: pce.io.save_base
@@ -28,18 +25,10 @@ pce.io.save\_base module
    :show-inheritance:
    :undoc-members:
 
-pce.io.save\_results module
+pce.io.save\_results
 ---------------------------
 
 .. automodule:: pce.io.save_results
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.io
    :members:
    :show-inheritance:
    :undoc-members:

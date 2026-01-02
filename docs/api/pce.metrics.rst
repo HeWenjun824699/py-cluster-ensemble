@@ -1,10 +1,7 @@
-pce.metrics package
+pce.metrics
 ===================
 
-Submodules
-----------
-
-pce.metrics.evaluation\_batch module
+pce.metrics.evaluation\_batch
 ------------------------------------
 
 .. automodule:: pce.metrics.evaluation_batch
@@ -12,18 +9,10 @@ pce.metrics.evaluation\_batch module
    :show-inheritance:
    :undoc-members:
 
-pce.metrics.evaluation\_single module
+pce.metrics.evaluation\_single
 -------------------------------------
 
 .. automodule:: pce.metrics.evaluation_single
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.metrics
    :members:
    :show-inheritance:
    :undoc-members:

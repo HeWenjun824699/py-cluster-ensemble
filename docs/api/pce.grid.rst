@@ -1,21 +1,10 @@
-pce.grid package
+pce.grid
 ================
 
-Submodules
-----------
-
-pce.grid.grid\_search module
+pce.grid.grid\_search
 ----------------------------
 
 .. automodule:: pce.grid.grid_search
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.grid
    :members:
    :show-inheritance:
    :undoc-members:

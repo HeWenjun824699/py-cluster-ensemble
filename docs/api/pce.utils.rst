@@ -1,21 +1,10 @@
-pce.utils package
+pce.utils
 =================
 
-Submodules
-----------
-
-pce.utils.show\_function\_params module
+pce.utils.show\_function\_params
 ---------------------------------------
 
 .. automodule:: pce.utils.show_function_params
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.utils
    :members:
    :show-inheritance:
    :undoc-members:

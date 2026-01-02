@@ -1,10 +1,7 @@
-pce.consensus package
+pce.consensus
 =====================
 
-Submodules
-----------
-
-pce.consensus.cdec module
+pce.consensus.cdec
 -------------------------
 
 .. automodule:: pce.consensus.cdec
@@ -12,7 +9,7 @@ pce.consensus.cdec module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.cdkm module
+pce.consensus.cdkm
 -------------------------
 
 .. automodule:: pce.consensus.cdkm
@@ -20,7 +17,7 @@ pce.consensus.cdkm module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ceam module
+pce.consensus.ceam
 -------------------------
 
 .. automodule:: pce.consensus.ceam
@@ -28,7 +25,7 @@ pce.consensus.ceam module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.celta module
+pce.consensus.celta
 --------------------------
 
 .. automodule:: pce.consensus.celta
@@ -36,7 +33,7 @@ pce.consensus.celta module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.cspa module
+pce.consensus.cspa
 -------------------------
 
 .. automodule:: pce.consensus.cspa
@@ -44,7 +41,7 @@ pce.consensus.cspa module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.drec module
+pce.consensus.drec
 -------------------------
 
 .. automodule:: pce.consensus.drec
@@ -52,7 +49,7 @@ pce.consensus.drec module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.eccms module
+pce.consensus.eccms
 --------------------------
 
 .. automodule:: pce.consensus.eccms
@@ -60,7 +57,7 @@ pce.consensus.eccms module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ecpcs\_hc module
+pce.consensus.ecpcs\_hc
 ------------------------------
 
 .. automodule:: pce.consensus.ecpcs_hc
@@ -68,7 +65,7 @@ pce.consensus.ecpcs\_hc module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ecpcs\_mc module
+pce.consensus.ecpcs\_mc
 ------------------------------
 
 .. automodule:: pce.consensus.ecpcs_mc
@@ -76,7 +73,7 @@ pce.consensus.ecpcs\_mc module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.gtlec module
+pce.consensus.gtlec
 --------------------------
 
 .. automodule:: pce.consensus.gtlec
@@ -84,7 +81,7 @@ pce.consensus.gtlec module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.hgpa module
+pce.consensus.hgpa
 -------------------------
 
 .. automodule:: pce.consensus.hgpa
@@ -92,7 +89,7 @@ pce.consensus.hgpa module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.kcc\_uc module
+pce.consensus.kcc\_uc
 ----------------------------
 
 .. automodule:: pce.consensus.kcc_uc
@@ -100,7 +97,7 @@ pce.consensus.kcc\_uc module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.kcc\_uh module
+pce.consensus.kcc\_uh
 ----------------------------
 
 .. automodule:: pce.consensus.kcc_uh
@@ -108,7 +105,7 @@ pce.consensus.kcc\_uh module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.lwea module
+pce.consensus.lwea
 -------------------------
 
 .. automodule:: pce.consensus.lwea
@@ -116,7 +113,7 @@ pce.consensus.lwea module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.lwgp module
+pce.consensus.lwgp
 -------------------------
 
 .. automodule:: pce.consensus.lwgp
@@ -124,7 +121,7 @@ pce.consensus.lwgp module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.mcla module
+pce.consensus.mcla
 -------------------------
 
 .. automodule:: pce.consensus.mcla
@@ -132,7 +129,7 @@ pce.consensus.mcla module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.mdecbg module
+pce.consensus.mdecbg
 ---------------------------
 
 .. automodule:: pce.consensus.mdecbg
@@ -140,7 +137,7 @@ pce.consensus.mdecbg module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.mdechc module
+pce.consensus.mdechc
 ---------------------------
 
 .. automodule:: pce.consensus.mdechc
@@ -148,7 +145,7 @@ pce.consensus.mdechc module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.mdecsc module
+pce.consensus.mdecsc
 ---------------------------
 
 .. automodule:: pce.consensus.mdecsc
@@ -156,7 +153,7 @@ pce.consensus.mdecsc module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ptaal module
+pce.consensus.ptaal
 --------------------------
 
 .. automodule:: pce.consensus.ptaal
@@ -164,7 +161,7 @@ pce.consensus.ptaal module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ptacl module
+pce.consensus.ptacl
 --------------------------
 
 .. automodule:: pce.consensus.ptacl
@@ -172,7 +169,7 @@ pce.consensus.ptacl module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ptasl module
+pce.consensus.ptasl
 --------------------------
 
 .. automodule:: pce.consensus.ptasl
@@ -180,7 +177,7 @@ pce.consensus.ptasl module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.ptgp module
+pce.consensus.ptgp
 -------------------------
 
 .. automodule:: pce.consensus.ptgp
@@ -188,7 +185,7 @@ pce.consensus.ptgp module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.space module
+pce.consensus.space
 --------------------------
 
 .. automodule:: pce.consensus.space
@@ -196,7 +193,7 @@ pce.consensus.space module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.spce module
+pce.consensus.spce
 -------------------------
 
 .. automodule:: pce.consensus.spce
@@ -204,7 +201,7 @@ pce.consensus.spce module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.trce module
+pce.consensus.trce
 -------------------------
 
 .. automodule:: pce.consensus.trce
@@ -212,18 +209,10 @@ pce.consensus.trce module
    :show-inheritance:
    :undoc-members:
 
-pce.consensus.usenc module
+pce.consensus.usenc
 --------------------------
 
 .. automodule:: pce.consensus.usenc
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.consensus
    :members:
    :show-inheritance:
    :undoc-members:

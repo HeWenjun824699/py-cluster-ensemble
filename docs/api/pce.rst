@@ -1,8 +1,5 @@
-pce package
+pce
 ===========
-
-Subpackages
------------
 
 .. toctree::
    :maxdepth: 4
@@ -16,11 +13,3 @@ Subpackages
    pce.metrics
    pce.pipelines
    pce.utils
-
-Module contents
----------------
-
-.. automodule:: pce
-   :members:
-   :show-inheritance:
-   :undoc-members:

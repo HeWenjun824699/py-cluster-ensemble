@@ -1,10 +1,7 @@
-pce.applications package
+pce.applications
 ========================
 
-Submodules
-----------
-
-pce.applications.fast\_ensemble module
+pce.applications.fast\_ensemble
 --------------------------------------
 
 .. automodule:: pce.applications.fast_ensemble
@@ -12,18 +9,10 @@ pce.applications.fast\_ensemble module
    :show-inheritance:
    :undoc-members:
 
-pce.applications.sc3 module
+pce.applications.sc3
 ---------------------------
 
 .. automodule:: pce.applications.sc3
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.applications
    :members:
    :show-inheritance:
    :undoc-members:

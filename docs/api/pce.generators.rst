@@ -1,10 +1,7 @@
-pce.generators package
+pce.generators
 ======================
 
-Submodules
-----------
-
-pce.generators.bagkmeans module
+pce.generators.bagkmeans
 -------------------------------
 
 .. automodule:: pce.generators.bagkmeans
@@ -12,7 +9,7 @@ pce.generators.bagkmeans module
    :show-inheritance:
    :undoc-members:
 
-pce.generators.cdkmeans module
+pce.generators.cdkmeans
 ------------------------------
 
 .. automodule:: pce.generators.cdkmeans
@@ -20,7 +17,7 @@ pce.generators.cdkmeans module
    :show-inheritance:
    :undoc-members:
 
-pce.generators.hetero\_clustering module
+pce.generators.hetero\_clustering
 ----------------------------------------
 
 .. automodule:: pce.generators.hetero_clustering
@@ -28,7 +25,7 @@ pce.generators.hetero\_clustering module
    :show-inheritance:
    :undoc-members:
 
-pce.generators.litekmeans module
+pce.generators.litekmeans
 --------------------------------
 
 .. automodule:: pce.generators.litekmeans
@@ -36,7 +33,7 @@ pce.generators.litekmeans module
    :show-inheritance:
    :undoc-members:
 
-pce.generators.rpkmeans module
+pce.generators.rpkmeans
 ------------------------------
 
 .. automodule:: pce.generators.rpkmeans
@@ -44,18 +41,10 @@ pce.generators.rpkmeans module
    :show-inheritance:
    :undoc-members:
 
-pce.generators.rskmeans module
+pce.generators.rskmeans
 ------------------------------
 
 .. automodule:: pce.generators.rskmeans
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: pce.generators
    :members:
    :show-inheritance:
    :undoc-members:
