@@ -26,22 +26,58 @@ def consensus_batch(
         overwrite: bool = False
 ):
     """
-    Execute cluster ensemble pipeline in batch.
+    Execute the full cluster ensemble pipeline in batch mode for multiple datasets.
 
-    Args:
-        input_dir: Input dataset directory (.mat)
-        output_dir: Output directory for results
-        save_format: 'csv', 'xlsx' (File save format)
-        consensus_method: 'cspa', 'mcla', 'hgpa', etc. (Function name string)
-        generator_method: Generator to use if data is raw X (e.g., 'cdkmeans', 'litekmeans')
-        nPartitions: Number of base clusterers (Only used when generating BPs)
-        seed: Random seed
-        maxiter: Maximum iterations for algorithm in base clustering generation
-        replicates: Number of replicates in base clustering generation
-        nBase: Number of base clusterers used in each ensemble algorithm execution
-        nRepeat: Number of experiment repetitions, used with nBase (nBase * nRepeat = Total base clusterers)
-        overwrite: Whether to overwrite existing output data
+    This high-level API automates the entire workflow: it scans a directory for
+    MATLAB (.mat) files, handles data loading, generates base partitions
+    on-the-fly (if missing), executes consensus algorithms, performs performance
+    evaluation, and persists results in various formats.
+
+    Parameters
+    ----------
+    input_dir : str
+        The directory path containing input .mat datasets. The function
+        automatically scans for all .mat files within this folder.
+    output_dir : str, optional
+        The directory where experimental results will be saved. If None, it
+        defaults to `input_dir` and creates subfolders named after the
+        `consensus_method`.
+    save_format : str, default="csv"
+        The file format for saving evaluation results. Supports 'csv',
+        'xlsx', and 'mat'.
+    consensus_method : str, default='cspa'
+        The name of the consensus algorithm to be executed (e.g., 'cspa',
+        'mcla', 'hgpa', 'lwea', etc.).
+    generator_method : str, default='cdkmeans'
+        The generator algorithm to use if the input dataset contains only
+        raw features (X). Options include 'cdkmeans', 'litekmeans', etc.
+    nPartitions : int, default=200
+        Total number of base partitions to generate per dataset. This is
+        only utilized when the input file lacks pre-computed BPs.
+    seed : int, default=2026
+        Global random seed to ensure reproducibility of both base clustering
+        generation and consensus algorithm execution.
+    maxiter : int, default=100
+        Maximum number of iterations allowed for the base clustering
+        generation process.
+    replicates : int, default=1
+        The number of independent initializations/runs for the base
+        clustering generator per partition.
+    nBase : int, default=20
+        The number of base partitions selected for each individual ensemble
+        experiment (slice size from the total pool).
+    nRepeat : int, default=10
+        The number of independent experimental repetitions per dataset to
+        facilitate statistical analysis of algorithm stability.
+    overwrite : bool, default=False
+        If True, existing output files will be overwritten. If False, the
+        pipeline skips datasets that already have results in the output path.
+
+    Returns
+    -------
+    None
     """
+
     # 1. Prepare directories
     input_path = Path(input_dir)
     # Check if output path is provided
