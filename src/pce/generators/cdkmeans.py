@@ -18,9 +18,34 @@ def cdkmeans(
         replicates: int = 1
 ):
     """
-    Main function: Batch generate Base Partitions (BPs)
-    Corresponds to the main logic of the MATLAB script
+    Generate Base Partitions using Coordinate Descent Method for k-means.
+
+    This method refines an initial LiteKMeans clustering using the CDKM
+    optimization to increase the precision and diversity of base partitions.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Input feature matrix.
+    Y : np.ndarray, optional
+        Used for inferring K range when `nClusters` is None.
+    nClusters : int, optional
+        Fixed cluster number or None for Random-k.
+    nPartitions : int, default=200
+        Number of partitions to generate.
+    seed : int, default=2026
+        Seed for controlling sub-seeds and K selection.
+    maxiter : int, default=100
+        Maximum iterations for the initial clustering stage.
+    replicates : int, default=1
+        Repeat initial clustering and pick the best one before CDKM refinement.
+
+    Returns
+    -------
+    BPs : np.ndarray
+        Base Partitions matrix of shape (n_samples, nPartitions).
     """
+
     nSmp = X.shape[0]
 
     # [Core Modification] Automatically handle all format issues

@@ -17,12 +17,38 @@ def rskmeans(
         replicates: int = 1
 ):
     """
-    Random Subspace K-Means Ensemble Generator
+    Random Subspace K-Means Ensemble Generator.
 
-    Combines two diversity strategies:
-    1. Parameter Perturbation: Random K value (Random-k)
-    2. Feature Perturbation: Random Subspace
+    Combines 'Parameter Perturbation' (Random-k) and 'Feature Perturbation'
+    (Random Subspace). Each partition is trained on a randomly selected
+    subset of features, making it suitable for high-dimensional data.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Input feature matrix of shape (n_samples, n_features).
+    Y : np.ndarray, optional
+        True labels for K-range inference.
+    nClusters : int, optional
+        Target cluster count or None for Random-k.
+    nPartitions : int, default=200
+        Number of base partitions to generate.
+    subspace_ratio : float, default=0.5
+        Ratio of features to be randomly sampled (0 < ratio <= 1).
+        Default is 0.5 as per the classic TPAMI-2005 implementation.
+    seed : int, default=2026
+        Seed for controlling feature sampling and K-Means initialization.
+    maxiter : int, default=100
+        Maximum iterations for internal K-Means.
+    replicates : int, default=1
+        Number of K-Means runs per feature subspace.
+
+    Returns
+    -------
+    BPs : np.ndarray
+        Base Partitions matrix. Labels are 1-based.
     """
+
     nSmp = X.shape[0]
 
     # [Core Modification] Automatically handle all format issues

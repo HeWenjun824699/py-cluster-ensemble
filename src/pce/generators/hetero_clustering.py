@@ -15,20 +15,35 @@ def hetero_clustering(
         seed: int = 2026
 ):
     """
-    Heterogeneous Ensemble Generator
+    Heterogeneous Ensemble Generator.
 
-    Principle: Mix clustering algorithms with different Inductive Biases.
-    Combines:
-    1. Model Perturbation: Randomly select algorithm (Spectral, Hierarchical, GMM)
-    2. Parameter Perturbation: Random K value (Random-k)
+    Introduces 'Model Perturbation' by mixing clustering algorithms with
+    different Inductive Biases (Spectral, GMM, Hierarchical, etc.) to
+    maximize the diversity of the base partition pool.
 
     Parameters
     ----------
-    algorithms : str or List[str]
-        - 'auto': Randomly mix ['spectral', 'ward', 'average', 'complete', 'gmm', 'kmeans']
-        - List[str]: Specify a subset, e.g. ['spectral', 'ward']
-        - str: Fix one algorithm, e.g. 'spectral'
+    X : np.ndarray
+        Input feature matrix of shape (n_samples, n_features).
+    Y : np.ndarray, optional
+        True labels for K-range inference.
+    nClusters : int, optional
+        Target cluster count or None for Random-k.
+    nPartitions : int, default=200
+        Number of base partitions to generate.
+    algorithms : Union[str, List[str]], default='auto'
+        - 'auto': Mixes ['spectral', 'ward', 'average', 'complete', 'gmm', 'kmeans'].
+        - List[str]: User-specified subset of algorithms.
+        - str: Fix a single algorithm for all partitions.
+    seed : int, default=2026
+        Seed for algorithm selection and internal stochastic processes.
+
+    Returns
+    -------
+    BPs : np.ndarray
+        Base Partitions matrix. Labels are 1-based.
     """
+
     nSmp = X.shape[0]
 
     # [Core Modification] Automatically handle all format issues
