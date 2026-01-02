@@ -16,34 +16,38 @@ def fast_ensemble(
     delimiter: str = ','
 ) -> float:
     """
-    FastEnsemble Application Entry Point.
-    
-    Reads a network edge-list from a file, performs ensemble clustering, 
-    and writes the community assignments to an output file.
+    FastEnsemble wrapper for scalable community detection on large networks.
+
+    Efficiently performs ensemble clustering on graph data by running multiple
+    base partitions and utilizing edge pruning with consensus strategies. Designed
+    for high scalability on large-scale network edge-lists.
 
     Parameters
     ----------
     input_file : str
-        Path to the input edge-list file.
+        Path to the input edge-list file (e.g., .txt or .csv) representing
+        the graph structure.
     output_file : str
-        Path where the output community file (CSV) will be saved.
+        Path to save the resulting community assignments in CSV format.
     n_partitions : int, default=10
-        Number of partitions in consensus clustering.
+        Number of base partitions to generate in the consensus phase.
     threshold : float, default=0.8
-        Threshold value for consensus edge pruning.
+        Weight threshold for edge pruning during consensus graph construction.
     resolution : float, default=0.01
-        Resolution parameter for the Leiden algorithm.
+        Resolution parameter for the underlying clustering algorithm (Leiden/Louvain).
     algorithm : str, default='leiden-cpm'
-        Clustering algorithm ('leiden-cpm', 'leiden-mod', or 'louvain').
+        Choice of community detection algorithm. Supports 'leiden-cpm',
+        'leiden-mod', or 'louvain'.
     relabel : bool, default=False
-        Whether to relabel network nodes from 0 to #nodes-1.
-    delimiter : str, default=' '
-        Delimiter used in the output CSV file.
+        If True, internally maps node IDs to a continuous range [0, N-1]
+        and maps them back in the final output.
+    delimiter : str, default=','
+        Separator character used in the input edge-list and output CSV file.
 
     Returns
     -------
     time_cost : float
-        Execution time in seconds.
+        The total execution time from reading the graph to saving results.
     """
     
     start_time = time.time()

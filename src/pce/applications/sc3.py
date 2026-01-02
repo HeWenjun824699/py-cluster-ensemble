@@ -30,51 +30,68 @@ def sc3(
         seed: int = 2026
 ) -> tuple[np.ndarray, dict, float]:
     """
-    SC3-Nature methods-2017 (Single-Cell Consensus Clustering) Wrapper.
+    SC3 (Single-Cell Consensus Clustering) wrapper for single-cell RNA-seq data.
 
-    Strict Python port of the SC3-Nature methods-2017 R package.
+    A strict Python port of the original SC3 R package (Nature Methods, 2017).
+    It provides a robust consensus clustering framework for single-cell expression
+    data, incorporating gene filtering, multiple dimensionality reductions,
+    consensus aggregation, and biological downstream analysis.
 
     Parameters
     ----------
     X : np.ndarray
-        Input data matrix, shape (n_samples, n_features).
-        Corresponds to the 'counts' or 'logcounts' slot in R.
+        Input expression matrix of shape (n_samples, n_features). Corresponds
+        to the 'counts' or 'logcounts' slot in the R package.
     Y : np.ndarray, optional
-        True labels. Not used by SC3-Nature methods-2017 algorithm (strictly unsupervised).
-        Retained in signature only for compatibility with framework interfaces.
+        True labels. Not used by the SC3 algorithm (strictly unsupervised),
+        retained in the signature only for framework interface compatibility.
     nClusters : int, optional
-        Target number of clusters (k).
-        If None, estimated automatically using Tracy-Widom theory (sc3_estimate_k).
-        Note: Ground truth Y is NEVER used to infer k in this strictly unsupervised implementation.       
-    gene_names : list or np.ndarray, optional
-        List of gene symbols. If None, generated as 'Gene_0', 'Gene_1'...
-    cell_names : list or np.ndarray, optional
-        List of cell IDs. If None, generated as 'Cell_0', 'Cell_1'...
+        Target number of clusters (k). If None, it is automatically estimated
+        using Tracy-Widom theory (sc3_estimate_k).
+    gene_names : Union[List[str], np.ndarray], optional
+        List of gene symbols. If None, generated as 'Gene_0', 'Gene_1', etc.
+        Required for biological reports (DE/Markers).
+    cell_names : Union[List[str], np.ndarray], optional
+        List of cell identifiers. If None, generated as 'Cell_0', 'Cell_1', etc.
     output_directory : str, optional
-        If provided, results (DE genes, Markers, Outliers) will be exported to Excel in this directory.   
+        Path to save analysis results. If provided, the algorithm exports an
+        Excel report (DE, Markers, Outliers) and PNG visualizations.
     gene_filter : bool, default=True
-        Whether to perform gene filtering based on dropout percentage.
+        Whether to perform gene filtering based on dropout percentages.
     pct_dropout_min : int, default=10
-        Minimum dropout percentage for gene filtering.
+        Minimum dropout percentage; genes expressed in fewer cells are filtered.
     pct_dropout_max : int, default=90
-        Maximum dropout percentage for gene filtering.
+        Maximum dropout percentage; ubiquitously expressed genes are filtered.
     d_region_min : float, default=0.04
+        Lower bound for the range of dimensions $d$ used in spectral clustering.
     d_region_max : float, default=0.07
+        Upper bound for the range of dimensions $d$ used in spectral clustering.
     svm_max : int, default=5000
+        Threshold for dataset size. If n_samples > `svm_max`, SVM prediction
+        mode is enabled for acceleration.
     svm_num_cells : int, optional
+        Number of cells to use for training the SVM in large-scale mode.
     biology : bool, default=False
-        Whether to calculate biological features.
+        Whether to compute biological features such as DE genes, marker genes,
+        and outlier scores.
     kmeans_nstart : int, default=1000
+        Number of random restarts for the K-means step to ensure stability.
     kmeans_iter_max : int, default=1e9
+        Maximum number of iterations for the K-means algorithm.
     n_cores : int, optional
+        Number of CPU cores for parallel computation of the distance matrix.
     seed : int, default=2026
+        Random seed for reproducibility of K-means and sampling processes.
 
     Returns
     -------
-    tuple
-        - labels: Predicted labels (np.ndarray).
-        - biology: Dictionary containing biological features (dict).
-        - time_cost: Execution time (float).
+    labels : np.ndarray
+        Predicted cluster labels of shape (n_samples,).
+    biology_res : dict
+        A dictionary containing statistics for Differential Expression (DE),
+        Marker genes, and Outlier scores.
+    time_cost : float
+        The total execution time in seconds.
     """
 
     # Run SC3-Nature methods-2017
