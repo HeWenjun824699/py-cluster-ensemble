@@ -39,12 +39,6 @@ def save_base_mat(
     Returns
     -------
     None
-
-    Notes
-    -----
-    To ensure seamless integration with MATLAB, all categorical labels in Y
-    and BPs are stored as doubles, as many MATLAB clustering toolboxes
-    expect floating-point arrays for label indexing.
     """
 
     try:

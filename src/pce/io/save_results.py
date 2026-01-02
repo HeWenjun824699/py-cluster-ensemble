@@ -39,12 +39,9 @@ def save_results_csv(
     float_format : str, default="%.4f"
         Formatting string for floating-point numbers in the output file.
 
-    Notes
-    -----
-    - For columns containing 'time' (case-insensitive), the summary string
-      remains in its original scale.
-    - For other numeric columns (metrics like ACC/NMI), the summary string
-      scales values by 100 to represent percentages.
+    Returns
+    -------
+    None
     """
 
     try:

@@ -9,33 +9,45 @@ from .utils.balance_evl import balance_evl
 
 def evaluation_single(y, Y, time=None):
     """
-    Evaluates clustering performance.
-    
-    Parameters:
-    y : Predicted labels
-    Y : Ground truth labels
-    time: Optional parameter of execution time
+    Evaluate the clustering performance of a single prediction against ground truth.
 
-    Returns:
+    This function calculates 14 comprehensive clustering metrics, including external
+    indices (like ACC, NMI, ARI) and balance-based metrics. It bridges the gap
+    between MATLAB evaluation scripts and Python-based research workflows.
+
+    Parameters
+    ----------
+    y : np.ndarray
+        Predicted label vector of shape (n_samples,). It will be flattened
+        internally to a 1D array.
+    Y : np.ndarray
+        Ground truth label vector of shape (n_samples,). Used as the reference
+        for calculating all supervised metrics.
+    time : float, optional
+        The execution time (in seconds) of the clustering algorithm. If provided,
+        it will be included in the returned dictionary.
+
+    Returns
+    -------
     res : dict
-    {
-        "ACC": acc,
-        "NMI": nmi,
-        "Purity": purity,
-        "AR": AR,
-        "RI": RI,
-        "MI": MI,
-        "HI": HI,
-        "F-Score": fscore,
-        "Precision": precision,
-        "Recall": recall,
-        "Entropy": entropy,
-        "SDCS": SDCS,
-        "RME": RME,
-        "Bal": bal,
-        "Time": time(optional)
-    }
+        A dictionary containing the following 14 metrics and optional time:
+        - 'ACC': Accuracy (Clustering Accuracy after optimal mapping).
+        - 'NMI': Normalized Mutual Information.
+        - 'Purity': Clustering Purity.
+        - 'AR': Adjusted Rand Index (ARI).
+        - 'RI': Rand Index.
+        - 'MI': Mutual Information.
+        - 'HI': Hubert Index.
+        - 'F-Score': F-measure.
+        - 'Precision': Precision.
+        - 'Recall': Recall.
+        - 'Entropy': Clustering Entropy.
+        - 'SDCS': Standard Deviation of Cluster Size.
+        - 'RME': Relative Mean Error of balance.
+        - 'Bal': Balance Score.
+        - 'Time': Execution time (if provided).
     """
+
     y = np.array(y).flatten()
     Y = np.array(Y).flatten()
     

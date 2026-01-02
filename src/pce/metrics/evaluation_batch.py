@@ -9,32 +9,29 @@ from .utils.balance_evl import balance_evl
 
 def evaluation_batch(labels, Y, time_list=None):
     """
-    Evaluates clustering performance.
-    
-    Parameters:
-    labels : Predicted labels
-    Y : Ground truth labels
-    time_list: Optional list of execution times for each run
+    Batch evaluate multiple clustering results against a single ground truth.
 
-    Returns:
-    res : list
-          [{
-            "ACC": acc,
-            "NMI": nmi,
-            "Purity": purity,
-            "AR": AR,
-            "RI": RI,
-            "MI": MI,
-            "HI": HI,
-            "F-Score": fscore,
-            "Precision": precision,
-            "Recall": recall,
-            "Entropy": entropy,
-            "SDCS": SDCS,
-            "RME": RME,
-            "Bal": bal,
-            "Time": time(optional)
-          }]
+    This function is designed for multi-round experiments (e.g., nRepeat runs).
+    It iterates through a list of predicted labels and computes a full set of
+    metrics for each run, facilitating subsequent statistical analysis (Mean/Std).
+
+    Parameters
+    ----------
+    labels : List[np.ndarray]
+        A list containing multiple prediction arrays, each of shape (n_samples,).
+        Typically the output of an ensemble consensus method's multiple runs.
+    Y : np.ndarray
+        Ground truth label vector of shape (n_samples,).
+    time_list : List[float], optional
+        A list of execution times corresponding to each prediction in `labels`.
+        Must have the same length as `labels`.
+
+    Returns
+    -------
+    res_list : List[dict]
+        A list of dictionaries, where each dictionary contains the 14 evaluation
+        metrics for a specific run. Metrics include ACC, NMI, ARI, Purity, F-Score,
+        Entropy, and others.
     """
     res_list = []
 

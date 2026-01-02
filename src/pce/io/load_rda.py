@@ -37,11 +37,6 @@ def load_rda_X_Y(rda_path):
         If the .rda file does not contain the expected 'yan' and 'ann' objects.
     ImportError
         If the 'pyreadr' library is not installed.
-
-    Notes
-    -----
-    The source dataset 'yan.rda' is the standard benchmark used in the
-    Nature Methods 2017 SC3 paper.
     """
 
     # 1. Read the R data file
