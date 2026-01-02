@@ -4,7 +4,7 @@ from typing import Optional
 
 from pathlib import Path
 
-# 引入库组件
+# Import library components
 from .. import io
 from .. import generators
 from .. import consensus
@@ -26,25 +26,25 @@ def consensus_batch(
         overwrite: bool = False
 ):
     """
-    批量执行聚类集成流水线。
+    Execute cluster ensemble pipeline in batch.
 
     Args:
-        input_dir: 输入数据集目录 (.mat)
-        output_dir: 结果输出目录
-        save_format: 'csv', 'xlsx' (文件保存方式)
-        consensus_method: 'cspa', 'mcla', 'hgpa' 等 (函数名字符串)
-        generator_method: 如果数据是原始 X，使用该生成器 (如 'cdkmeans', 'litekmeans')
-        nPartitions: 基聚类器数量 (仅当需要生成 BPs 时使用)
-        seed: 随机种子
-        maxiter: 基聚类生成中，算法最大迭代次数
-        replicates: 基聚类生成中，重复聚类的次数
-        nBase: 集成算法中每次使用的基聚类器的数量
-        nRepeat: 实验重复次数，配合nBase使用(nBase * nRepeat = 基聚类数量)
-        overwrite: 是否覆盖原来的输出数据
+        input_dir: Input dataset directory (.mat)
+        output_dir: Output directory for results
+        save_format: 'csv', 'xlsx' (File save format)
+        consensus_method: 'cspa', 'mcla', 'hgpa', etc. (Function name string)
+        generator_method: Generator to use if data is raw X (e.g., 'cdkmeans', 'litekmeans')
+        nPartitions: Number of base clusterers (Only used when generating BPs)
+        seed: Random seed
+        maxiter: Maximum iterations for algorithm in base clustering generation
+        replicates: Number of replicates in base clustering generation
+        nBase: Number of base clusterers used in each ensemble algorithm execution
+        nRepeat: Number of experiment repetitions, used with nBase (nBase * nRepeat = Total base clusterers)
+        overwrite: Whether to overwrite existing output data
     """
-    # 1. 准备目录
+    # 1. Prepare directories
     input_path = Path(input_dir)
-    # 判断是否传入输出路径
+    # Check if output path is provided
     if output_dir is None:
         output_path = input_path
     else:
@@ -54,8 +54,8 @@ def consensus_batch(
         os.makedirs(output_path)
         print(f"Created output directory: {output_path}")
 
-    # 2. 获取算法函数 (利用 getattr 动态获取)
-    # generator_method, consensus_method 转小写
+    # 2. Get algorithm functions (Dynamically using getattr)
+    # Convert generator_method, consensus_method to lowercase
     generator_method = generator_method.lower()
     consensus_method = consensus_method.lower()
 
@@ -74,7 +74,7 @@ def consensus_batch(
     except AttributeError:
         raise ValueError(f"Generator method '{generator_method}' not found in pce.generators")
 
-    # 3. 遍历文件
+    # 3. Iterate over files
     mat_files = list(input_path.glob("*.mat"))
     if not mat_files:
         print(f"No .mat files found in {input_dir}")
@@ -83,59 +83,59 @@ def consensus_batch(
     print(f"\nFound {len(mat_files)} datasets. Starting batch process with [{consensus_method.upper()}]...")
 
     for file_path in mat_files:
-        dataset_name = file_path.stem  # 获取文件名（不含后缀）
+        dataset_name = file_path.stem  # Get filename (without extension)
 
-        # 检测输出文件是否存在
+        # Check if output file exists
         save_path = output_path / f"{consensus_method.upper()}" / f"{dataset_name}_{consensus_method.upper()}.{save_format}"
         if not overwrite and save_path.exists():
             print(f"    - Skipping: {save_path} already exists.")
             continue
 
-        # 如果不跳过，则开始处理
+        # If not skipped, start processing
         print(f"\n>>> Processing: {dataset_name}")
 
         try:
             BPs = None
             Y = None
 
-            # --- A & B. 数据加载与探测 (核心修改) ---
+            # --- A & B. Data Loading and Probing (Core Modification) ---
             try:
-                # 方案 1: 优先尝试直接加载 BPs 和 Y
-                # load_mat_BPs_Y 会自动处理 1-based 索引问题
+                # Option 1: Attempt to load BPs and Y directly first
+                # load_mat_BPs_Y will automatically handle 1-based indexing issues
                 print(f"    - Attempting to load pre-computed BPs...")
                 BPs, Y = io.load_mat_BPs_Y(file_path)
                 print(f"    - Success: Pre-computed BPs found.")
 
             except IOError:
-                # 方案 2: 如果找不到 BPs (IOError)，则回退尝试加载 X 并现场生成
+                # Option 2: If BPs not found (IOError), fallback to loading X and generating on the fly
                 print(f"    - BPs not found. Fallback: Loading raw data (X)...")
 
-                # 如果这里也失败 (如文件损坏或无 X 无 Y)，会抛出 IOError 被外层 catch
+                # If this also fails (e.g., file corrupted or no X/Y), IOError will be raised and caught by outer block
                 X, Y = io.load_mat_X_Y(file_path)
 
                 print(f"    - Generating BPs using {generator_method.upper()}...")
 
-                # 运行基聚类生成器
+                # Run base clustering generator
                 BPs = generator_func(X, Y, nPartitions=nPartitions, seed=seed, maxiter=maxiter, replicates=replicates)
 
-            # --- C. 运行集成 (Consensus) ---
+            # --- C. Run Consensus ---
             print(f"    - Running Consensus: {consensus_method.upper()}...")
             labels, time_list = consensus_func(BPs, Y, nBase=nBase, nRepeat=nRepeat, seed=seed)
 
-            # --- D. 评估 (Evaluation) ---
+            # --- D. Evaluation ---
             print(f"    - Evaluating...")
             res = metrics.evaluation_batch(labels, Y, time_list)
 
-            # --- E. 保存 (Saving) ---
+            # --- E. Saving ---
             save_name = f"{dataset_name}_{consensus_method.upper()}.{save_format}"
             save_path = output_path / f"{consensus_method.upper()}" / save_name
             save_func(res, str(save_path))
             print(f"    - Saved to: {save_name}")
 
         except Exception as e:
-            # 捕获所有异常（包括 load_mat_X_Y 失败的情况）
+            # Catch all exceptions (including load_mat_X_Y failure)
             print(f"!!! Error processing {dataset_name}: {e}")
-            # 打印堆栈以便调试
+            # Print stack trace for debugging
             # traceback.print_exc()
 
     print("\nBatch processing completed.")
