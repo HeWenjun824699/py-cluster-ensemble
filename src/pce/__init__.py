@@ -1,7 +1,7 @@
-# 1. 定义版本号
+# 1. Define version number
 __version__ = "1.0.0"
 
-# 2. 暴露子模块
+# 2. Expose submodules
 from . import io
 from . import generators
 from . import consensus
