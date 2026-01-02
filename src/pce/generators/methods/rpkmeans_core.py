@@ -7,8 +7,8 @@ def rpkmeans_core(X, n_clusters, projection_ratio=0.5, maxiter=100, replicates=1
     """
     Random Projection K-Means Core (Single Run).
 
-    原理: 利用高斯随机矩阵将数据投影到低维空间，然后执行 K-Means。
-    依据: Johnson-Lindenstrauss Lemma 保证了投影后的欧氏距离近似不变。
+    Principle: Use Gaussian random matrix to project data into a lower-dimensional space, then execute K-Means.
+    Basis: Johnson-Lindenstrauss Lemma guarantees that Euclidean distances after projection remain approximately invariant.
 
     Parameters
     ----------
@@ -31,28 +31,28 @@ def rpkmeans_core(X, n_clusters, projection_ratio=0.5, maxiter=100, replicates=1
     """
     n_samples, n_features = X.shape
 
-    # 1. 确定目标维度 (Target Dimension)
-    # 至少保留 1 个维度
+    # 1. Determine Target Dimension
+    # Keep at least 1 dimension
     n_components = max(1, int(n_features * projection_ratio))
 
-    # 2. 执行随机投影 (Random Projection)
-    # 使用 GaussianRandomProjection 生成符合 J-L 引理的投影矩阵
-    # 它的 random_state 既控制矩阵生成，也保证结果可复现
+    # 2. Execute Random Projection
+    # Use GaussianRandomProjection to generate projection matrix satisfying J-L Lemma
+    # Its random_state controls both matrix generation and ensures reproducibility
     transformer = GaussianRandomProjection(n_components=n_components, random_state=seed)
     X_proj = transformer.fit_transform(X)
 
-    # [纯 NumPy 替代方案] 如果不想依赖 sklearn，可以使用以下代码：
+    # [Pure NumPy Alternative] If you don't want to depend on sklearn, use the following code:
     # rng = np.random.RandomState(seed)
     # R = rng.randn(n_features, n_components)
     # X_proj = X @ R
 
-    # 3. 在投影后的空间上运行 K-Means
-    # 设置 numpy 随机种子以控制 litekmeans 内部的初始化
+    # 3. Run K-Means in the projected space
+    # Set numpy random seed to control initialization inside litekmeans
     if seed is not None:
         np.random.seed(seed)
 
-    # 调用 litekmeans_core
+    # Call litekmeans_core
     label = litekmeans_core(X_proj, n_clusters, maxiter=maxiter, replicates=replicates)[0]
 
-    # 返回 label 和 投影变换器(或矩阵)
+    # Return label and projection transformer (or matrix)
     return label, transformer.components_

@@ -7,10 +7,10 @@ def bagkmeans_core(X, n_clusters, subsample_ratio=0.8, maxiter=100, replicates=1
     """
     Bagging (Subsampling) K-Means Core (Single Run).
 
-    原理:
-    1. 随机抽取部分样本 (Subsampling)。
-    2. 在子样本上运行 K-Means 得到聚类中心。
-    3. 将全量数据指派给最近的聚类中心 (Nearest Centroid Assignment)。
+    Principle:
+    1. Randomly sample a subset of samples (Subsampling).
+    2. Run K-Means on the subsample to get cluster centers.
+    3. Assign full data to the nearest cluster centers (Nearest Centroid Assignment).
 
     Parameters
     ----------
@@ -32,38 +32,38 @@ def bagkmeans_core(X, n_clusters, subsample_ratio=0.8, maxiter=100, replicates=1
     """
     n_samples = X.shape[0]
 
-    # 设置随机种子
+    # Set random seed
     rng = np.random.RandomState(seed)
 
-    # --- 1. 样本重采样 (Subsampling) ---
-    # 确定采样数量
+    # --- 1. Sample Subsampling ---
+    # Determine sample size
     n_sub = int(n_samples * subsample_ratio)
 
-    # 保证采样数至少大于等于簇数，否则无法聚类
+    # Ensure sample size is at least equal to number of clusters, otherwise clustering is impossible
     if n_sub < n_clusters:
         n_sub = n_clusters
 
-    # 无放回抽样 (Without Replacement) - 在聚类中比有放回更常用，避免重叠点影响质心计算
+    # Sampling Without Replacement - more common in clustering than with replacement, avoids overlapping points affecting centroid calculation
     sampled_indices = rng.choice(n_samples, n_sub, replace=False)
 
-    # 构建子样本数据
+    # Build subsample data
     X_sub = X[sampled_indices]
 
-    # --- 2. 在子样本上运行 K-Means ---
-    # 设置 numpy 种子以控制 litekmeans 内部初始化
+    # --- 2. Run K-Means on subsample ---
+    # Set numpy seed to control initialization inside litekmeans
     if seed is not None:
         np.random.seed(seed)
 
-    # 调用 litekmeans_core
-    # 我们需要 'center' (第二个返回值) 来对全量数据进行归类
+    # Call litekmeans_core
+    # We need 'center' (second return value) to classify full data
     _, centers, _, _, _ = litekmeans_core(X_sub, n_clusters, maxiter=maxiter, replicates=replicates)
 
-    # --- 3. 全量样本补全 (Assignment Step) ---
-    # 计算全量 X 到 centers 的距离矩阵
+    # --- 3. Full Sample Assignment (Assignment Step) ---
+    # Calculate distance matrix from full X to centers
     # X: (N, D), centers: (K, D) -> dists: (N, K)
     dists = cdist(X, centers, metric='euclidean')
 
-    # 获取每个样本距离最近的中心索引作为标签
+    # Get index of nearest center for each sample as label
     full_labels = np.argmin(dists, axis=1)
 
     return full_labels, sampled_indices

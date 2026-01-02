@@ -17,29 +17,29 @@ def bagkmeans(
         replicates: int = 1
 ):
     """
-    Bagging K-Means 集成生成器 (Resampling Strategy)
+    Bagging K-Means Ensemble Generator (Resampling Strategy)
 
-    结合了两种多样性策略：
-    1. Parameter Perturbation: 随机 K 值 (Random-k)
-    2. Data Perturbation: 样本重采样 (Bagging/Subsampling)
+    Combines two diversity strategies:
+    1. Parameter Perturbation: Random K value (Random-k)
+    2. Data Perturbation: Sample Resampling (Bagging/Subsampling)
 
-    该方法通过在不同的数据子集上训练，显著提高了集成的抗噪性和鲁棒性。
+    This method significantly improves the noise resistance and robustness of the ensemble by training on different data subsets.
     """
     nSmp = X.shape[0]
 
-    # 【核心修改】自动处理所有格式问题
+    # [Core Modification] Automatically handle all format issues
     X = check_array(X, accept_sparse=False)
 
-    # --- 1. 调用辅助函数获取 K 值范围 ---
-    # 保持与 litekmeans/cdkmeans/rskmeans/rpkmeans 一致的 Random-k 逻辑
+    # --- 1. Call helper function to get K value range ---
+    # Keep Random-k logic consistent with litekmeans/cdkmeans/rskmeans/rpkmeans
     minCluster, maxCluster = get_k_range(n_smp=nSmp, n_clusters=nClusters, y=Y)
 
-    # --- 2. 生成基聚类 ---
+    # --- 2. Generate base partitions ---
     BPs = np.zeros((nSmp, nPartitions), dtype=np.float64)
 
     nRepeat = nPartitions
 
-    # 初始化随机数生成器
+    # Initialize random number generator
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
@@ -47,7 +47,7 @@ def bagkmeans(
         current_seed = random_seeds[iRepeat]
 
         # -------------------------------------------------
-        # 步骤 A: 随机选择 K 值 (Random-k)
+        # Step A: Randomly select K value (Random-k)
         # -------------------------------------------------
         np.random.seed(current_seed)
 
@@ -57,9 +57,9 @@ def bagkmeans(
             iCluster = np.random.randint(minCluster, maxCluster + 1)
 
         # -------------------------------------------------
-        # 步骤 B: 运行 Bagging K-Means
+        # Step B: Run Bagging K-Means
         # -------------------------------------------------
-        # 传入 current_seed 确保采样和初始化是可复现的
+        # Pass current_seed to ensure sampling and initialization are reproducible
         label, _ = bagkmeans_core(
             X=X,
             n_clusters=iCluster,
@@ -69,7 +69,7 @@ def bagkmeans(
             seed=current_seed
         )
 
-        # 存储结果 (转为 1-based，保持与 MATLAB 习惯一致)
+        # Store results (convert to 1-based, consistent with MATLAB convention)
         BPs[:, iRepeat] = label + 1
 
     return BPs

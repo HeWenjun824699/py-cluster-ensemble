@@ -15,12 +15,12 @@ def hetero_clustering(
         seed: int = 2026
 ):
     """
-    Heterogeneous Ensemble Generator (异构集成生成器)
+    Heterogeneous Ensemble Generator
 
-    原理: 混合使用具有不同归纳偏置(Inductive Bias)的聚类算法。
-    结合了:
-    1. Model Perturbation: 随机选择算法 (Spectral, Hierarchical, GMM)
-    2. Parameter Perturbation: 随机 K 值 (Random-k)
+    Principle: Mix clustering algorithms with different Inductive Biases.
+    Combines:
+    1. Model Perturbation: Randomly select algorithm (Spectral, Hierarchical, GMM)
+    2. Parameter Perturbation: Random K value (Random-k)
 
     Parameters
     ----------
@@ -31,31 +31,31 @@ def hetero_clustering(
     """
     nSmp = X.shape[0]
 
-    # 【核心修改】自动处理所有格式问题
+    # [Core Modification] Automatically handle all format issues
     X = check_array(X, accept_sparse=False)
 
-    # --- 1. 配置算法池 ---
+    # --- 1. Configure algorithm pool ---
     if algorithms == 'auto':
-        # 默认混合策略 (已补全 'complete')
+        # Default mix strategy (added 'complete')
         algo_pool = ['spectral', 'ward', 'average', 'complete', 'gmm', 'kmeans']
     elif isinstance(algorithms, str):
         algo_pool = [algorithms]
     else:
         algo_pool = algorithms
 
-    # --- 2. 调用辅助函数获取 K 值范围 ---
+    # --- 2. Call helper function to get K value range ---
     minCluster, maxCluster = get_k_range(n_smp=nSmp, n_clusters=nClusters, y=Y)
 
-    # --- 3. 生成基聚类 ---
+    # --- 3. Generate base partitions ---
     BPs = np.zeros((nSmp, nPartitions), dtype=np.float64)
 
     nRepeat = nPartitions
 
-    # 初始化随机数生成器
+    # Initialize random number generator
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
-    # 预先生成算法选择序列 (均匀分布)
+    # Pre-generate algorithm selection sequence (uniform distribution)
     selected_algos = rs.choice(algo_pool, size=nRepeat)
 
     for iRepeat in range(nRepeat):
@@ -63,7 +63,7 @@ def hetero_clustering(
         current_algo = selected_algos[iRepeat]
 
         # -------------------------------------------------
-        # 步骤 A: 随机选择 K 值 (Random-k)
+        # Step A: Randomly select K value (Random-k)
         # -------------------------------------------------
         np.random.seed(current_seed)
 
@@ -73,7 +73,7 @@ def hetero_clustering(
             iCluster = np.random.randint(minCluster, maxCluster + 1)
 
         # -------------------------------------------------
-        # 步骤 B: 运行选定的异构算法
+        # Step B: Run selected heterogeneous algorithm
         # -------------------------------------------------
         try:
             label = hetero_clustering_core(
@@ -83,12 +83,12 @@ def hetero_clustering(
                 seed=current_seed
             )
 
-            # 存储结果 (转为 1-based)
+            # Store results (convert to 1-based)
             BPs[:, iRepeat] = label + 1
 
         except Exception as e:
-            # 容错处理：某些算法(如Spectral)在特定数据下可能失败
-            # 如果失败，回退到 K-Means 保证流程不中断
+            # Fault tolerance: Some algorithms (e.g., Spectral) may fail on specific data
+            # If failed, fallback to K-Means to ensure process continuity
             # print(f"Warning: {current_algo} failed at iter {iRepeat}. Fallback to kmeans. Error: {e}")
             fallback_label = hetero_clustering_core(X, iCluster, 'kmeans', seed=current_seed)
             BPs[:, iRepeat] = fallback_label + 1

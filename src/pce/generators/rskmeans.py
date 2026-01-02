@@ -17,27 +17,27 @@ def rskmeans(
         replicates: int = 1
 ):
     """
-    Random Subspace K-Means 集成生成器
+    Random Subspace K-Means Ensemble Generator
 
-    结合了两种多样性策略：
-    1. Parameter Perturbation: 随机 K 值 (Random-k)
-    2. Feature Perturbation: 随机特征子空间 (Random Subspace)
+    Combines two diversity strategies:
+    1. Parameter Perturbation: Random K value (Random-k)
+    2. Feature Perturbation: Random Subspace
     """
     nSmp = X.shape[0]
 
-    # 【核心修改】自动处理所有格式问题
+    # [Core Modification] Automatically handle all format issues
     X = check_array(X, accept_sparse=False)
 
-    # --- 1. 调用辅助函数获取 K 值范围 ---
-    # 保持与 litekmeans/cdkmeans 一致的 Random-k 逻辑
+    # --- 1. Call helper function to get K value range ---
+    # Keep Random-k logic consistent with litekmeans/cdkmeans
     minCluster, maxCluster = get_k_range(n_smp=nSmp, n_clusters=nClusters, y=Y)
 
-    # --- 2. 生成基聚类 ---
+    # --- 2. Generate base partitions ---
     BPs = np.zeros((nSmp, nPartitions), dtype=np.float64)
 
     nRepeat = nPartitions
 
-    # 初始化随机数生成器
+    # Initialize random number generator
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
@@ -45,7 +45,7 @@ def rskmeans(
         current_seed = random_seeds[iRepeat]
 
         # -------------------------------------------------
-        # 步骤 A: 随机选择 K 值 (Random-k)
+        # Step A: Randomly select K value (Random-k)
         # -------------------------------------------------
         np.random.seed(current_seed)
 
@@ -55,9 +55,9 @@ def rskmeans(
             iCluster = np.random.randint(minCluster, maxCluster + 1)
 
         # -------------------------------------------------
-        # 步骤 B: 运行 Random Subspace K-Means
+        # Step B: Run Random Subspace K-Means
         # -------------------------------------------------
-        # 传入 current_seed 确保特征选择和 K-Means 初始化是可复现的
+        # Pass current_seed to ensure feature selection and K-Means initialization are reproducible
         label, _ = rskmeans_core(
             X=X,
             n_clusters=iCluster,
@@ -67,7 +67,7 @@ def rskmeans(
             seed=current_seed
         )
 
-        # 存储结果 (转为 1-based，保持与 MATLAB 习惯一致)
+        # Store results (convert to 1-based, consistent with MATLAB convention)
         BPs[:, iRepeat] = label + 1
 
     return BPs

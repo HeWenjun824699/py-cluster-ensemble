@@ -32,27 +32,27 @@ def hetero_clustering_core(X, n_clusters, algorithm='spectral', seed=None, **kwa
     label : ndarray
         Cluster labels (0-based).
     """
-    # 确保 n_clusters 是整数
+    # Ensure n_clusters is an integer
     n_clusters = int(n_clusters)
 
-    # 算法调度
+    # Algorithm dispatch
     if algorithm == 'spectral':
-        # Spectral Clustering: 适合非凸形状
-        # eigen_solver='arpack' 通常比较稳定
-        # affinity='nearest_neighbors' 在集成中通常比 rbf 表现好
+        # Spectral Clustering: Suitable for non-convex shapes
+        # eigen_solver='arpack' is usually more stable
+        # affinity='nearest_neighbors' usually performs better than rbf in ensembles
         model = SpectralClustering(
             n_clusters=n_clusters,
             affinity='nearest_neighbors',
             eigen_solver='arpack',
             random_state=seed,
-            n_jobs=-1  # 并行加速
+            n_jobs=-1  # Parallel acceleration
         )
         label = model.fit_predict(X)
 
     elif algorithm in ['ward', 'average', 'complete']:
-        # Agglomerative Clustering: 层次聚类
-        # 注意: 这是一个确定性算法(Deterministic)，没有 random_state。
-        # 集成的多样性完全来自于 n_clusters 的随机变化 (Random-k)。
+        # Agglomerative Clustering: Hierarchical clustering
+        # Note: This is a deterministic algorithm, no random_state.
+        # Diversity of the ensemble comes entirely from random variation of n_clusters (Random-k).
         model = AgglomerativeClustering(
             n_clusters=n_clusters,
             linkage=algorithm
@@ -60,17 +60,17 @@ def hetero_clustering_core(X, n_clusters, algorithm='spectral', seed=None, **kwa
         label = model.fit_predict(X)
 
     elif algorithm == 'gmm':
-        # Gaussian Mixture Model: 概率模型
+        # Gaussian Mixture Model: Probabilistic model
         model = GaussianMixture(
             n_components=n_clusters,
             random_state=seed,
-            reg_covar=1e-6  # 防止协方差矩阵奇异
+            reg_covar=1e-6  # Prevent covariance matrix singularity
         )
         model.fit(X)
         label = model.predict(X)
 
     elif algorithm == 'kmeans':
-        # 回退到 LiteKMeans
+        # Fallback to LiteKMeans
         if seed is not None:
             np.random.seed(seed)
         label = litekmeans_core(X, n_clusters)[0]
