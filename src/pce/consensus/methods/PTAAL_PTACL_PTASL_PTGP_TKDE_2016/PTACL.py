@@ -26,13 +26,13 @@ def pta_cl(base_cls, n_cluster):
     pts = compute_pts_fast_v3(mca, mc_labels, para)
 
     # 5. Run Hierarchical Clustering (Complete Linkage) DIRECTLY on PTS
-    # 修正点：直接调用 local 的 CL 聚类，而不是去调用那个有问题的 run_pta_sl_local
+    # Correction: Call local CL clustering directly, instead of calling the problematic run_pta_sl_local
     if np.isscalar(n_cluster):
         ks = [n_cluster]
     else:
         ks = n_cluster
 
-    # 直接传入 PTS 进行聚类
+    # Pass PTS directly for clustering
     mc_results_cl = run_pta_cl_local(pts, ks)
 
     # 6. Map back
@@ -67,12 +67,12 @@ def stod2_local(S):
     Converts similarity matrix to condensed distance vector.
     """
     n = S.shape[0]
-    # 使用 numpy 高效操作代替循环，提高大矩阵性能
-    # 获取上三角矩阵部分（不含对角线）
-    # scipy.cluster.hierarchy.linkage 需要的是 condensed distance matrix
-    # 顺序是: (0,1), (0,2)...(0,n), (1,2)...
+    # Use numpy efficient operations instead of loops to improve large matrix performance
+    # Get the upper triangular part of the matrix (excluding diagonal)
+    # scipy.cluster.hierarchy.linkage requires a condensed distance matrix
+    # The order is: (0,1), (0,2)...(0,n), (1,2)...
 
-    # 为了保持与 Matlab stod2 的严格一致性（逐行取出上三角）
+    # To maintain strict consistency with Matlab stod2 (extract upper triangle row by row)
     s_vec = []
     for i in range(n - 1):
         s_vec.append(S[i, i + 1:])
@@ -80,4 +80,3 @@ def stod2_local(S):
     s = np.concatenate(s_vec)
     d = 1.0 - s
     return d
-
