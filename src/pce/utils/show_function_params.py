@@ -27,7 +27,24 @@ MODULE_MAP = {
 
 
 def _get_visual_width(s: str) -> int:
-    """Calculate visual width of string (Emoji counts as 2)"""
+    """
+    Calculate the visual width of a string, accounting for multi-width Emoji characters.
+
+    Standard `len()` counts characters, but terminal rendering of emojis
+    often occupies two columns. This function ensures that the table
+    alignment remains consistent when emojis like 🔒 or ✅ are used.
+
+    Parameters
+    ----------
+    s : str
+        The input string containing potential wide-character emojis.
+
+    Returns
+    -------
+    width : int
+        The effective visual width used for terminal padding calculations.
+    """
+
     width = len(s)
     # If wide character Emoji is included, manually increase width count
     if '🔒' in s: width += 1
@@ -37,8 +54,30 @@ def _get_visual_width(s: str) -> int:
 
 def show_function_params(method_name: str, module_type: str = 'consensus'):
     """
-    Smartly print algorithm parameters (Emoji alignment fixed)
+    Smartly print and format the parameter status for a specific algorithm.
+
+    This utility inspects the function signature of a target method using Python's
+    `inspect` module and prints a high-visibility table. It explicitly labels
+    parameters as 'Input Data', 'Fixed Parameter', or 'Hyperparameter', helping
+    users build valid configurations for `GridSearcher`.
+
+    Parameters
+    ----------
+    method_name : str
+        The exact name of the target function to be inspected (e.g., 'cspa',
+        'cdkmeans', 'load_mat_X_Y').
+    module_type : str, default='consensus'
+        The sub-module within PCE where the function is defined. Supported
+        options include: 'io', 'generators', 'consensus', 'metrics',
+        'pipelines', 'grid', and 'analysis'.
+
+    Returns
+    -------
+    None
+        Outputs a formatted table directly to the console with status emojis
+        (🔒 for Fixed, ✅ for Searchable).
     """
+
     target_module = MODULE_MAP.get(module_type)
 
     try:
