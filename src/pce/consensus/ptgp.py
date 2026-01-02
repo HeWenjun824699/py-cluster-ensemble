@@ -17,28 +17,28 @@ def ptgp(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     PTGP (Probability Trajectory based Graph Partitioning) Wrapper.
-    对应 MATLAB 脚本 run_ptgp.m 的主逻辑。
+    Corresponds to the main logic of MATLAB script run_ptgp.m.
 
-    该算法流程如下 (基于 TKDE 2016 论文):
-    1. 生成微簇 (Microclusters)
-    2. 计算微簇共伴矩阵 (MCA)
-    3. 计算概率轨迹相似度 (PTS)
-    4. 使用 Graph Partitioning (通常是 Spectral Clustering/Ncut) 进行最终聚类
+    The algorithm flow is as follows (based on TKDE 2016 paper):
+    1. Generate Microclusters
+    2. Calculate Microcluster Co-Association Matrix (MCA)
+    3. Calculate Probability Trajectory Similarity (PTS)
+    4. Use Graph Partitioning (usually Spectral Clustering/Ncut) for final clustering
 
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数
+        Number of experiment repetitions
     seed : int, default=2026
-        随机种子
+        Random seed
 
     Returns
     -------
@@ -48,34 +48,34 @@ def ptgp(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1. 数据预处理
-    # 处理 MATLAB 的 1-based 索引 (最小值是 1 则减 1)
+    # 1. Data preprocessing
+    # Handle MATLAB's 1-based indexing (if min is 1, subtract 1)
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # 获取目标聚类数
+    # Get target number of clusters
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环配置
+    # 2. Experiment loop configuration
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
+    # Initialize random number generator (corresponds to MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
-    # 生成 nRepeat 个随机种子 (对应 MATLAB: randi([0, 1000000], 1, nRepeat))
+    # Generate nRepeat random seeds (corresponds to MATLAB: randi([0, 1000000], 1, nRepeat))
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs (获取当前轮次的基聚类器)
+        # Step A: Slice BPs (Get base clusterers for current round)
         # -------------------------------------------------
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -85,7 +85,7 @@ def ptgp(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 PTGP
+        # Step B: Run PTGP
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
 
@@ -96,15 +96,15 @@ def ptgp(
         t_start = time.time()
 
         try:
-            # 调用核心算法
+            # Call core algorithm
             label_pred = ptgp_core(BPi, nCluster)
 
-            # 确保输出是展平的 numpy array
+            # Ensure output is a flattened numpy array
             label_pred = np.array(label_pred).flatten()
 
         except Exception as e:
             print(f"PTGP failed on repeat {iRepeat}: {e}")
-            # 发生错误时返回全零标签
+            # Return all-zero labels on error
             label_pred = np.zeros(nSmp, dtype=int)
 
         labels_list.append(label_pred)

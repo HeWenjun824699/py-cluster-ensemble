@@ -17,14 +17,14 @@ def mdecsc(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     MDECSC (Multi-Diversity Ensemble Clustering via Spectral Clustering) Wrapper.
-    对应 MATLAB 脚本 run_MDECSC_TCYB_2022.m 的主逻辑。
+    Corresponds to the main logic of MATLAB script run_MDECSC_TCYB_2022.m.
 
-    该算法逻辑：
-    1. 切片基聚类器 (BPs)
-    2. 计算所有Segments (getAllSegs)
-    3. 计算ECI (getECI)
-    4. 计算共识矩阵 S (getLWCA)
-    5. 执行谱聚类 (performSC)
+    The algorithm logic:
+    1. Slice base clusterers (BPs)
+    2. Calculate all Segments (getAllSegs)
+    3. Calculate ECI (getECI)
+    4. Calculate consensus matrix S (getLWCA)
+    5. Perform Spectral Clustering (performSC)
 
     Note on Consistency with MATLAB:
     MATLAB script generates a fixed list of seeds derived from the master seed.
@@ -33,17 +33,17 @@ def mdecsc(
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数
+        Number of experiment repetitions
     seed : int, default=2026
-        随机种子
+        Random seed
 
     Returns
     -------
@@ -53,36 +53,36 @@ def mdecsc(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1. 数据预处理
-    # 处理 MATLAB 的 1-based 索引
+    # 1. Data preprocessing
+    # Handle MATLAB's 1-based indexing
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # 获取目标聚类数
+    # Get target number of clusters
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环配置
+    # 2. Experiment loop configuration
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
+    # Initialize random number generator (corresponds to MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
 
-    # 生成随机种子池
+    # Generate random seed pool
     # MATLAB: random_seeds = randi([0, 1000000], 1, nRepeat);
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs (获取当前轮次的基聚类器)
+        # Step A: Slice BPs (Get base clusterers for current round)
         # -------------------------------------------------
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -92,25 +92,25 @@ def mdecsc(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 MDECSC Core
+        # Step B: Run MDECSC Core
         # -------------------------------------------------
         t_start = time.time()
 
         try:
-            # 设置当前迭代的特定种子
+            # Set specific seed for current iteration
             current_seed = random_seeds[iRepeat]
             np.random.seed(current_seed)
 
-            # 调用封装好的核心逻辑
-            # MDECSC 需要 nBase 来计算 LWCA
+            # Call encapsulated core logic
+            # MDECSC needs nBase to calculate LWCA
             label_pred = mdecsc_core(BPi, nCluster, nBase)
 
-            # 确保输出是展平的 numpy array
+            # Ensure output is a flattened numpy array
             final_label = np.array(label_pred).flatten()
 
         except Exception as e:
             print(f"MDECSC failed on repeat {iRepeat}: {e}")
-            # 发生错误时返回全零标签
+            # Return all-zero labels on error
             final_label = np.zeros(nSmp, dtype=int)
 
         labels_list.append(final_label)

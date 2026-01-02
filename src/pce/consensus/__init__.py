@@ -26,7 +26,6 @@ from .ceam import ceam
 from .space import space
 from .cdec import cdec
 
-# 定义当用户 from pce.consensus import * 时导出什么
 __all__ = [
     "cspa",
     "mcla",
@@ -56,4 +55,3 @@ __all__ = [
     "space",
     "cdec"
 ]
-

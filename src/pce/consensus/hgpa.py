@@ -17,22 +17,22 @@ def hgpa(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     HGPA (HyperGraph Partitioning Algorithm) Wrapper.
-    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 HGPA，评估并保存结果。
+    Corresponds to the main logic of MATLAB script: Batch read BPs, slice and run HGPA, evaluate and save results.
 
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数
+        Number of experiment repetitions
     seed : int, default=2026
-        随机种子
+        Random seed
 
     Returns
     -------
@@ -42,36 +42,36 @@ def hgpa(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1. 提取数据 (加载 BPs 和 Y)
-    # 【关键】处理 MATLAB 的 1-based 索引
-    # HGPA 核心算法通常基于超图，需要 0-based 索引来构建关联矩阵
+    # 1. Extract data (Load BPs and Y)
+    # [Critical] Handle MATLAB's 1-based indexing
+    # HGPA core algorithm usually based on hypergraph, needs 0-based indexing to build incidence matrix
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # --- [修改点] 调用辅助函数获取唯一的 K 值 ---
-    # 一行代码解决，逻辑复用
+    # --- [Modification] Call helper function to get unique K value ---
+    # One line solution, reuse logic
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环
-    # 准备结果容器
+    # 2. Experiment loop
+    # Prepare result container
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器
+    # Initialize random number generator
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs
+        # Step A: Slice BPs
         # -------------------------------------------------
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -81,16 +81,16 @@ def hgpa(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 HGPA
+        # Step B: Run HGPA
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
 
         t_start = time.time()
 
         try:
-            # 调用核心算法
-            # 注意：此处保留了您 mcla_old.py 中的 .T 风格
-            # 如果您的 hgpa_core 期望 (n_samples, n_estimators)，请去掉 .T
+            # Call core algorithm
+            # Note: Kept .T style from mcla_old.py
+            # If hgpa_core expects (n_samples, n_estimators), remove .T
             label_pred = hgpa_core(BPi.T, nCluster)
             label_pred = np.array(label_pred).flatten()
         except Exception as e:
@@ -102,4 +102,3 @@ def hgpa(
         time_list.append(t_cost)
 
     return labels_list, time_list
-

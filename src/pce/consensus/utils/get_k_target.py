@@ -7,38 +7,38 @@ def get_k_target(
         y: Optional[np.ndarray] = None
 ) -> int:
     """
-    辅助函数：确定集成算法的目标聚类数 K (k_target)。
+    Helper function: Determine the target number of clusters K (k_target) for ensemble algorithms.
 
-    用于 CSPA, MCLA, HGPA 等集成算法。
+    Used for ensemble algorithms such as CSPA, MCLA, HGPA.
 
-    逻辑优先级：
-    1. n_clusters (int): 用户显式指定，优先级最高。
-    2. Y (array): 用户未指定 K，但提供了 Y，推断 K = len(unique(Y))。
-    3. 报错: 既无 n_clusters 也无 Y，抛出 ValueError。
+    Logic priority:
+    1. n_clusters (int): Explicitly specified by the user, highest priority.
+    2. Y (array): User did not specify K, but provided Y. Infer K = len(unique(Y)).
+    3. Error: Neither n_clusters nor Y is provided, raise ValueError.
 
-    参数:
-        n_clusters: 用户输入的聚类数 (必须是 int 或 None)。
-        y: 真实标签 (用于推断 K)。
+    Parameters:
+        n_clusters: Number of clusters input by user (must be int or None).
+        y: True labels (used to infer K).
 
-    返回:
+    Returns:
         k_target (int)
     """
 
-    # 优先级 1: 用户显式指定 (Fixed K)
+    # Priority 1: User explicitly specified (Fixed K)
     if n_clusters is not None:
-        # 【关键保护】防止用户传入 float (3.0) 或 str ("3") 或 tuple
+        # [Critical Protection] Prevent user from passing float (3.0), str ("3"), or tuple
         if not isinstance(n_clusters, int):
             raise TypeError(f"n_clusters must be an integer, got {type(n_clusters)}")
-        # 【额外保护】防止用户传入负数或 0
+        # [Extra Protection] Prevent user from passing negative numbers or 0
         if n_clusters < 2:
             raise ValueError(f"n_clusters must be >= 2, got {n_clusters}")
 
         return n_clusters
 
-    # 优先级 2: 用户未指定 nClusters，但提供了 Y (兼容测试模式)
+    # Priority 2: User did not specify nClusters, but provided Y (compatible with test mode)
     elif y is not None:
         return len(np.unique(y))
 
-    # 优先级 3: 既无 K 也无 Y -> 报错
+    # Priority 3: Neither K nor Y provided -> Error
     else:
         raise ValueError("n_clusters must be provided if Y is None (Unsupervised mode).")

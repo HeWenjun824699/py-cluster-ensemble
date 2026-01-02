@@ -19,11 +19,11 @@ def cdkm(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     CDKM (Consensus Clustering via Discrete Kernel K-Means) Wrapper.
-    对应 MATLAB 脚本 run_CDKM_TPAMI_2022.m 的主逻辑。
+    Corresponds to the main logic of MATLAB script run_CDKM_TPAMI_2022.m.
 
-    该算法包含双层循环结构：
-    1. 外层循环：切片基聚类器 (BPs)
-    2. 内层循环：多次初始化运行 CDKM_fast，取目标函数最大值对应的结果
+    The algorithm contains a double-layer loop structure:
+    1. Outer loop: Slice base clusterers (BPs)
+    2. Inner loop: Run CDKM_fast with multiple initializations, take the result corresponding to the maximum objective function
 
     Note on Consistency with MATLAB:
     The provided MATLAB implementation of 'Y_Initialize' contains a hardcoded random seed (rng(2024)), 
@@ -35,19 +35,19 @@ def cdkm(
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数 (外层循环)
+        Number of experiment repetitions (outer loop)
     nInnerRepeat : int, default=5
-        内层循环次数，用于择优 (对应 MATLAB logic: n_inner_repeat = 5)
+        Number of inner loop repetitions, used for selection (corresponds to MATLAB logic: n_inner_repeat = 5)
     seed : int, default=2026
-        随机种子
+        Random seed
 
     Returns
     -------
@@ -57,41 +57,41 @@ def cdkm(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1. 数据预处理
-    # 处理 MATLAB 的 1-based 索引
+    # 1. Data preprocessing
+    # Handle MATLAB's 1-based indexing
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # 获取目标聚类数
+    # Get target number of clusters
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环配置
+    # 2. Experiment loop configuration
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
+    # Initialize random number generator (corresponds to MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
 
-    # 生成随机种子池
+    # Generate random seed pool
     # MATLAB: random_seeds = randi([0, 1000000], 1, nRepeat * nRepeat);
-    # 注意：MATLAB 代码中生成了 nRepeat*nRepeat 个种子，但在索引时逻辑是:
+    # Note: MATLAB code generates nRepeat*nRepeat seeds, but the logic when indexing is:
     # (iRepeat-1) * nRepeat + inner_repeat
-    # 为了保持逻辑一致性，这里生成相同数量的种子
+    # To maintain logical consistency, generate the same number of seeds here
     total_seeds_needed = nRepeat * nRepeat
     random_seeds = rs.randint(0, 1000001, size=total_seeds_needed)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs (获取当前轮次的基聚类器)
+        # Step A: Slice BPs (Get base clusterers for current round)
         # -------------------------------------------------
         # MATLAB logic: idx = (iRepeat - 1) * nBase + 1 : iRepeat * nBase;
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -101,12 +101,12 @@ def cdkm(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 CDKM
+        # Step B: Run CDKM
         # -------------------------------------------------
         t_start = time.time()
 
         try:
-            # 1. 构建超图关联矩阵 Hc
+            # 1. Construct hypergraph incidence matrix Hc
             # MATLAB: Hc = compute_Hc(BPi);
             Hc, _ = compute_Hc(BPi)
 
@@ -115,12 +115,12 @@ def cdkm(
 
             t_start = time.time()
 
-            # 2. 内层循环择优
+            # 2. Inner loop selection
             # MATLAB: for inner_repeat = 1:n_inner_repeat
             for inner_repeat in range(nInnerRepeat):
-                # 确定当前内层循环的种子
+                # Determine seed for current inner loop
                 # MATLAB logic: rng(random_seeds( (iRepeat-1) * nRepeat + inner_repeat ));
-                # 注意：Python 索引从 0 开始，MATLAB 从 1 开始，需仔细对齐
+                # Note: Python indexing starts from 0, MATLAB starts from 1, need to align carefully
                 seed_idx = iRepeat * nRepeat + inner_repeat
                 if seed_idx >= len(random_seeds):
                     # fallback if inner logic exceeds pre-gen seeds
@@ -128,24 +128,24 @@ def cdkm(
                 else:
                     current_seed = random_seeds[seed_idx]
 
-                # 设置当前迭代的全局种子
+                # Set global seed for current iteration
                 np.random.seed(current_seed)
 
-                # 初始化
+                # Initialize
                 # MATLAB: [~, label_0] = Y_Initialize(nSmp, nCluster);
                 _, label_0 = Y_Initialize(nSmp, nCluster)
 
-                # 核心优化
+                # Core optimization
                 # MATLAB: [label, iter_num, obj_max] = CDKM_fast(Hc', label_0, nCluster);
-                # 注意: MATLAB 传入了 Hc' (转置)。
-                # 这里假设 Python 的 cdkm_fast 内部处理维度，或者我们在这里转置。
-                # 通常 sklearn 风格数据是 (n_samples, n_features)。
-                # 如果 Hc 是 (n_samples, n_hyperedges)，则不需要转置。
-                # 如果 Hc 是 (n_hyperedges, n_samples)，则需要 Hc.T。
-                # 此处保持传入 Hc，具体由 cdkm_core 决定如何处理。
+                # Note: MATLAB passes Hc' (transpose).
+                # Assume Python's cdkm_fast handles dimensions internally, or we transpose here.
+                # Usually sklearn style data is (n_samples, n_features).
+                # If Hc is (n_samples, n_hyperedges), no transpose needed.
+                # If Hc is (n_hyperedges, n_samples), Hc.T is needed.
+                # Here pass Hc, cdkm_core decides how to handle.
                 label_pred, _, obj_history = cdkm_core(Hc.T, label_0, nCluster)
 
-                # 获取最终目标函数值
+                # Get final objective function value
                 # MATLAB: if obj_max(end) > obj_all
                 current_obj = obj_history[-1] if isinstance(obj_history, (list, np.ndarray)) else obj_history
 
@@ -153,12 +153,12 @@ def cdkm(
                     obj_all = current_obj
                     best_label = label_pred.copy()
 
-            # 确保输出是展平的 numpy array
+            # Ensure output is a flattened numpy array
             final_label = np.array(best_label).flatten()
 
         except Exception as e:
             print(f"CDKM failed on repeat {iRepeat}: {e}")
-            # 发生错误时返回全零标签
+            # Return all-zero labels on error
             final_label = np.zeros(nSmp, dtype=int)
 
         labels_list.append(final_label)

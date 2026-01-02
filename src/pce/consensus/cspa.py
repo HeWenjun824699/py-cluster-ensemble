@@ -17,22 +17,22 @@ def cspa(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
-    对应 MATLAB 脚本的主逻辑：批量读取 BPs，切片运行 CSPA，评估并保存结果。
+    Corresponds to the main logic of MATLAB script: Batch read BPs, slice and run CSPA, evaluate and save results.
 
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数
+        Number of experiment repetitions
     seed : int, default=2026
-        随机种子
+        Random seed
 
     Returns
     -------
@@ -42,40 +42,40 @@ def cspa(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1.处理数据
-    # 【关键】处理 MATLAB 的 1-based 索引
-    # 如果 BPs 是从 MATLAB 生成的 (litekmeans + 1)，最小值是 1
-    # Python 的 cspa_core (基于矩阵运算) 需要 0-based 索引
+    # 1. Process data
+    # [Critical] Handle MATLAB's 1-based indexing
+    # If BPs are generated from MATLAB (litekmeans + 1), minimum value is 1
+    # Python's cspa_core (based on matrix operations) needs 0-based indexing
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # --- [修改点] 调用辅助函数获取唯一的 K 值 ---
-    # 一行代码解决，逻辑复用
+    # --- [Modification] Call helper function to get unique K value ---
+    # One line solution, reuse logic
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环
-    # 准备结果容器
+    # 2. Experiment loop
+    # Prepare result container
     # MATLAB: CSPA_result = zeros(nRepeat, nMeasure);
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器
+    # Initialize random number generator
     rs = np.random.RandomState(seed)
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs
+        # Step A: Slice BPs
         # -------------------------------------------------
         # MATLAB: idx = (iRepeat - 1) * nBase + 1 : iRepeat * nBase;
         # Python: [start, end)
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -85,18 +85,18 @@ def cspa(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 CSPA
+        # Step B: Run CSPA
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
-        # 设置当前轮次的随机种子 (控制 SpectralClustering 的初始化)
-        # 注意：这里主要影响 cspa_core 内部的 kmeans/discretization
+        # Set random seed for current round (controls SpectralClustering initialization)
+        # Note: This mainly affects kmeans/discretization inside cspa_core
 
         t_start = time.time()
 
         try:
-            # 调用核心算法
-            # 注意：cspa_core 接收 (n_estimators, n_samples)
-            # BPi 是 (n_samples, n_estimators), 所以需要转置
+            # Call core algorithm
+            # Note: cspa_core receives (n_estimators, n_samples)
+            # BPi is (n_samples, n_estimators), so it needs to be transposed
             label_pred = cspa_core(BPi.T, nCluster)
             label_pred = np.array(label_pred).flatten()
         except Exception as e:
@@ -108,4 +108,3 @@ def cspa(
         time_list.append(t_cost)
 
     return labels_list, time_list
-

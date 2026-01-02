@@ -18,25 +18,25 @@ def ecpcs_mc(
 ) -> tuple[list[np.ndarray], list[float]]:
     """
     ECPCS-MC (Ensemble Clustering by Propagation of Cluster-wise Similarities via Meta-Clustering) Wrapper.
-    对应 MATLAB 脚本 run_ECPCSMC_t20_TSMC_2021.m 的主逻辑。
+    Corresponds to the main logic of MATLAB script run_ECPCSMC_t20_TSMC_2021.m.
 
     Parameters
     ----------
     BPs : np.ndarray
-        基聚类结果矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators)
     Y : np.ndarray, optional
-        真实标签，用于推断聚类数 k
+        True labels, used to infer the number of clusters k
     nClusters : int, optional
-        目标聚类簇数 k
+        Target number of clusters k
     theta : float, default=20
-        ECPCS 算法中的参数 t (对应 MATLAB 中的 t = 20)。
-        通常用于控制相似度传播或筛选的阈值。
+        Parameter t in ECPCS algorithm (corresponds to t = 20 in MATLAB).
+        Usually used to control the threshold for similarity propagation or filtering.
     nBase : int, default=20
-        每次重复实验使用的基聚类器数量
+        Number of base clusterers used in each repeated experiment
     nRepeat : int, default=10
-        实验重复次数
+        Number of experiment repetitions
     seed : int, default=2024
-        随机种子 (对应 MATLAB 脚本中的 seed = 2024)
+        Random seed (corresponds to seed = 2024 in MATLAB script)
 
     Returns
     -------
@@ -46,35 +46,35 @@ def ecpcs_mc(
         - time_list   : A list of execution times (float) for each repetition.
     """
 
-    # 1. 数据预处理
-    # 处理 MATLAB 的 1-based 索引 (最小值是 1 则减 1)
+    # 1. Data preprocessing
+    # Handle MATLAB's 1-based indexing (if min is 1, subtract 1)
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # 获取目标聚类数
+    # Get target number of clusters
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
-    # 2. 实验循环配置
+    # 2. Experiment loop configuration
     labels_list = []
     time_list = []
 
-    # 初始化随机数生成器 (对应 MATLAB: rng(seed, 'twister'))
+    # Initialize random number generator (corresponds to MATLAB: rng(seed, 'twister'))
     rs = np.random.RandomState(seed)
-    # 生成 nRepeat 个随机种子 (对应 MATLAB: random_seeds = randi([0, 1000000], 1, nRepeat))
+    # Generate nRepeat random seeds (corresponds to MATLAB: random_seeds = randi([0, 1000000], 1, nRepeat))
     random_seeds = rs.randint(0, 1000001, size=nRepeat)
 
     for iRepeat in range(nRepeat):
         # -------------------------------------------------
-        # 步骤 A: 切片 BPs (获取当前轮次的基聚类器)
+        # Step A: Slice BPs (Get base clusterers for current round)
         # -------------------------------------------------
         # MATLAB logic: idx = (iRepeat - 1) * nBase + 1 : iRepeat * nBase;
         start_idx = iRepeat * nBase
         end_idx = (iRepeat + 1) * nBase
 
-        # 边界检查
+        # Boundary check
         if start_idx >= nTotalBase:
             print(f"Warning: Not enough Base Partitions for repeat {iRepeat + 1}")
             break
@@ -84,7 +84,7 @@ def ecpcs_mc(
         BPi = BPs[:, start_idx:end_idx]
 
         # -------------------------------------------------
-        # 步骤 B: 运行 ECPCS-MC
+        # Step B: Run ECPCS-MC
         # -------------------------------------------------
         current_seed = random_seeds[iRepeat]
 
@@ -94,17 +94,17 @@ def ecpcs_mc(
         t_start = time.time()
 
         try:
-            # 调用核心算法
+            # Call core algorithm
             # MATLAB: label = ECPCS_MC(BPi, t, nCluster);
-            # 假设 Python 版 core 函数直接返回 label 数组
+            # Assume Python version core function directly returns label array
             label_pred = ecpcs_mc_core(BPi, theta, nCluster)
 
-            # 确保输出是展平的 numpy array
+            # Ensure output is a flattened numpy array
             label_pred = np.array(label_pred).flatten()
 
         except Exception as e:
             print(f"ECPCS-MC failed on repeat {iRepeat}: {e}")
-            # 发生错误时返回全零标签
+            # Return all-zero labels on error
             label_pred = np.zeros(nSmp, dtype=int)
 
         labels_list.append(label_pred)
