@@ -23,16 +23,42 @@ def plot_2d_scatter(
         **kwargs: Any
 ) -> None:
     """
-    Plot 2D Scatter Plot
+    Plot a 2D scatter plot for feature data or clustering results.
 
-    Args:
-        X: Feature matrix, usually a float array of shape (n_samples, n_features)
-        labels: Label vector, usually an integer array of shape (n_samples,)
-        method: Dimensionality reduction method, string, default 'tsne'
-        title: Chart title, optional string
-        save_path: Save path, optional string
-        **kwargs: Other arguments passed to the dimensionality reduction algorithm
+    If the input feature matrix has more than two dimensions, this function
+    automatically applies dimensionality reduction (t-SNE or PCA) before plotting.
+    It uses a paper-style aesthetic and a high-contrast color palette.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Feature matrix of shape (n_samples, n_features).
+    labels : np.ndarray
+        Label vector of shape (n_samples,). Used to determine the color of
+        each scatter point.
+    xlabel : str, optional
+        Label for the X-axis. If None, no label is shown.
+    ylabel : str, optional
+        Label for the Y-axis. If None, no label is shown.
+    method : str, default='tsne'
+        Dimensionality reduction method. Supports 'tsne' or 'pca'.
+    title : str, optional
+        The title of the plot. If None, a default title including the method
+        name and sample size is generated.
+    save_path : str, optional
+        Path to save the generated figure. Supports formats like '.png'
+        (bitmap) and '.pdf' (vector, recommended for papers).
+    show : bool, default=True
+        Whether to display the plot window after generation.
+    **kwargs : Any
+        Additional arguments passed to the dimensionality reduction algorithm
+        (e.g., perplexity for t-SNE).
+
+    Returns
+    -------
+    None
     """
+
     set_paper_style()
 
     # 1. Dimensionality reduction
@@ -89,8 +115,36 @@ def plot_coassociation_heatmap(
         show: Optional[bool] = True
 ):
     """
-    Plot sorted co-association matrix heatmap
+    Plot a sorted co-association matrix heatmap to visualize ensemble structure.
+
+    The function calculates the co-association matrix from base partitions and
+    reorders it based on the ground truth (or reference) labels. This reordering
+    places similar samples in adjacent rows/columns, ideally forming distinct
+    diagonal blocks if the ensemble is consistent.
+
+    Parameters
+    ----------
+    BPs : np.ndarray
+        Base Partitions matrix of shape (n_samples, n_estimators).
+    Y : np.ndarray
+        Ground truth or reference label vector of shape (n_samples,).
+        Crucial for reordering the matrix to reveal cluster structures.
+    xlabel : str, optional
+        Label for the X-axis.
+    ylabel : str, optional
+        Label for the Y-axis.
+    title : str, optional
+        The title of the plot. Defaults to 'Sorted Co-association Matrix'.
+    save_path : str, optional
+        Path to save the plot.
+    show : bool, default=True
+        Whether to display the heatmap window.
+
+    Returns
+    -------
+    None
     """
+
     set_paper_style()
 
     # 1. Calculate Co-association Matrix (S = 1 - Hamming Distance)
@@ -140,13 +194,36 @@ def plot_metric_line(
         show: Optional[bool] = True
 ) -> None:
     """
-    Plot line chart (Trace Plot) for multiple experimental runs.
-    X-axis is Run ID, Y-axis is metric score.
+    Plot a trace plot of performance metrics over multiple experimental runs.
 
-    Args:
-        results_list: List of experimental results
-        metrics: Metrics to display, supports single string or list
+    Useful for visualizing the stability and convergence of ensemble algorithms
+    across independent repetitions (nRepeat). Each metric is represented by a
+    distinct line with markers.
+
+    Parameters
+    ----------
+    results_list : List[Dict[str, float]]
+        A list of dictionaries containing evaluation metrics for each run,
+        typically the output of `evaluation_batch`.
+    metrics : Union[List[str], str], default='ACC'
+        The specific metrics to plot (e.g., 'ACC', 'NMI', 'ARI'). Can be
+        a single string or a list of multiple metrics.
+    xlabel : str, optional
+        Label for the X-axis (e.g., 'Run ID').
+    ylabel : str, optional
+        Label for the Y-axis (e.g., 'Score').
+    title : str, optional
+        The title of the plot.
+    save_path : str, optional
+        Path to save the resulting line chart.
+    show : bool, default=True
+        Whether to display the plot window.
+
+    Returns
+    -------
+    None
     """
+
     set_paper_style()
 
     # 1. Parameter standardization
@@ -228,24 +305,38 @@ def plot_parameter_sensitivity(
         show_values: Optional[bool] = True
 ):
     """
-    Plot single parameter sensitivity line chart (Control Variable Method).
+    Plot a sensitivity analysis line chart for a specific hyperparameter.
 
-    Args:
-        target_param: Parameter to study (e.g., 't')
-        metric: Y-axis: Evaluation metric
-        fixed_params: User-specified fixed parameters
-        method_name: If CSV contains multiple methods, specify one
-        save_path: Image save path
-        show: Whether to pop up display after plotting
-        show_values: Whether to display specific values
+    Based on grid search results, this function implements the 'Control Variable
+    Method' by fixing background parameters and varying a target parameter to
+    observe its effect on a chosen performance metric.
 
-    Logic:
-    1. Lock specific algorithm.
-    2. Determine which other parameters are changing besides target_param.
-    3. Determine fixed values for these background parameters:
-       - If specified by user in fixed_params, use user's.
-       - If not specified, automatically select parameter values at the global best result for that method (Best Practice).
-    4. Filter data and plot.
+    Parameters
+    ----------
+    csv_file : str
+        Path to the summary CSV file generated by `GridSearcher`.
+    target_param : str
+        The hyperparameter name to be analyzed on the X-axis (e.g., 't', 'k', 'alpha').
+    metric : str, default='NMI'
+        The evaluation metric to be plotted on the Y-axis.
+    fixed_params : Dict[str, Any], optional
+        A dictionary of specific background parameters to fix. If None, the
+        function automatically selects the parameter values corresponding
+        to the global best result.
+    method_name : str, optional
+        Filter results for a specific consensus algorithm if the CSV contains
+        multiple methods.
+    save_path : str, optional
+        Path to save the sensitivity chart.
+    show : bool, default=True
+        Whether to display the plot window.
+    show_values : bool, default=True
+        If True, displays the specific metric values as text labels above
+        each data point.
+
+    Returns
+    -------
+    None
     """
 
     # 1. Read data
