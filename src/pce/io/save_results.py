@@ -15,12 +15,38 @@ def save_results_csv(
         float_format: str = "%.4f"
 ):
     """
-    Smartly save to CSV, supporting automatic appending of mean and standard deviation, separated by empty lines.
-    Improvements:
-    1. Supports passing a single Dict directly (no need to manually wrap in []).
-    2. When there is only one row of data, automatically sets standard deviation to 0 to avoid NaN.
-    3. Automatically skips formatting when encountering None or non-numeric columns to prevent errors.
+    Save experiment results to a CSV file with optional statistical summaries.
+
+    This function smartly handles both single-row (Dict) and multi-row (List[Dict])
+    data. It supports automatic appending of mean and standard deviation rows,
+    separated by an empty line for better readability.
+
+    Parameters
+    ----------
+    data : Union[List[Dict], Dict]
+        The evaluation results to be saved. If a single dictionary is passed,
+        it is automatically wrapped into a list.
+    output_path : str
+        Target output path. If it refers to a directory, the file is saved
+        using `default_name`. If it is a file path, the parent directories
+        will be created automatically.
+    default_name : str, default="result.csv"
+        The filename used when `output_path` is identified as a directory.
+    add_summary : bool, default=True
+        If True, calculates and appends the 'Mean' and 'Std' rows. It also
+        generates a formatted string row ("Mean±Std") where metric values
+        are multiplied by 100.
+    float_format : str, default="%.4f"
+        Formatting string for floating-point numbers in the output file.
+
+    Notes
+    -----
+    - For columns containing 'time' (case-insensitive), the summary string
+      remains in its original scale.
+    - For other numeric columns (metrics like ACC/NMI), the summary string
+      scales values by 100 to represent percentages.
     """
+
     try:
         # --- Input compatibility handling (New) ---
         # If the user passed only a dictionary, automatically wrap it in a list
@@ -116,9 +142,30 @@ def save_results_xlsx(
         excel_format: str = "0.0000"  # Excel format string, corresponds to %.4f
 ):
     """
-    Save as Excel (.xlsx) format.
-    Advantage: Can directly specify cell display format, shows as 4 decimal places when opened in WPS/Excel, and keeps numeric type.
+    Save experiment results to an Excel (.xlsx) file with numeric type preservation.
+
+    Compared to CSV, this method allows specifying the display format while
+    keeping the cells as numeric types, which is useful for further
+    calculations in spreadsheet software.
+
+    Parameters
+    ----------
+    data : Union[List[Dict], Dict]
+        The evaluation results to be saved.
+    output_path : str
+        Target output path. Parent directories are created if they do not exist.
+    default_name : str, default="result.xlsx"
+        Filename used if `output_path` is a directory.
+    add_summary : bool, default=True
+        Whether to calculate and append 'Mean', 'Std', and formatted 'Mean±Std' rows.
+    excel_format : str, default="0.0000"
+        Excel number format string (e.g., "0.0000" for 4 decimal places).
+
+    Returns
+    -------
+    None
     """
+
     try:
         # --- [New] Input compatibility handling ---
         # If the user passed only a dictionary, automatically wrap it in a list
@@ -229,9 +276,28 @@ def save_results_mat(
         add_summary: bool = True
 ):
     """
-    Save as .mat format.
-    Improvement: Supports single row data, fixes Std being NaN, automatically handles None values.
+    Save experiment results to a MATLAB-compatible .mat file.
+
+    Stores the raw result matrix and optionally saves statistical summaries
+    as separate variables in the MATLAB workspace.
+
+    Parameters
+    ----------
+    data : Union[List[Dict], Dict]
+        The evaluation results to be saved.
+    output_path : str
+        Target output path.
+    default_name : str, default="result.mat"
+        Filename used if `output_path` is a directory.
+    add_summary : bool, default=True
+        If True, includes `result_summary` (Mean), `result_summary_std` (Std),
+        and `result_summary_str` (Cell array of "Mean±Std" strings) in the file.
+
+    Returns
+    -------
+    None
     """
+
     try:
         # --- 1. Input compatibility handling (New) ---
         if isinstance(data, dict):

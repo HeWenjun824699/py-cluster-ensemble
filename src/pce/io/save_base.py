@@ -10,14 +10,43 @@ def save_base_mat(
         default_name: str = "base.mat"
 ):
     """
-    Save Base Partitions (BPs) and true labels (Y) to a .mat file.
+    Save Base Partitions (BPs) and true labels (Y) to a MATLAB compatible .mat file.
 
-    Args:
-        BPs (np.ndarray): Base Partitions matrix (N samples x M members) -> saved as variable 'members'
-        Y (np.ndarray): True labels (N samples x 1) -> saved as variable 'Y'
-        output_path (str): Save path
-        default_name (str): Default filename, defaults to "base.mat"
+    This function prepares ensemble data for cross-platform use by ensuring
+    numerical compatibility with MATLAB. It automatically handles path
+    resolution and data type casting.
+
+    Parameters
+    ----------
+    BPs : np.ndarray
+        Base Partitions matrix of shape (n_samples, n_estimators).
+        The matrix is saved under the variable name 'BPs' in the .mat file.
+    Y : np.ndarray
+        True labels for the samples. The function performs the following
+        normalizations:
+        1. Casts to `np.float64` (MATLAB double).
+        2. Reshapes into an $(n\_samples, 1)$ column vector.
+    output_path : str
+        The destination path.
+        - If it points to an existing directory or ends with a slash,
+          the file is saved as `default_name` within that directory.
+        - If it points to a file path, it saves directly to that location,
+          automatically appending '.mat' if missing.
+    default_name : str, default="base.mat"
+        The filename used only when `output_path` is identified as a
+        directory.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    To ensure seamless integration with MATLAB, all categorical labels in Y
+    and BPs are stored as doubles, as many MATLAB clustering toolboxes
+    expect floating-point arrays for label indexing.
     """
+
     try:
         # --- 1. Path handling ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):

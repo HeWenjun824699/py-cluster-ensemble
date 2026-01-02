@@ -27,8 +27,7 @@ build/
 local_demo/
 
 # 7. 排除其他算法文件
-consensus_methods/
-applications_methods/
+local_methods/
 
 # 8. 排除输出文件
 local_demo/output/

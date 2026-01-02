@@ -3,24 +3,45 @@ import pyreadr
 
 def load_rda_X_Y(rda_path):
     """
-    Load the standard SC3-Nature methods-2017 examples dataset 'yan.rda'.
-    
-    This function bridges the gap between R's data format and Python's input requirements.
-    It requires the 'pyreadr' library to be installed.
-    
+    Load the yan.rda example dataset from the SC3 Nature Methods 2017 study.
+
+    This function bridges the gap between R's .rda data format and Python's
+    requirements, specifically for the SC3 (Single-Cell Consensus Clustering)
+    workflow. It handles expression matrix extraction, log-transformation,
+    and label encoding.
+
+    The expression matrix $X$ is transformed according to the original study:
+    $X = \log_2(\text{raw\_counts} + 1)$.
+
     Parameters
     ----------
-    rda_path : str
-        Path to the 'yan.rda' file.
-        
+    rda_path : Union[str, Path]
+        Path to the 'yan.rda' file. This file must contain the R objects
+        'yan' (expression data) and 'ann' (annotations).
+
     Returns
     -------
-    tuple
-        (X, Y, gene_names, cell_names)
-        - X: (n_cells, n_genes) Log-transformed expression matrix.
-        - Y: (n_cells,) Integer labels derived from 'ann'.
-        - gene_names: (n_genes,) Gene symbols.
-        - cell_names: (n_cells,) Cell IDs.
+    X : np.ndarray
+        Log-transformed expression matrix of shape (n_cells, n_genes).
+    Y : np.ndarray
+        Integer label vector of shape (n_cells,) derived from the 'ann'
+        object. Labels are automatically mapped from strings to integers.
+    gene_names : np.ndarray
+        Array of gene symbols/names of shape (n_genes,).
+    cell_names : np.ndarray
+        Array of cell identifiers of shape (n_cells,).
+
+    Raises
+    ------
+    ValueError
+        If the .rda file does not contain the expected 'yan' and 'ann' objects.
+    ImportError
+        If the 'pyreadr' library is not installed.
+
+    Notes
+    -----
+    The source dataset 'yan.rda' is the standard benchmark used in the
+    Nature Methods 2017 SC3 paper.
     """
 
     # 1. Read the R data file

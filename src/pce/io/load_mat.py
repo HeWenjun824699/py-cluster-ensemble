@@ -57,8 +57,37 @@ def load_mat_X_Y(
         flatten_y: bool = True
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load raw feature data (X) and labels (Y).
+    Load raw feature data (X) and labels (Y) from a MATLAB .mat file.
+
+    This function automatically identifies variable names such as 'X', 'data',
+    'fea' for features and 'Y', 'label', 'gnd' for labels. It also handles
+    different MATLAB file versions (including v7.3).
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the input .mat file. Supports standard and v7.3 formats.
+    ensure_x_float : bool, default=True
+        If True, forces the feature matrix X to be converted to `np.float64`.
+        This is crucial for the numerical stability of most clustering algorithms.
+    flatten_y : bool, default=True
+        If True, flattens the label vector Y from a 2D column vector (n_samples, 1)
+        to a 1D array (n_samples,).
+
+    Returns
+    -------
+    X : np.ndarray
+        Feature matrix of shape (n_samples, n_features).
+    Y : np.ndarray
+        Label vector of shape (n_samples,). Safe conversion from float to
+        `np.int64` is performed if applicable.
+
+    Raises
+    ------
+    IOError
+        If the feature matrix or label vector cannot be found in the file.
     """
+
     # Define variable names to search for
     x_keys = ['X', 'data', 'fea', 'features', 'samples']
     y_keys = ['Y', 'label', 'gnd', 'labels', 'class']
@@ -96,11 +125,37 @@ def load_mat_BPs_Y(
         flatten_y: bool = True
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load Base Partitions (BPs) and labels (Y).
+    Load Base Partitions (BPs) and labels (Y) from a MATLAB .mat file.
 
-    Args:
-        fix_matlab_index: If minimum value is detected as 1, automatically subtract 1 to adapt to Python (default True)
+    This function is designed to load pre-computed clustering results. It
+    includes an automatic index correction feature to bridge the gap between
+    MATLAB (1-based) and Python (0-based) indexing.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the input .mat file.
+    fix_matlab_index : bool, default=True
+        If True and the minimum value in BPs is 1, it automatically subtracts 1
+        from all entries to convert MATLAB's 1-based indexing to Python's
+        0-based indexing.
+    flatten_y : bool, default=True
+        If True, flattens the label vector to a 1D array.
+
+    Returns
+    -------
+    BPs : np.ndarray
+        Base Partitions matrix of shape (n_samples, n_estimators), forced
+        to `np.int64`.
+    Y : np.ndarray
+        Label vector of shape (n_samples,).
+
+    Raises
+    ------
+    IOError
+        If Base Partitions or labels cannot be found in the file.
     """
+
     bps_keys = ['BPs', 'base_partitions', 'members', 'labels_mat']
     y_keys = ['Y', 'label', 'gnd', 'labels', 'class']
 
