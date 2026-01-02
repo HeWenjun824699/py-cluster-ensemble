@@ -24,14 +24,18 @@ def save_base_mat(
     Y : np.ndarray
         True labels for the samples. The function performs the following
         normalizations:
+
         1. Casts to `np.float64` (MATLAB double).
         2. Reshapes into an $(n\_samples, 1)$ column vector.
+
     output_path : str
         The destination path.
+
         - If it points to an existing directory or ends with a slash,
           the file is saved as `default_name` within that directory.
         - If it points to a file path, it saves directly to that location,
           automatically appending '.mat' if missing.
+
     default_name : str, default="base.mat"
         The filename used only when `output_path` is identified as a
         directory.

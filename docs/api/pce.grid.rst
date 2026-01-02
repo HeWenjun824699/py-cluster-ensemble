@@ -1,4 +1,4 @@
-pce.grid
+Grid
 ================
 
 pce.grid.grid\_search

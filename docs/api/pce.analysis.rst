@@ -1,4 +1,4 @@
-pce.analysis
+Analysis
 ====================
 
 pce.analysis.plot

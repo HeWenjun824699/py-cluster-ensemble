@@ -1,4 +1,4 @@
-pce.consensus
+Consensus
 =====================
 
 pce.consensus.cdec

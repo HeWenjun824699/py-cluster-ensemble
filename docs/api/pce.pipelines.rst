@@ -1,4 +1,4 @@
-pce.pipelines
+Pipelines
 =====================
 
 pce.pipelines.consensus\_batch

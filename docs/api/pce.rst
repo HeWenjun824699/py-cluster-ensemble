@@ -1,15 +1,15 @@
-pce
+PCE API
 ===========
 
 .. toctree::
    :maxdepth: 4
 
-   pce.analysis
-   pce.applications
-   pce.consensus
-   pce.generators
-   pce.grid
    pce.io
+   pce.generators
+   pce.consensus
    pce.metrics
+   pce.analysis
    pce.pipelines
+   pce.grid
    pce.utils
+   pce.applications

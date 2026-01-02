@@ -1,4 +1,4 @@
-pce.applications
+Applications
 ========================
 
 pce.applications.fast\_ensemble

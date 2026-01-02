@@ -1,4 +1,4 @@
-pce.generators
+Generators
 ======================
 
 pce.generators.bagkmeans

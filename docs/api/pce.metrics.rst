@@ -1,4 +1,4 @@
-pce.metrics
+Metrics
 ===================
 
 pce.metrics.evaluation\_batch
