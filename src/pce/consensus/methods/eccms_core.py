@@ -19,7 +19,7 @@ def eccms_core(
 ) -> np.ndarray:
     """
     Core implementation of the ECCMS algorithm iteration.
-    对应 MATLAB 脚本 run_ECCMS_TNNLS_2023.m 中的核心循环逻辑。
+    Corresponds to the core loop logic in the MATLAB script run_ECCMS_TNNLS_2023.m.
 
     Translates the following MATLAB logic:
         [bcs, baseClsSegs] = getAllSegs(BPi);
@@ -32,21 +32,21 @@ def eccms_core(
     Parameters
     ----------
     BPi : np.ndarray
-        当前轮次的基聚类器结果 (Subset of Base Partitions), shape (n_samples, n_base).
+        Base partition results for the current round (Subset of Base Partitions), shape (n_samples, n_base).
     n_cluster : int
-        目标聚类簇数 (Target number of clusters).
+        Target number of clusters.
     n_base : int
-        基聚类器数量 (Number of base estimators).
+        Number of base estimators.
     alpha : float, default=0.8
-        高置信度矩阵阈值参数 (Threshold parameter for HC matrix).
+        Threshold parameter for the High Confidence (HC) matrix.
     lamb : float, default=0.4
-        用于 ECI 计算和谱聚类的参数 (Parameter for ECI computation and spectral clustering).
-        注意：对应 MATLAB 中的 lambda。
+        Parameter for ECI computation and spectral clustering.
+        Note: Corresponds to lambda in MATLAB.
 
     Returns
     -------
     label : np.ndarray
-        预测的聚类标签 (Predicted cluster labels), shape (n_samples,).
+        Predicted cluster labels, shape (n_samples,).
     """
 
     # 1. Get Segments and Basic Cluster Segments
@@ -74,12 +74,12 @@ def eccms_core(
     label = run_EC_CMS(A, lwca, n_cluster, lamb)
 
     # 7. Post-processing
-    # 确保返回的是整数类型的一维数组
+    # Ensure returning a 1D integer array
     label = np.array(label, dtype=int).flatten()
 
-    # MATLAB 代码中有一个逻辑：if min(label) == 0, label = label + 1
-    # Python 通常使用 0-based 索引，因此如果你希望保持 Python 风格（0 到 k-1），可以直接返回。
-    # 如果 run_EC_CMS 内部返回的是 0-based，而你需要和 MATLAB 完全一致的 1-based 输出，可以在此调整。
-    # 这里默认保持 run_EC_CMS 的原始输出（通常建议 Python 保持 0-based）。
+    # MATLAB code has logic: if min(label) == 0, label = label + 1
+    # Python usually uses 0-based indexing, so if you want to maintain Python style (0 to k-1), you can return directly.
+    # If run_EC_CMS returns 0-based labels internally and you need 1-based output perfectly consistent with MATLAB, adjust here.
+    # Here, the original output of run_EC_CMS is maintained by default (0-based is generally recommended for Python).
 
     return label

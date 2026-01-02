@@ -6,30 +6,30 @@ from .SPCE_TNNLS_2021.Optimize import Optimize
 
 def spce_core(BPi: np.ndarray, n_clusters: int, gamma: float = 0.5) -> np.ndarray:
     """
-    SPCE 核心算法实现
-    对应 MATLAB 脚本中的核心流程：
+    SPCE core algorithm implementation.
+    Corresponds to the core workflow in the MATLAB script:
     Construct Tensor (Ai) -> Optimize (S) -> Graph ConnComp (Label)
 
     Parameters
     ----------
     BPi : np.ndarray
-        基聚类矩阵 (Base Partitions), shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     n_clusters : int
-        目标聚类数 (k) - 传入 Optimize 函数使用
+        Target number of clusters (k) - used in Optimize function.
     gamma : float
-        自步学习参数
+        Self-paced learning parameter.
 
     Returns
     -------
     labels : np.ndarray
-        聚类标签结果, shape (n_samples,)
+        Clustering label results, shape (n_samples,).
     """
     n_samples, n_base = BPi.shape
 
     # -------------------------------------------------------
-    # 1. 构建共协矩阵张量 (Tensor Construction)
+    # 1. Construct Co-association Matrix Tensor (Tensor Construction)
     # -------------------------------------------------------
-    # MATLAB 逻辑:
+    # MATLAB Logic:
     # Ai = zeros(nSmp, nSmp, nBase);
     # for iBase = 1:nBase
     #     YYi = sparse(ind2vec(BPi(:, iBase)')');
@@ -40,27 +40,27 @@ def spce_core(BPi: np.ndarray, n_clusters: int, gamma: float = 0.5) -> np.ndarra
 
     for i in range(n_base):
         labels = BPi[:, i]
-        # 使用广播机制构建二值邻接矩阵:
-        # 如果样本 u 和 v 在当前基聚类中属于同一簇，则 Ai[u, v, i] = 1
-        # 这等价于 MATLAB 中的 YYi * YYi'
+        # Use broadcasting to construct binary adjacency matrix:
+        # If samples u and v belong to the same cluster in the current base clustering, then Ai[u, v, i] = 1
+        # This is equivalent to YYi * YYi' in MATLAB
         Ai[:, :, i] = (labels[:, None] == labels[None, :]).astype(float)
 
     # -------------------------------------------------------
-    # 2. 自步学习优化求解一致性矩阵 (Optimization)
+    # 2. Self-paced Learning Optimization to Solve Consistency Matrix (Optimization)
     # -------------------------------------------------------
     # MATLAB: S = Optimize(Ai, nCluster, gamma);
-    # S 是优化后的一致性关联矩阵 (Consensus Matrix)
+    # S is the optimized consensus association matrix (Consensus Matrix)
     S = Optimize(Ai, n_clusters, gamma)
 
     # -------------------------------------------------------
-    # 3. 基于图连通分量生成最终标签 (Graph Partitioning)
+    # 3. Generate Final Labels Based on Graph Connected Components (Graph Partitioning)
     # -------------------------------------------------------
     # MATLAB: 
     # G_temp = graph(S);
     # label = conncomp(G_temp);
 
-    # 使用 scipy.sparse.csgraph 求解连通分量
-    # S 被视为邻接矩阵，非零元素表示边
+    # Use scipy.sparse.csgraph to solve connected components
+    # S is treated as an adjacency matrix, non-zero elements represent edges
     n_comps, labels = connected_components(csgraph=S, directed=False, return_labels=True)
 
     return labels.astype(int)

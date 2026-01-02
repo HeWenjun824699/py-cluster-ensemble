@@ -6,33 +6,33 @@ from .MDEC_TCYB_2022.performBG import performBG
 
 def mdecbg_core(BPi: np.ndarray, nCluster: int) -> np.ndarray:
     """
-    MDECBG 核心算法逻辑 (Core Logic).
+    MDECBG core algorithm logic.
 
     Parameters
     ----------
     BPi : np.ndarray
-        当前轮次的基聚类器切片 (n_samples, n_base)
+        Base partition slice for the current round (n_samples, n_base)
     nCluster : int
-        目标聚类数
+        Target number of clusters
 
     Returns
     -------
     label_pred : np.ndarray
-        预测的聚类标签
+        Predicted cluster labels
     """
-    # 1. 获取所有 Segments
+    # 1. Get all Segments
     # MATLAB: [bcs, baseClsSegs] = getAllSegs(BPi);
     bcs, baseClsSegs = getAllSegs(BPi)
 
-    # 2. 计算 ECI (Entropy-based Consensus Index)
+    # 2. Compute ECI (Entropy-based Consensus Index)
     # MATLAB: ECI = getECI(bcs, baseClsSegs, 1);
-    # 注意：如果您的 getECI Python 实现支持 flag 参数，请在此处添加，例如 getECI(bcs, baseClsSegs, 1)
+    # Note: If your getECI Python implementation supports the flag parameter, please add it here, e.g., getECI(bcs, baseClsSegs, 1)
     ECI = getECI(bcs, baseClsSegs, 1)
 
-    # Note: MATLAB 代码中有 S = getLWCA(baseClsSegs, ECI, nBase);
-    # 但由于 S 未被后续步骤使用，且为了效率，此处省略 getLWCA 调用。
+    # Note: MATLAB code has S = getLWCA(baseClsSegs, ECI, nBase);
+    # But since S is not used in subsequent steps, and for efficiency, the getLWCA call is omitted here.
 
-    # 3. 执行二分图划分
+    # 3. Perform bipartite graph partitioning
     # MATLAB: label = performBG(baseClsSegs, ECI, nCluster);
     label_pred = performBG(baseClsSegs, ECI, nCluster)
 
