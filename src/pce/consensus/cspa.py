@@ -16,30 +16,39 @@ def cspa(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    CSPA (Cluster-based Similarity Partitioning Algorithm) Wrapper.
-    Corresponds to the main logic of MATLAB script: Batch read BPs, slice and run CSPA, evaluate and save results.
+    Cluster-based Similarity Partitioning Algorithm (CSPA).
+
+    CSPA leverages the co-association matrix to measure pairwise similarity
+    between samples. It constructs a similarity graph where edge weights represent
+    the frequency of sample pairs appearing in the same cluster across base
+    partitions, followed by spectral clustering to obtain the final consensus.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        both 0-based and 1-based (MATLAB style) indexing.
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels of shape (n_samples,). Used to infer the target number
+        of clusters if `nClusters` is not provided.
     nClusters : int, optional
-        Target number of clusters k
+        The target number of clusters for the final result. If provided,
+        it overrides the inference from `Y`.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base partitions used in a single ensemble experiment (slice size).
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions. Total base partitions required
+        is `nBase` * `nRepeat`.
     seed : int, default=2026
-        Random seed
+        Random seed for reproducibility of internal spectral clustering
+        initialization.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list containing `nRepeat` prediction arrays, each of shape (n_samples,).
+    time_list : list of float
+        A list containing the execution time (in seconds) for each repetition.
     """
 
     # 1. Process data

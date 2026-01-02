@@ -17,38 +17,35 @@ def celta(
         seed: int = 2025
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    CELTA (Clustering Ensemble Method via Low-Rank Tensor Approximation) Wrapper.
-    Corresponds to the main logic of MATLAB script run_CELTA_AAAI_2021.m.
+    Clustering Ensemble Method via Low-Rank Tensor Approximation (CELTA).
 
-    The algorithm typically includes the following steps:
-    1. Construct Microcluster Association matrix (MCA) and Co-Association matrix (CA)
-    2. Tensor Ensemble to solve low-rank tensor approximation
-    3. Perform Spectral Clustering based on the obtained similarity matrix W
-    4. Perform K-Means on spectral embedding results (Replicates=10)
+    CELTA models the ensemble problem through a low-rank tensor approximation
+    framework. It constructs Microcluster Association (MCA) and Co-Association
+    (CA) matrices to capture high-order correlations between samples.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer the number of clusters k.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     lamb : float, default=0.002
-        Regularization parameter lambda (corresponds to lambda = 0.002 in MATLAB)
+        Regularization parameter for low-rank tensor decomposition.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base partitions used per repetition.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experimental repetitions.
     seed : int, default=2025
-        Random seed (corresponds to seed = 2025 in MATLAB script)
+        Random seed for tensor operations and spectral clustering (standard seed is 2025 for this algorithm).
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of predicted labels for each repetition.
+    time_list : list of float
+        List of computation times for each repetition.
     """
 
     # 1. Data preprocessing

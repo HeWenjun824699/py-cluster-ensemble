@@ -17,32 +17,36 @@ def drec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    DREC (Dual Regularized Ensemble Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_DREC_Neurocomputing_2018.m.
+    Dual Regularized Ensemble Clustering (DREC).
+
+    This algorithm utilizes dense representation to capture global data
+    structures and introduces a dual regularization framework to optimize
+    the consensus partition, enhancing robustness against noise.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer the number of clusters k.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     lamb : float, default=100
-        Regularization parameter lambda in DREC algorithm (corresponds to param.lambda in MATLAB)
+        Regularization parameter (lambda) controlling the smoothness and
+        noise sensitivity of the model.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers per ensemble experiment repetition.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experiment repetitions.
     seed : int, default=2026
-        Random seed
+        Random seed to ensure reproducibility of the optimization process.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of ensemble prediction results for `nRepeat` runs.
+    time_list : list of float
+        List of execution times for each run in seconds.
     """
 
     # 1. Data preprocessing

@@ -16,30 +16,37 @@ def ptaal(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    PTAAL (Probability Trajectory based Association for Active Learning) Wrapper.
-    Corresponds to the main logic of MATLAB script run_PTAAL_TKDE_2016.m.
+    Probability Trajectory based Association for Active Learning (PTAAL).
+
+    PTAAL utilizes probability trajectories to model the relationships between
+    samples and clusters. It is designed to work within an active learning
+    scenario or as a standalone consensus function that leverages the
+    association-based probability trajectories of samples across base
+    partitions.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        both 0-based and 1-based (MATLAB style) indexing.
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k (if semi-supervised/supervised scenario)
+        True labels of shape (n_samples,). Used to infer the target number
+        of clusters k if `nClusters` is not provided.
     nClusters : int, optional
-        Target number of clusters k
+        The target number of clusters for the final result.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment (corresponds to nBase in MATLAB)
+        Number of base partitions used in each experimental repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions (corresponds to nRepeat in MATLAB)
+        Number of independent repetitions for statistical evaluation.
     seed : int, default=2026
-        Random seed
+        Random seed for reproducibility of slicing and internal solvers.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list of predicted label arrays for `nRepeat` repetitions.
+    time_list : list of float
+        A list of execution times for each repetition in seconds.
     """
 
     # 1. Data preprocessing

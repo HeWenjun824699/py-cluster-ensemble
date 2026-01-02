@@ -17,37 +17,37 @@ def spce(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    SPCE (Self-Paced Clustering Ensemble) Wrapper.
-    Corresponds to the main logic of MATLAB script run_SPCE_TNNLS_2021.m.
+    Self-Paced Clustering Ensemble (SPCE).
 
-    The algorithm typically includes the following steps:
-    1. Convert base clusterings to co-association matrix tensor (Ai)
-    2. Self-paced learning optimization to solve consensus matrix S (Optimize)
-    3. Build graph based on S and calculate connected components (ConnComp) to get final clustering
+    SPCE introduces a self-paced learning mechanism into the ensemble framework.
+    It optimizes a consensus matrix by gradually including base partitions from
+    easy to complex (reliable to less reliable), effectively building a robust
+    similarity graph for the final consensus partition.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used for target cluster count k inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     gamma : float, default=0.5
-        Self-paced learning parameter gamma in SPCE algorithm (corresponds to gamma = 0.5 in MATLAB)
+        Self-paced learning parameter, controlling the inclusion pace of
+        base clusterers.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used per ensemble repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experimental repetitions.
     seed : int, default=2026
-        Random seed (corresponds to seed = 2026 in MATLAB script)
+        Seed for ensuring consistent results across multiple runs.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Predicted consensus labels for each experimental run.
+    time_list : list of float
+        Computation time cost (seconds) for each repetition.
     """
 
     # 1. Data preprocessing

@@ -16,36 +16,34 @@ def ptacl(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    PTACL (Probability Trajectory based Association with Complete Linkage) Wrapper.
-    Corresponds to the main logic of MATLAB script PTACL.m.
+    Probability Trajectory based Association with Complete Linkage (PTACL).
 
-    The algorithm flow is as follows (based on TKDE 2016 paper):
-    1. Generate Microclusters
-    2. Calculate Microcluster Co-Association Matrix (MCA)
-    3. Calculate Probability Trajectory Similarity (PTS)
-    4. Use Complete Linkage for final clustering
+    PTACL implements a consensus strategy that combines probability trajectory
+    similarity (PTS) with hierarchical complete linkage. It first generates
+    micro-clusters, calculates a micro-cluster co-association matrix (MCA),
+    and then computes the PTS to resolve the final partition.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer the number of clusters k.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used in each repeated experiment.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experiment repetitions.
     seed : int, default=2026
-        Random seed
+        Random seed to ensure reproducibility.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of predicted labels for each experimental repetition.
+    time_list : list of float
+        List of execution times for each run in seconds.
     """
 
     # 1. Data preprocessing

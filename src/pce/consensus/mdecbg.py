@@ -16,40 +16,34 @@ def mdecbg(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    MDECBG (Multi-Diversity Ensemble Clustering via Bipartite Graph) Wrapper.
-    Corresponds to the main logic of MATLAB script run_MDECBG_TCYB_2022.m.
+    Multi-Diversity Ensemble Clustering via Bipartite Graph (MDECBG).
 
-    The algorithm logic:
-    1. Slice base clusterers (BPs)
-    2. Calculate all Segments (getAllSegs)
-    3. Calculate ECI (getECI)
-    4. Perform Bipartite Graph Clustering (performBG)
-
-    Note on Consistency with MATLAB:
-    MATLAB script generates a fixed list of seeds derived from the master seed.
-    This implementation replicates that behavior to ensure reproducibility per repetition.
+    MDECBG belongs to the Multi-Diversity Ensemble Clustering (MDEC) framework.
+    It integrates diverse information from base partitions by constructing
+    segments and utilizing Entropy-based Consensus Information (ECI) to weight
+    a bipartite graph, which is then partitioned for the final result.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer k if `nClusters` is None.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used in each experimental repetition.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions.
     seed : int, default=2026
-        Random seed
+        Random seed to maintain reproducibility of slicing and graph partitioning.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of ensemble prediction results for each run.
+    time_list : list of float
+        List of execution times for each run in seconds.
     """
 
     # 1. Data preprocessing

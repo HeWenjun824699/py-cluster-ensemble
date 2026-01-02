@@ -16,36 +16,34 @@ def ptgp(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    PTGP (Probability Trajectory based Graph Partitioning) Wrapper.
-    Corresponds to the main logic of MATLAB script run_ptgp.m.
+    Probability Trajectory based Graph Partitioning (PTGP).
 
-    The algorithm flow is as follows (based on TKDE 2016 paper):
-    1. Generate Microclusters
-    2. Calculate Microcluster Co-Association Matrix (MCA)
-    3. Calculate Probability Trajectory Similarity (PTS)
-    4. Use Graph Partitioning (usually Spectral Clustering/Ncut) for final clustering
+    PTGP formulates the ensemble problem as a graph partitioning task. It
+    extracts micro-clusters and builds a similarity graph based on probability
+    trajectories (PTS). The final consensus is obtained by partitioning this
+    graph using spectral clustering or similar graph-cut techniques.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used for target cluster count inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base partitions used per repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experimental repetitions.
     seed : int, default=2026
-        Random seed
+        Global seed for reproducible BPs slicing and internal graph partitioning.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list of prediction results for `nRepeat` repetition experiments.
+    time_list : list of float
+        Execution time (seconds) for each repetition.
     """
 
     # 1. Data preprocessing

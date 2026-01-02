@@ -18,38 +18,40 @@ def eccms(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    ECCMS (Ensemble Clustering via Co-association Matrix and Spectral Clustering) Wrapper.
-    Corresponding to the main logic of MATLAB script run_ECCMS_TNNLS_2023.m.
+    Ensemble Clustering via Co-association Matrix Self-enhancement (ECCMS).
 
-    Algorithm Logic:
-    1. Slice Base Partitions (BPs).
-    2. Compute Consensus via ECCMS Core (getAllSegs -> ECI -> LWCA -> HC -> Spectral).
+    ECCMS implements a self-enhancement mechanism for the co-association matrix.
+    It utilizes Entropy-based Consensus Information (ECI) and selects high-confidence
+    sample pairs to refine the similarity structure before performing spectral
+    clustering for the final consensus.
 
     Parameters
     ----------
     BPs : np.ndarray
         Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer k if nClusters is not provided.
+        True labels used to determine k if nClusters is not provided.
     nClusters : int, optional
         Target number of clusters k.
     alpha : float, default=0.8
-        Hyperparameter for High Confidence (HC) matrix generation.
+        Threshold for High Confidence (HC) matrix generation, controlling the
+        selection of reliable sample pairs.
     lamb : float, default=0.4
-        Hyperparameter for Entropy Calculation and Spectral Clustering.
+        Regularization parameter for Entropy-based Consensus Information (ECI)
+        calculation and spectral clustering weights.
     nBase : int, default=20
-        Number of base clusterings to use per repetition.
+        Number of base clusterings processed per repetition.
     nRepeat : int, default=10
-        Number of experiment repetitions.
+        Number of independent repetitions.
     seed : int, default=2026
-        Random seed for reproducibility.
+        Global seed for reproducible BPs slicing and internal spectral clustering.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Prediction results for `nRepeat` experimental runs.
+    time_list : list of float
+        Execution time (seconds) for each run.
     """
 
     # 1. Data Preprocessing

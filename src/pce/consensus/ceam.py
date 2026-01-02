@@ -18,34 +18,39 @@ def ceam(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    CEAM Wrapper.
-    Replicates the logic of run_CEAM_TKDE_2024.m.
+    Clustering Ensemble via Diffusion on Adaptive Multiplex (CEAM).
+
+    CEAM models base partitions as a multiplex network and uses an adaptive
+    diffusion process to capture high-order structural information. It focuses
+    on the transition probabilities between samples across multiple layers.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators).
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to determine k if nClusters is not provided.
+        True labels for cluster count inference.
     nClusters : int, optional
-        Target number of clusters.
+        Target number of clusters k.
     alpha : float, default=0.85
-        Parameter 'alpha' for CEAM.
+        Diffusion decay coefficient or restart probability, controlling the
+        influence of local vs. global structure.
     knn_size : int, default=20
-        Parameter 'knn_size' for CEAM.
+        The number of nearest neighbors used to define local neighborhoods during
+        diffusion.
     nBase : int, default=20
         Number of base partitions to use per repetition.
     nRepeat : int, default=10
         Number of experimental repetitions.
     seed : int, default=2026
-        Master random seed.
+        Seed for reproducibility of slicing and stochastic processes.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Prediction results for `nRepeat` independent runs.
+    time_list : list of float
+        Execution time for each run in seconds.
     """
 
     # 1. Preprocessing

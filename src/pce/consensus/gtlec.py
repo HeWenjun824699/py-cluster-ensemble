@@ -18,34 +18,40 @@ def gtlec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    GTLEC (Graph-Based Tensor Learning for Ensemble Clustering) Wrapper.
-    Replicates the logic of run_GTLEC_MM_2023.m.
+    Graph-Based Tensor Learning for Ensemble Clustering (GTLEC).
+
+    GTLEC models the multiple partitions as a co-association tensor and utilizes
+    tensor learning to capture high-order relationships. It incorporates graph
+    regularization (Laplacian) to preserve local manifold structures during the
+    optimization of the consensus matrix.
 
     Parameters
     ----------
     BPs : np.ndarray
         Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to determine k if nClusters is not provided.
+        True labels for cluster count inference.
     nClusters : int, optional
         Target number of clusters.
     alpha : float, default=0.05
-        Parameter for TensorEC (as seen in MATLAB script).
+        Tensor learning regularization parameter controlling the sparsity
+        of the error term.
     beta : float, default=7.0
-        Parameter for TensorEC (as seen in MATLAB script).
+        Graph regularization parameter controlling the preservation of the
+        intrinsic data manifold.
     nBase : int, default=20
-        Number of base partitions to use per repetition.
+        Number of base partitions used per ensemble repetition.
     nRepeat : int, default=10
-        Number of experimental repetitions.
+        Number of experiment iterations.
     seed : int, default=2026
-        Master random seed.
+        Random seed to ensure reproducibility of slicing and optimization.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Consensus partitions for each repetition.
+    time_list : list of float
+        Computation time for each repetition in seconds.
     """
 
     # 1. Preprocessing

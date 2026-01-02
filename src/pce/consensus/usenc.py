@@ -16,30 +16,36 @@ def usenc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    USENC (Uncertainty-Based Ensemble Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_USENC_TKDE_2020.m.
+    Uncertainty-Based Ensemble Clustering (USENC).
+
+    USENC handles the consensus problem by explicitly considering the uncertainty
+    of sample assignments in base partitions. It utilizes an uncertainty-aware
+    consensus function to aggregate diverse clustering results, making it robust
+    to noise and low-quality base clusterers.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        automatic conversion from 1-based indexing.
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer the number of clusters k if `nClusters`
+        is not provided.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k for the final consensus result.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used in each experimental repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions for statistical evaluation.
     seed : int, default=2026
-        Random seed
+        Random seed to ensure reproducibility of slicing and internal solvers.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list of predicted label arrays for `nRepeat` repetitions.
+    time_list : list of float
+        A list of execution times (in seconds) for each repetition.
     """
 
     # 1. Data preprocessing

@@ -16,41 +16,34 @@ def mdecsc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    MDECSC (Multi-Diversity Ensemble Clustering via Spectral Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_MDECSC_TCYB_2022.m.
+    Multi-Diversity Ensemble Clustering via Spectral Clustering (MDECSC).
 
-    The algorithm logic:
-    1. Slice base clusterers (BPs)
-    2. Calculate all Segments (getAllSegs)
-    3. Calculate ECI (getECI)
-    4. Calculate consensus matrix S (getLWCA)
-    5. Perform Spectral Clustering (performSC)
-
-    Note on Consistency with MATLAB:
-    MATLAB script generates a fixed list of seeds derived from the master seed.
-    This implementation replicates that behavior to ensure reproducibility per repetition.
+    This MDEC variant utilizes spectral clustering on a refined consensus matrix.
+    By combining segment extraction, ECI weighting, and LWCA computation, it
+    projects the ensemble data into a spectral embedding space to discover
+    the final cluster structures.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels for target cluster count inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base partitions used per repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experimental repetitions.
     seed : int, default=2026
-        Random seed
+        Global seed for reproducible slicing and spectral decomposition.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list of prediction results for `nRepeat` repetition experiments.
+    time_list : list of float
+        Execution time (seconds) for each repetition.
     """
 
     # 1. Data preprocessing

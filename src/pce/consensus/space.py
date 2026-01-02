@@ -20,39 +20,42 @@ def space(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    SPACE Wrapper.
-    Replicates the logic of run_SPACE_TNNLS_2024.m.
+    Sequential Probing and Active Clustering Ensemble (SPACE).
+
+    SPACE is an advanced ensemble framework that incorporates active learning
+    and sequential probing. It adaptively selects and queries informative sample
+    relationships from base partitions to refine the consensus, significantly
+    reducing the labeling effort required for high-quality clustering.
 
     Parameters
     ----------
     BPs : np.ndarray
         Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray
-        True labels. Used to determine k if nClusters is not provided, 
-        and passed to SPACE core if available.
+        True labels, required for the active probing and selection process.
     nClusters : int, optional
-        Target number of clusters.
+        Target number of clusters k.
     gamma : float, default=4.0
-        Parameter 'gam' from the MATLAB script (used to derive gamma).
+        Hyperparameter regulating the influence of the sequential probing logic.
     batch_size : int, default=50
-        Batch size for optimization.
+        The number of samples or relationships queried in each active round.
     delta : float, default=0.1
-        Delta parameter.
+        Threshold parameter for the internal optimization solver.
     n_active_rounds : int, default=10
-        Number of active learning iterations.
+        Number of active learning iterations for sequential probing.
     nBase : int, default=20
-        Number of base partitions to use per repetition.
+        Number of base clusterers used per ensemble repetition.
     nRepeat : int, default=10
-        Number of experimental repetitions.
+        Number of experiment repetitions.
     seed : int, default=2026
-        Master random seed.
+        Global seed ensuring reproducible slicing and stochastic active rounds.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Consensus partitions for each experimental repetition.
+    time_list : list of float
+        Computation time cost for each run in seconds.
     """
 
     # 1. Preprocessing

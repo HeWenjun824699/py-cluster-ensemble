@@ -16,36 +16,34 @@ def ptasl(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    PTASL (Probability Trajectory based Association with Single Linkage) Wrapper.
-    Corresponds to the main logic of MATLAB script run_PTASL_TKDE_2016.m.
+    Probability Trajectory based Association with Single Linkage (PTASL).
 
-    The algorithm flow is as follows (based on TKDE 2016 paper):
-    1. Generate Microclusters
-    2. Calculate Microcluster Co-Association Matrix (MCA)
-    3. Calculate Probability Trajectory Similarity (PTS)
-    4. Use Single Linkage for final clustering
+    PTASL is a hierarchical consensus method that uses probability trajectory
+    similarity (PTS) in conjunction with single linkage. Similar to its variants,
+    it maps samples to micro-clusters and analyzes their movement across
+    partitions to calculate a refined similarity matrix for clustering.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used for target cluster count inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used per slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent experimental repetitions.
     seed : int, default=2026
-        Random seed
+        Master seed ensuring identical experimental conditions.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Predicted consensus labels for `nRepeat` independent runs.
+    time_list : list of float
+        Execution time cost for each single linkage run.
     """
 
     # 1. Data preprocessing

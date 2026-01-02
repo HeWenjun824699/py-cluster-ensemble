@@ -16,30 +16,40 @@ def mcla(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    MCLA (Meta-Clustering Algorithm) Wrapper.
-    Corresponds to the main logic of MATLAB script: Batch read BPs, slice and run MCLA, evaluate and save results.
+    Meta-Clustering Algorithm (MCLA).
+
+    MCLA solves the consensus problem by clustering the clusters themselves.
+    It views each cluster in base partitions as a hyperedge in a hypergraph,
+    collapses similar hyperedges into meta-clusters using a graph partitioning
+    strategy, and finally assigns each sample to the meta-cluster with which
+    it has the strongest association.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        both 0-based and 1-based (MATLAB style) indexing.
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels of shape (n_samples,). Used to infer the target number
+        of clusters if `nClusters` is not provided.
     nClusters : int, optional
-        Target number of clusters k
+        The target number of clusters for the final result. If provided,
+        it overrides the inference from `Y`.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base partitions used in a single ensemble experiment (slice size).
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions. Total base partitions required
+        is `nBase` * `nRepeat`.
     seed : int, default=2026
-        Random seed
+        Random seed for reproducibility of internal meta-clustering and
+        spectral partitioning.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list containing `nRepeat` prediction arrays, each of shape (n_samples,).
+    time_list : list of float
+        A list containing the execution time (in seconds) for each repetition.
     """
 
     # 1. Process data

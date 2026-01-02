@@ -20,38 +20,44 @@ def kcc_uc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    KCC_Uc (K-means Consensus Clustering with Utility) Wrapper.
-    Replicates the logic of run_KCC_Uc_TMS_2023.m.
+    K-means Consensus Clustering with Category Utility (KCC_Uc).
+
+    KCC_Uc transforms the cluster ensemble problem into a K-means optimization
+    task in a transformed feature space. It aims to maximize the category
+    utility function, providing a highly efficient and scalable approach to
+    finding the consensus partition.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators).
+        Base Partitions matrix of shape (n_samples, n_estimators). Data will
+        be cast to integers internally.
     Y : np.ndarray, optional
-        True labels, used to determine k if nClusters is not provided.
+        True labels used to determine k if `nClusters` is not provided.
     nClusters : int, optional
-        Target number of clusters.
+        Target number of clusters k.
     rep : int, default=5
-        Number of internal repetitions (n_init) for the KCC core.
+        Number of internal random restarts (n_init) for the KCC core to
+        avoid local optima.
     max_iter : int, default=100
-        Maximum iterations for the KCC optimization.
+        Maximum number of iterations allowed for the optimization process.
     min_thres : float, default=1e-5
-        Convergence threshold.
+        Convergence threshold for early termination of the KCC algorithm.
     util_flag : int, default=0
-        Flag for utility calculation.
+        Operational flag for internal utility calculation modes.
     nBase : int, default=20
-        Number of base partitions to use per repetition.
+        Number of base partitions processed per experimental repetition.
     nRepeat : int, default=10
-        Number of experimental repetitions.
+        Number of independent experimental runs.
     seed : int, default=2026
-        Master random seed.
+        Global seed for reproducible BPs slicing and internal initializations.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Consensus prediction results for `nRepeat` experimental runs.
+    time_list : list of float
+        Execution time (seconds) for each ensemble repetition.
     """
 
     # 1. Preprocessing

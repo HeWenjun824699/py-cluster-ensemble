@@ -17,37 +17,39 @@ def lwea(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    LWEA (Locally Weighted Ensemble Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_LWEA_TCYB_2018.m.
+    Locally Weighted Ensemble Clustering (LWEA).
 
-    The algorithm typically includes the following steps:
-    1. Build Bipartite Graph
-    2. Calculate Local Weights. Here theta is the relevant parameter
-    3. Solve final partition (usually using Spectral Clustering or Bipartite Graph Partitioning)
+    LWEA introduces a local weighting strategy to evaluate the reliability of
+    clusters in base partitions. It constructs a weighted bipartite graph
+    representing the relationships between samples and clusters, and solves the
+    consensus partition via graph partitioning or spectral methods.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        automatic conversion from 1-based indexing.
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used to infer the number of clusters k if `nClusters`
+        is not provided.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     theta : float, default=10
-        Threshold/parameter t in LWEA algorithm (corresponds to variable t in MATLAB)
+        Threshold parameter (t in the paper) for calculating local weights,
+        controlling the influence of cluster-wise reliability.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used in each experimental repetition slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions for statistical evaluation.
     seed : int, default=2026
-        Random seed
+        Random seed for reproducibility of slicing and internal solvers.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        A list of predicted label arrays for `nRepeat` repetitions.
+    time_list : list of float
+        A list of execution times for each repetition in seconds.
     """
 
     # 1. Data preprocessing

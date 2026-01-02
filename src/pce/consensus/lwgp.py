@@ -17,37 +17,37 @@ def lwgp(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    LWGP (Locally Weighted Graph Partitioning) Wrapper.
-    Corresponds to the main logic of MATLAB script run_LWGP_TCYB_2018.m.
+    Locally Weighted Graph Partitioning (LWGP).
 
-    The algorithm typically includes the following steps:
-    1. Build Bipartite Graph
-    2. Calculate Local Weights
-    3. Solve final clustering based on Bipartite Graph Partitioning
+    LWGP is a graph-based ensemble method that incorporates local weighting
+    to refine the similarity structure. It represents the ensemble as a
+    bipartite graph and utilizes efficient graph partitioning techniques to
+    resolve the final consensus partition.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels for target cluster count k inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     theta : float, default=10
-        Threshold/parameter t in LWGP algorithm (corresponds to variable t in MATLAB)
+        Weighting threshold parameter (t) regulating the local confidence
+        of base clusters.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers per repetition.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experiment repetitions.
     seed : int, default=2026
-        Random seed
+        Seed for ensuring consistent results across multiple runs.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Predicted consensus labels for each repetition.
+    time_list : list of float
+        Computation time cost for each run.
     """
 
     # 1. Data preprocessing

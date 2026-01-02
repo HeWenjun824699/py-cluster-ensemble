@@ -17,33 +17,37 @@ def ecpcs_mc(
         seed: int = 2024
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    ECPCS-MC (Ensemble Clustering by Propagation of Cluster-wise Similarities via Meta-Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_ECPCSMC_t20_TSMC_2021.m.
+    Ensemble Clustering by Propagation of Cluster-wise Similarities via Meta-Clustering (ECPCS-MC).
+
+    A variant of the ECPCS framework that utilizes the Meta-Clustering (MCLA-style)
+    strategy. It propagates similarities between clusters to build a refined
+    relationship matrix, followed by a meta-clustering process to resolve
+    label assignments.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels used for target cluster count inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     theta : float, default=20
-        Parameter t in ECPCS algorithm (corresponds to t = 20 in MATLAB).
-        Usually used to control the threshold for similarity propagation or filtering.
+        Similarity propagation threshold (parameter t), regulating the
+        cross-partition cluster association strength.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used per slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experimental repetitions.
     seed : int, default=2024
-        Random seed (corresponds to seed = 2024 in MATLAB script)
+        Random seed for internal stochastic processes.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Consensus partitions for `nRepeat` independent runs.
+    time_list : list of float
+        Time cost for each run in seconds.
     """
 
     # 1. Data preprocessing

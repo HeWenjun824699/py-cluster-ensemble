@@ -17,33 +17,37 @@ def ecpcs_hc(
         seed: int = 2024
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    ECPCS-HC (Ensemble Clustering by Propagation of Cluster-wise Similarities via Hierarchical Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_ECPCSHC_t20_TSMC_2021.m.
+    Ensemble Clustering by Propagation of Cluster-wise Similarities via Hierarchical Clustering (ECPCS-HC).
+
+    This algorithm enhances consensus performance by propagating similarities
+    between clusters across different base partitions. After constructing an
+    enhanced similarity matrix, it applies Hierarchical Clustering to produce
+    the final ensemble result.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels, used to infer the number of clusters k.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     theta : float, default=20
-        Parameter t in ECPCS algorithm (corresponds to t = 20 in MATLAB).
-        Usually used to control the threshold for similarity propagation or filtering.
+        Similarity propagation threshold (parameter t in the paper), controlling
+        the intensity of similarity filtering between clusters.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used in each repeated experiment.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of experiment repetitions.
     seed : int, default=2024
-        Random seed (corresponds to seed = 2024 in MATLAB script)
+        Random seed for reproducibility (default 2024 to match MATLAB reference).
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of predicted labels for each experimental repetition.
+    time_list : list of float
+        List of execution times for each run in seconds.
     """
 
     # 1. Data preprocessing

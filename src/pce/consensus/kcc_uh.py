@@ -20,38 +20,43 @@ def kcc_uh(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    KCC_UH (K-means Consensus Clustering with Harmonic Utility) Wrapper.
-    Replicates the logic of run_KCC_UH_TMS_2023.m.
+    K-means Consensus Clustering with Harmonic Utility (KCC_UH).
+
+    A variant of the KCC framework that utilizes the Harmonic Utility function.
+    By maximizing the harmonic utility in a weighted feature-transformed space,
+    it achieves robust consensus results with the computational efficiency
+    of the K-means algorithm.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators).
+        Base Partitions matrix of shape (n_samples, n_estimators). Supports
+        automatic conversion from 1-based indexing.
     Y : np.ndarray, optional
-        True labels, used to determine k if nClusters is not provided.
+        True labels for cluster count inference.
     nClusters : int, optional
-        Target number of clusters.
+        Target number of clusters k.
     rep : int, default=5
-        Number of internal repetitions (n_init) for the KCC core.
+        Number of internal random restarts (n_init) per ensemble run.
     max_iter : int, default=100
-        Maximum iterations for the KCC optimization.
+        Maximum iterations for the KCC optimization core.
     min_thres : float, default=1e-5
-        Convergence threshold.
+        Convergence threshold for stopping the iteration.
     util_flag : int, default=0
-        Flag for utility calculation.
+        Algorithm-specific flag for utility feature calculations.
     nBase : int, default=20
-        Number of base partitions to use per repetition.
+        Number of base partitions used per repetition slice.
     nRepeat : int, default=10
-        Number of experimental repetitions.
+        Number of independent repetitions for statistical evaluation.
     seed : int, default=2026
-        Master random seed.
+        Global seed ensuring reproducible slicing and optimization starts.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        List of ensemble result arrays for `nRepeat` repetitions.
+    time_list : list of float
+        Computation time cost for each repetition.
     """
 
     # 1. Preprocessing

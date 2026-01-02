@@ -16,41 +16,34 @@ def mdechc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    MDECHC (Multi-Diversity Ensemble Clustering via Hierarchical Clustering) Wrapper.
-    Corresponds to the main logic of MATLAB script run_MDECHC_TCYB_2022.m.
+    Multi-Diversity Ensemble Clustering via Hierarchical Clustering (MDECHC).
 
-    The algorithm logic:
-    1. Slice base clusterers (BPs)
-    2. Calculate all Segments (getAllSegs)
-    3. Calculate ECI (getECI)
-    4. Calculate consensus matrix S (getLWCA)
-    5. Perform Hierarchical Clustering (performHC)
-
-    Note on Consistency with MATLAB:
-    MATLAB script generates a fixed list of seeds derived from the master seed.
-    This implementation replicates that behavior to ensure reproducibility per repetition.
+    A variant of the MDEC framework that solves the consensus problem through
+    hierarchical clustering. It leverages ECI and Locally Weighted Co-association
+    (LWCA) matrices to capture diverse cluster relationships before performing
+    agglomerative clustering.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels for k inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers used per slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions.
     seed : int, default=2026
-        Random seed
+        Master seed ensuring identical experimental conditions.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Prediction results for `nRepeat` independent runs.
+    time_list : list of float
+        Time cost for each hierarchical clustering run.
     """
 
     # 1. Data preprocessing

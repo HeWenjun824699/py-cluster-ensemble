@@ -19,34 +19,38 @@ def cdec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    CDEC Wrapper.
-    Replicates the logic of run_CDEC_TCSVT_2025.m.
+    Consensus Clustering with Balance Adaptive Weighted (CDEC).
+
+    CDEC introduces balance constraints and adaptive weighting mechanisms to
+    optimize a regularized objective function. It adaptively adjusts the
+    influence of different base partitions while ensuring balanced cluster sizes.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators).
+        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to determine k if nClusters is not provided.
+        True labels used to determine target cluster count.
     nClusters : int, optional
-        Target number of clusters.
+        Target number of clusters k.
     lamb : float, default=1e-3
-        Parameter 'lambda' for CDEC.
+        Regularization parameter controlling the strength of the balance
+        constraint (mapped from paper's lambda).
     gamma : float, default=1e-1
-        Parameter 'gamma' for CDEC.
+        Parameter regulating the adaptive weighting of base partitions.
     nBase : int, default=20
-        Number of base partitions to use per repetition.
+        Number of base partitions processed per repetition.
     nRepeat : int, default=10
-        Number of experimental repetitions.
+        Number of repetition experiments.
     seed : int, default=2026
-        Master random seed.
+        Master random seed for slicing and solver initialization.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Predicted labels for each repetition.
+    time_list : list of float
+        Time cost for each ensemble run.
     """
 
     # 1. Preprocessing

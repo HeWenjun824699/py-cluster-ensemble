@@ -17,38 +17,37 @@ def trce(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    TRCE (Tensor-based Regularized Clustering Ensemble) Wrapper.
-    Corresponds to the main logic of MATLAB script run_TRCE_AAAI_2021.m.
+    Tensor-based Regularized Clustering Ensemble (TRCE).
 
-    The algorithm typically includes the following steps:
-    1. Convert base clusterings to co-association matrix tensor (Ai)
-    2. Solve tensor optimization problem to get consensus matrix S
-    3. Build graph based on S and calculate connected components to get final clustering
+    TRCE formulates the ensemble problem as a tensor optimization task. It
+    constructs a co-association tensor from base partitions and solves for a
+    consensus matrix through a regularized optimization framework, preserving
+    high-order structural information.
 
     Parameters
     ----------
     BPs : np.ndarray
-        Base Partitions matrix, shape (n_samples, n_estimators)
+        Base Partitions matrix, shape (n_samples, n_estimators).
     Y : np.ndarray, optional
-        True labels, used to infer the number of clusters k
+        True labels for k inference.
     nClusters : int, optional
-        Target number of clusters k
+        Target number of clusters k.
     gamma : float, default=0.01
-        Parameter gamma in TRCE algorithm.
-        Corresponds to MATLAB code: gam = -2; gamma = 10.^gam (i.e., 0.01)
+        Regularization parameter controlling the trade-off between the data
+        fidelity and the smoothness of the consensus matrix.
     nBase : int, default=20
-        Number of base clusterers used in each repeated experiment
+        Number of base clusterers processed per slice.
     nRepeat : int, default=10
-        Number of experiment repetitions
+        Number of independent repetitions.
     seed : int, default=2026
-        Random seed (corresponds to seed = 2026 in MATLAB script)
+        Master seed ensuring identical experimental conditions across runs.
 
     Returns
     -------
-    tuple[list[np.ndarray], list[float]]
-        A tuple containing:
-        - labels_list : A list of predicted labels (np.ndarray) for each repetition.
-        - time_list   : A list of execution times (float) for each repetition.
+    labels_list : list of np.ndarray
+        Prediction results for `nRepeat` independent runs.
+    time_list : list of float
+        Time cost for each tensor-based optimization run.
     """
 
     # 1. Data preprocessing
