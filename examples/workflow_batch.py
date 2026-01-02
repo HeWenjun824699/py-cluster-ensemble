@@ -1,7 +1,7 @@
 import pce
 
-data_dir = r"./data/generators/CDKM200"
-output_dir = r"./data/workflow/consensus_results"
+data_dir = r"./data/CDKM200"
+output_dir = r"./results/workflow/batch"
 
 # Multiple datasets with a single algorithm
 pce.pipelines.consensus_batch(

@@ -5,8 +5,8 @@ import pce
 pce.utils.show_function_params('lwea', module_type='consensus')
 
 # 2. Define paths
-data_dir = r"./data/generators/CDKM200"
-out_dir = r"./data/grid/GridSearch_001"
+data_dir = r"./data/CDKM200"
+out_dir = r"./results/grid/GridSearch_001"
 
 # 3. Grid Parameters
 param_grid = {

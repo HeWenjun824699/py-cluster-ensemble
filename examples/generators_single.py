@@ -9,7 +9,7 @@ print(Y)
 print("====================Generating...====================")
 
 # Lite K-Means
-base_output_path = r"./data/LKM200/isolet_uni_1560n_617d_2c_LDKM200.mat"
+base_output_path = r"./data/LKM200/isolet_1560n_617d_2c_LKM200.mat"
 BPs = pce.generators.litekmeans(
     X=X,
     Y=Y,
@@ -21,7 +21,7 @@ BPs = pce.generators.litekmeans(
 )
 
 # # Coordinate Descent K-Means
-# base_output_path = r"./data/CDKM200/isolet_uni_1560n_617d_2c_CDKM200.mat"
+# base_output_path = r"./data/CDKM200/isolet_1560n_617d_2c_CDKM200.mat"
 # BPs = pce.generators.cdkmeans(
 #     X=X,
 #     Y=Y,
@@ -33,7 +33,7 @@ BPs = pce.generators.litekmeans(
 # )
 
 # # Random Subspace K-Means
-# base_output_path = r"./data/RSKM200/isolet_uni_1560n_617d_2c_RSKM200.mat"
+# base_output_path = r"./data/RSKM200/isolet_1560n_617d_2c_RSKM200.mat"
 # BPs = pce.generators.rskmeans(
 #     X=X,
 #     Y=Y,
@@ -46,7 +46,7 @@ BPs = pce.generators.litekmeans(
 # )
 
 # # Random Partition K-Means
-# base_output_path = r"./data/RPKM200/isolet_uni_1560n_617d_2c_RPKM200.mat"
+# base_output_path = r"./data/RPKM200/isolet_1560n_617d_2c_RPKM200.mat"
 # BPs = pce.generators.rpkmeans(
 #     X=X,
 #     Y=Y,
@@ -59,7 +59,7 @@ BPs = pce.generators.litekmeans(
 # )
 
 # # BAG K-Means
-# base_output_path = r"./data/BAGKM200/isolet_uni_1560n_617d_2c_BAGKM200.mat"
+# base_output_path = r"./data/BAGKM200/isolet_1560n_617d_2c_BAGKM200.mat"
 # BPs = pce.generators.bagkmeans(
 #     X=X,
 #     Y=Y,
@@ -72,7 +72,7 @@ BPs = pce.generators.litekmeans(
 # )
 
 # # Heterogeneous Clustering
-# base_output_path = r"./data/HETCLU200/isolet_uni_1560n_617d_2c_HETCLU200.mat"
+# base_output_path = r"./data/HETCLU200/isolet_1560n_617d_2c_HETCLU200.mat"
 # BPs = pce.generators.hetero_clustering(
 #     X=X,
 #     Y=Y,

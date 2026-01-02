@@ -14,7 +14,7 @@ print(BPs)
 print(Y)
 
 print("====================Save Bases...====================")
-pce.io.save_base_mat(BPs, Y, r"./data/workflow/isolet_1560n_617d_2c_CDKM200.mat")
+pce.io.save_base_mat(BPs, Y, r"./results/workflow/single/isolet_1560n_617d_2c_CDKM200.mat")
 
 print("====================Consensus...====================")
 nClusters = len(np.unique(Y))
@@ -26,4 +26,4 @@ res = pce.metrics.evaluation_batch(labels_list, Y, time_list)
 print(res)
 
 print("====================Saving...====================")
-pce.io.save_results_csv(res, r"./data/workflow/isolet_1560n_617d_2c_CDKM200_CSPA.csv")
+pce.io.save_results_csv(res, r"./results/workflow/single/isolet_1560n_617d_2c_CDKM200_CSPA.csv")

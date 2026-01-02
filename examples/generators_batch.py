@@ -3,9 +3,8 @@ import os
 import pce
 
 # ================= Configuration =================
-
 DATA_DIR = r"./data"
-OUT_ROOT = r"./data/generators"
+OUT_ROOT = r"./data"
 OVERWRITE = False
 
 COMMON_ARGS = {
@@ -42,7 +41,6 @@ METHODS = {
 }
 
 # ================= Main Logic =================
-
 # 1. Iterate through .mat files
 mat_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.mat')]
 print(f"Found {len(mat_files)} datasets: {mat_files}")
