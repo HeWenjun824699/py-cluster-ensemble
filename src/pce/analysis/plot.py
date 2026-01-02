@@ -23,19 +23,19 @@ def plot_2d_scatter(
         **kwargs: Any
 ) -> None:
     """
-    绘制 2D 散点图
+    Plot 2D Scatter Plot
 
     Args:
-        X: 特征矩阵，通常是 (n_samples, n_features) 的浮点数数组
-        labels: 标签向量，通常是 (n_samples,) 的整数数组
-        method: 降维方法，字符串，默认 'tsne'
-        title: 图表标题，可选字符串
-        save_path: 保存路径，可选字符串
-        **kwargs: 传递给降维算法的其他参数
+        X: Feature matrix, usually a float array of shape (n_samples, n_features)
+        labels: Label vector, usually an integer array of shape (n_samples,)
+        method: Dimensionality reduction method, string, default 'tsne'
+        title: Chart title, optional string
+        save_path: Save path, optional string
+        **kwargs: Other arguments passed to the dimensionality reduction algorithm
     """
     set_paper_style()
 
-    # 1. 降维处理
+    # 1. Dimensionality reduction
     n_samples, n_features = X.shape
     if n_features > 2:
         # print(f"[Analysis] Running {method.upper()} reduction from {n_features}d to 2d...")
@@ -47,28 +47,28 @@ def plot_2d_scatter(
     else:
         X_2d = X
 
-    # 2. 绘图
+    # 2. Plotting
     plt.figure(figsize=(8, 6))
 
-    # 使用 seaborn 处理颜色和图例，palette='tab10' 适合区分明显的类别
+    # Use seaborn for colors and legends, palette='tab10' is suitable for distinct categories
     sns.scatterplot(
         x=X_2d[:, 0],
         y=X_2d[:, 1],
         hue=labels,
         palette='tab10',
-        s=60,  # 点的大小
-        alpha=0.8,  # 透明度
-        edgecolor='w',  # 点的白边，增加对比度
+        s=60,  # Dot size
+        alpha=0.8,  # Transparency
+        edgecolor='w',  # White edge for dots to increase contrast
         legend='full'
     )
 
-    # 3. 装饰
+    # 3. Decoration
     plt.title(title if title else f'{method.upper()} Visualization (N={n_samples})')
 
     plt.xlabel(xlabel if xlabel else "")
     plt.ylabel(ylabel if ylabel else "")
 
-    # 优化图例位置
+    # Optimize legend position
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Cluster')
 
     save_fig(plt.gcf(), save_path)
@@ -89,25 +89,25 @@ def plot_coassociation_heatmap(
         show: Optional[bool] = True
 ):
     """
-    绘制排序后的共协矩阵热力图
+    Plot sorted co-association matrix heatmap
     """
     set_paper_style()
 
-    # 1. 计算共协矩阵 (S = 1 - Hamming Distance)
+    # 1. Calculate Co-association Matrix (S = 1 - Hamming Distance)
     # BPs: (N, M)
     # print("[Analysis] Calculating Co-association Matrix...")
     D_hamming = pairwise_distances(BPs, metric='hamming')
-    S = 1.0 - D_hamming  # 相似度矩阵 (0~1)
+    S = 1.0 - D_hamming  # Similarity matrix (0~1)
 
-    # 2. 关键：根据真实标签 Y 对矩阵进行排序
-    # 这样同类的样本就会聚在一起，形成对角线上的方块
+    # 2. Key: Sort matrix based on true labels Y
+    # So that samples of the same class cluster together, forming diagonal blocks
     sort_indices = np.argsort(Y)
     S_sorted = S[sort_indices][:, sort_indices]
 
-    # 3. 绘图
+    # 3. Plotting
     plt.figure(figsize=(7, 6))
 
-    # 使用 heatmap，颜色越深代表越相似
+    # Use heatmap, darker colors indicate higher similarity
     sns.heatmap(
         S_sorted,
         cmap='viridis',
@@ -140,37 +140,37 @@ def plot_metric_line(
         show: Optional[bool] = True
 ) -> None:
     """
-    绘制多轮实验的折线图 (Trace Plot)。
-    X轴为实验轮次(Run ID)，Y轴为指标得分。
+    Plot line chart (Trace Plot) for multiple experimental runs.
+    X-axis is Run ID, Y-axis is metric score.
 
     Args:
-        results_list: 实验结果列表
-        metrics: 要展示的指标，支持单个字符串或列表
+        results_list: List of experimental results
+        metrics: Metrics to display, supports single string or list
     """
     set_paper_style()
 
-    # 1. 参数标准化
+    # 1. Parameter standardization
     if isinstance(metrics, str):
         metrics = [metrics]
 
-    # 2. 数据转换
+    # 2. Data conversion
     df = pd.DataFrame(results_list)
-    n_runs = len(df)  # <--- 获取动态的实验轮数
+    n_runs = len(df)  # <--- Get dynamic number of experimental runs
 
-    # 检查指标
+    # Check metrics
     valid_metrics = [m for m in metrics if m in df.columns]
     if not valid_metrics:
         raise ValueError(f"None of {metrics} found in results.")
 
-    # 3. 增加“轮次”列 (Run ID)
+    # 3. Add "Run ID" column
     df['Run ID'] = range(1, n_runs + 1)
 
-    # 4. 转换长格式
+    # 4. Convert to long format
     df_melt = df.melt(id_vars=['Run ID'], value_vars=valid_metrics,
                       var_name='Metric', value_name='Score')
 
-    # 5. 绘图
-    plt.figure(figsize=(8, 6))  # <--- 高度稍微调大一点(从5改为6)，给底部的文字留出空间
+    # 5. Plotting
+    plt.figure(figsize=(8, 6))  # <--- Increase height slightly (from 5 to 6) to leave space for text at the bottom
 
     sns.lineplot(
         data=df_melt,
@@ -185,7 +185,7 @@ def plot_metric_line(
         markersize=8
     )
 
-    # 6. 装饰
+    # 6. Decoration
     plt.title(title if title else f'Performance Trace over {n_runs} Runs')
 
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(integer=True))
@@ -193,11 +193,11 @@ def plot_metric_line(
     plt.ylabel(ylabel if ylabel is not None else "")
     plt.grid(True, linestyle='--', alpha=0.5)
 
-    # 图例放外面
+    # Legend outside
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
     # # =================================================================
-    # # 新增：添加动态脚注说明
+    # # Added: Add dynamic footnote explanation
     # # =================================================================
     # caption_text = (
     #     f"Note: Results over {n_runs} independent runs, where each run uses a distinct non-overlapping subset of base partitions."
@@ -222,36 +222,36 @@ def plot_parameter_sensitivity(
         target_param: str,
         metric: Optional[str] = 'NMI',
         fixed_params: Optional[Dict[str, Any]] = None,
-        method_name: Optional[str] = None,  # 如果csv含多种方法，需指定一种
+        method_name: Optional[str] = None,  # If CSV contains multiple methods, specify one
         save_path: Optional[str] = None,
         show: Optional[bool] = True,
         show_values: Optional[bool] = True
 ):
     """
-    绘制单参数敏感性折线图（控制变量法）。
+    Plot single parameter sensitivity line chart (Control Variable Method).
 
     Args:
-        target_param: 研究的参数 (例如 't')
-        metric: Y轴: 评价指标
-        fixed_params: 用户手动指定的固定参数
-        method_name: 如果csv含多种方法，需指定一种
-        save_path: 图片保存路径
-        show: 图片绘制完成后是否弹出显示
-        show_values: 是否显示具体数值
+        target_param: Parameter to study (e.g., 't')
+        metric: Y-axis: Evaluation metric
+        fixed_params: User-specified fixed parameters
+        method_name: If CSV contains multiple methods, specify one
+        save_path: Image save path
+        show: Whether to pop up display after plotting
+        show_values: Whether to display specific values
 
-    逻辑：
-    1. 锁定特定算法。
-    2. 确定除了 target_param 以外还有哪些参数在变化。
-    3. 确定这些背景参数的固定值：
-       - 如果用户在 fixed_params 里指定了，就用用户的。
-       - 如果没指定，就自动选择该方法在全局最优结果下的参数值 (Best Practice)。
-    4. 筛选数据并绘图。
+    Logic:
+    1. Lock specific algorithm.
+    2. Determine which other parameters are changing besides target_param.
+    3. Determine fixed values for these background parameters:
+       - If specified by user in fixed_params, use user's.
+       - If not specified, automatically select parameter values at the global best result for that method (Best Practice).
+    4. Filter data and plot.
     """
 
-    # 1. 读取数据
+    # 1. Read data
     df = pd.read_csv(csv_file)
 
-    # 2. 筛选特定算法
+    # 2. Filter specific algorithm
     # if method_name:
     #     df = df[df['consensus_method'] == method_name]
 
@@ -259,53 +259,53 @@ def plot_parameter_sensitivity(
         print(f"Error: No data found for method '{method_name}'")
         return
 
-    # 3. 识别所有的超参数列 (你需要根据实际情况维护这个列表，或者自动检测)
-    # 自动检测逻辑：列名不在黑名单中，且nunique > 1
+    # 3. Identify all hyperparameter columns (you need to maintain this list or auto-detect)
+    # Auto-detection logic: Column name not in blacklist and nunique > 1
     exclude_cols = {'Dataset', 'Exp_id', 'Status', 'Total_Time', 'consensus_method',
                     'ACC', 'NMI', 'ARI', 'Purity', 'AR', 'RI', 'MI', 'HI', 'F-Score',
                     'Precision', 'Recall', 'Entropy', 'SDCS', 'RME', 'Bal', 'Time'}
 
     potential_params = [c for c in df.columns if c not in exclude_cols]
 
-    # 背景参数 = 所有潜在参数 - 目标参数
+    # Background parameters = All potential parameters - Target parameter
     background_params = [p for p in potential_params if p != target_param]
 
-    # [建议新增] 检查用户是否传入了无效参数并给予提示
+    # [Suggested Addition] Check if user passed invalid parameters and provide hint
     if fixed_params:
-        # 计算 CSV 里真正能用的参数集合
+        # Calculate valid parameter set in CSV
         valid_keys = set(background_params)
         user_keys = set(fixed_params.keys())
 
-        # 找出用户传了但 CSV 里没有的参数
+        # Find parameters passed by user but not in CSV
         ignored_keys = user_keys - valid_keys
 
         if ignored_keys:
-            print(f"Warning: 以下固定参数在 CSV 中未找到或无法使用，已被忽略: {ignored_keys}")
+            print(f"Warning: The following fixed parameters were not found in CSV or cannot be used, and have been ignored: {ignored_keys}")
 
-    # 4. 确定固定值 (Context Context)
+    # 4. Determine fixed values (Context Context)
     current_fixed = {}
 
-    # 先找到全局最优的那一行 (作为默认基准)
-    # idxmax 返回最大值的索引
+    # Find the global best row first (as default baseline)
+    # idxmax returns index of maximum value
     best_row_idx = df[metric].idxmax()
     best_row = df.loc[best_row_idx]
 
     for param in background_params:
-        # A. 用户指定了 -> 用用户的
+        # A. User specified -> Use user's
         if fixed_params and param in fixed_params:
             val = fixed_params[param]
             current_fixed[param] = val
-        # B. 用户没指定 -> 用最优行的数据 (Auto-Best)
+        # B. User not specified -> Use data from best row (Auto-Best)
         else:
-            # 注意：如果某参数列全是NaN (如 mcla 的 t)，直接忽略
+            # Note: If a parameter column is all NaN (e.g., t in mcla), ignore it
             if pd.isna(best_row[param]):
                 continue
             current_fixed[param] = best_row[param]
 
-    # 5. 构建筛选条件 Query
+    # 5. Build filter condition Query
     query_parts = []
     for param, val in current_fixed.items():
-        # 处理字符串还是数值的查询差异
+        # Handle query difference between string and number
         if isinstance(val, str):
             query_parts.append(f"{param} == '{val}'")
         else:
@@ -313,39 +313,39 @@ def plot_parameter_sensitivity(
 
     query_str = " & ".join(query_parts)
 
-    # 6. 执行筛选
+    # 6. Execute filter
     if query_str:
         plot_df = df.query(query_str).copy()
     else:
-        plot_df = df.copy()  # 没有背景参数，直接画
+        plot_df = df.copy()  # No background parameters, plot directly
 
-    # 排序，保证折线连贯
+    # Sort to ensure continuous line
     if not plot_df.empty:
         plot_df = plot_df.sort_values(by=target_param)
     else:
-        print(f"Error: 找不到符合条件的数据组合: {current_fixed}")
-        print("建议检查 fixed_params 是否在网格搜索空间内。")
+        print(f"Error: No data combination found matching condition: {current_fixed}")
+        print("Suggest checking if fixed_params is within grid search space.")
         return
 
-    # 7. 绘图
+    # 7. Plotting
     plt.figure(figsize=(10, 6))
     sns.lineplot(data=plot_df, x=target_param, y=metric, marker='o', linewidth=2)
 
-    # =========== [修改开始：添加数值标注] ===========
+    # =========== [Modification Start: Add value labels] ===========
     if show_values:
         for index, row in plot_df.iterrows():
             plt.text(
                 x=row[target_param],
                 y=row[metric],
-                s=f"{row[metric]:.4f}",  # 格式化字符串：保留4位小数
-                ha='center',  # 水平对齐：居中
-                va='bottom',  # 垂直对齐：在点上方
-                fontsize=10,  # 字体大小
+                s=f"{row[metric]:.4f}",  # Format string: Keep 4 decimal places
+                ha='center',  # Horizontal alignment: Center
+                va='bottom',  # Vertical alignment: Above the point
+                fontsize=10,  # Font size
                 color='black'
             )
-    # =========== [修改结束] ========================
+    # =========== [Modification End] ========================
 
-    # 标题生成：展示我们固定了什么
+    # Title generation: Show what we fixed
     fixed_info = ", ".join([f"{k}={v}" for k, v in current_fixed.items()])
     if fixed_info:
         plt.title(f"Sensitivity of {target_param} on {metric}\n(Fixed: {fixed_info})")

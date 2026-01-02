@@ -28,6 +28,7 @@
   - [6. 流水线 (Pipelines)](#pipelines)
   - [7. 网格搜索 (Grid)](#grid)
   - [8. 工具模块 (Utils)](#utils)
+  - [9. 应用模块 (Applications)](#applications)
   
 - [项目规划 (Roadmap)](#roadmap) 
 

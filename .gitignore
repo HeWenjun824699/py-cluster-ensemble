@@ -31,7 +31,7 @@ consensus_methods/
 applications_methods/
 
 # 8. 排除输出文件
-output/
+local_demo/output/
 
 # 9. 忽略generators和consensus中的old文件
 src/pce/*/old/
