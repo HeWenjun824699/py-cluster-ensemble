@@ -3,7 +3,7 @@ import pyreadr
 
 def load_rda_X_Y(rda_path):
     """
-    Load the standard SC3-Nature methods-2017 demo dataset 'yan.rda'.
+    Load the standard SC3-Nature methods-2017 examples dataset 'yan.rda'.
     
     This function bridges the gap between R's data format and Python's input requirements.
     It requires the 'pyreadr' library to be installed.
