@@ -1331,6 +1331,77 @@ ana.plot_parameter_sensitivity(
 
 </details>
 
+## <span id="applications">🧩 9. 应用模块 (pce.applications)</span>
+
+**领域特定应用模块，** 封装了针对特定数据领域的定制化聚类流程。该模块不仅包含核心集成算法，还集成了领域公认的预处理逻辑与后处理分析工具，旨在为特定科研场景提供端到端的解决方案。
+
+<details>
+<summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
+
+### 9.1 sc3 参数和返回值说明
+
+> **来源：** SC3: consensus clustering of single-cell RNA-seq data-Nature Methods-2017
+
+SC3 (Single-Cell Consensus Clustering) 算法的严格 Python 移植版接口。该方法通过多重数据变换与共识聚类提供高度稳健的划分结果，并内置了特征过滤、生物学统计分析以及基于 Tracy-Widom 理论的自动 K 值估计功能。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`X`** | **`np.ndarray`** | **必填** | **输入表达矩阵**<br>形状为 `(n_samples, n_features)`，对应原始研究中的 `counts` 或 `logcounts` 数据 |
+| `Y` | `Optional[np.ndarray]` | `None` | **真实标签 (可选)**<br>SC3 为严格无监督算法，此参数仅用于框架接口兼容，不参与计算 |
+| `nClusters` | `Optional[int]` | `None` | **目标簇数 (k)**<br>若为 `None`，则自动调用内部 `estimate_k` 逻辑进行估计 |
+| `gene_names` | `Union[List, np.ndarray]` | `None` | **特征/基因名称列表**<br>用于结果导出及分析。若为 `None`，则默认生成 `Gene_0, Gene_1...` |
+| `cell_names` | `Union[List, np.ndarray]` | `None` | **样本/细胞名称列表**<br>用于结果导出。若为 `None`，则默认生成 `Cell_0, Cell_1...` |
+| `output_directory`| `str` | `None` | **结果保存目录**<br>若提供路径，算法将自动导出包含 DE、Markers 和 Outliers 的 Excel 报告并生成 PNG 可视化图表 |
+| `gene_filter` | `bool` | `True` | **特征过滤开关**<br>是否开启基于 Dropout 比例的基因过滤逻辑 |
+| `pct_dropout_min` | `int` | `10` | **最小 Dropout 阈值**<br>过滤掉在样本中表达比例过低的特征 |
+| `pct_dropout_max` | `int` | `90` | **最大 Dropout 阈值**<br>过滤掉缺乏区分度的普遍表达特征 |
+| `d_region_min` | `float` | `0.04` | **维度区域下限**<br>用于定义特征空间投影范围的参数 $d$ |
+| `d_region_max` | `float` | `0.07` | **维度区域上限**<br>用于定义特征空间投影范围的参数 $d$ |
+| `svm_max` | `int` | `5000` | **SVM 模式阈值**<br>当样本量超过此值时启用 SVM 预测模式以加速计算 |
+| `svm_num_cells` | `int` | `None` | **SVM 训练样本数**<br>在 SVM 模式下手动指定用于训练的子集规模 |
+| `biology` | `bool` | `False` | **生物学分析开关**<br>是否计算差异表达 (DE)、标志特征 (Markers) 及离群点分数 |
+| `kmeans_nstart` | `int` | `1000` | **K-Means 重启数**<br>控制单次运行中的初始化尝试次数，以保证共识矩阵的稳定性 |
+| `kmeans_iter_max` | `int` | `1e9` | **K-Means 最大迭代次数**<br>单次聚类运行的收敛限制 |
+| `n_cores` | `int` | `None` | **并行核心数**<br>指定用于并行计算相似度与共识矩阵的 CPU 核心数量 |
+| `seed` | `int` | `2026` | **随机种子**<br>控制算法内部随机过程，确保结果可复现 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`labels`** | `np.ndarray` | **预测标签**<br>形状为 `(n_samples,)` 的一维数组，代表最终的共识划分结果 |
+| **`biology_res`** | `dict` | **分析结果字典**<br>包含 DE 基因、Markers 和 Outliers 的详细统计数据 |
+| **`time_cost`** | `float` | **耗时**<br>算法从数据输入到处理完成的总时长（秒） |
+
+### 9.2 fast_ensemble 参数和返回值说明
+
+> **来源：** FastEnsemble: Scalable ensemble clustering on large networks-PLOS-2025
+
+FastEnsemble 算法的高效集成接口，专为大规模网络/图数据（Network/Graph）的社区检测（Community Detection）设计。该方法通过在图结构上运行多次基础划分，并利用边修剪（Edge Pruning）与共识策略，实现在海量节点规模下的高线性扩展性。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`input_file`** | **`str`** | **必填** | **输入边列表文件路径**<br>指向包含图结构的 Edge-list 文件（如 `.txt` 或 `.csv`），每行通常为 `node1 node2` |
+| **`output_file`** | **`str`** | **必填** | **结果保存路径**<br>指定输出社区划分结果的 CSV 文件路径 |
+| `n_partitions` | `int` | `10` | **共识分区数**<br>对应核心算法中的 `n_p`，即在共识阶段生成的初始分区数量 |
+| `threshold` | `float` | `0.8` | **边修剪阈值**<br>对应核心算法中的 `tr`。用于共识图构建过程中的边权重过滤，取值范围 $[0, 1]$ |
+| `resolution` | `float` | `0.01` | **解析度参数**<br>Leiden 算法或 Louvain 算法的解析度（Resolution），用于控制社区划分的粒度 |
+| `algorithm` | `str` | `'leiden-cpm'` | **聚类算法选择**<br>支持 `'leiden-cpm'` (默认), `'leiden-mod'` 或 `'louvain'` |
+| `relabel` | `bool` | `False` | **节点重编号开关**<br>是否将图节点重新映射为从 $0$ 到 $N-1$ 的连续整数。若开启，输出结果将自动映射回原始 ID |
+| `delimiter` | `str` | `','` | **输出分隔符**<br>指定保存结果 CSV 文件时使用的分隔符 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`time_cost`** | `float` | **耗时**<br>算法从读取图结构到完成结果写入的总执行时间（单位：秒） |
+
+</details>
+
 ---
 
 ## <span id="roadmap">🎯 项目规划 (Roadmap)</span>
@@ -1463,4 +1534,8 @@ ana.plot_parameter_sensitivity(
 
    - [x] show_function_params.py（显示函数参数）
 
+9. 应用(applications)
+
+   - [x] sc3.py
+   - [x] fast_ensemble.py
    
