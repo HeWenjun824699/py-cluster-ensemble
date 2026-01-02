@@ -14,6 +14,7 @@ import argparse
 import multiprocessing as mp
 import leidenalg
 
+
 def check_consensus_graph(G, n_p, delta):
 	'''
 	This function checks if the networkx graph has converged.
@@ -22,9 +23,6 @@ def check_consensus_graph(G, n_p, delta):
 	n_p: number of partitions while creating G
 	delta: if more than delta fraction of the edges have weight != n_p then returns False, else True
 	'''
-
-
-
 	count = 0
 
 	for wt in nx.get_edge_attributes(G, 'weight').values():
@@ -158,8 +156,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 							else:
 								nextgraph[node][nbr]['weight'] = graph[node][nbr]['weight']
 
-
-
 			remove_edges = []
 			for u,v in nextgraph.edges():
 				if nextgraph[u][v]['weight'] < thresh*n_p:
@@ -167,13 +163,10 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 
 			nextgraph.remove_edges_from(remove_edges)
 
-
-
 			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
 				break
 
 			for _ in range(L):
-
 				node = np.random.choice(nextgraph.nodes())
 				neighbors = [a[1] for a in nextgraph.edges(node)]
 
@@ -189,14 +182,11 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 							if communities[a] == communities[b]:
 								nextgraph[a][b]['weight'] += 1
 
-
 			for node in nx.isolates(nextgraph):
 					nbr, weight = sorted(graph[node].items(), key=lambda edge: edge[1]['weight'])[0]
 					nextgraph.add_edge(node, nbr, weight = weight['weight'])
 
-
 			graph = nextgraph.copy()
-
 
 			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
 				break
@@ -258,7 +248,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 				break
 
 		elif (algorithm in ('infomap', 'lpm')):
-
 			nextgraph = graph.copy()
 
 			for u,v in nextgraph.edges():
@@ -269,7 +258,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 			if algorithm == 'lpm':
 				communities = [{frozenset(c) for c in nx_to_igraph(graph).community_label_propagation().as_cover()} for _ in range(n_p)]
 
-
 			for node, nbr in graph.edges():
 
 				for i in range(n_p):
@@ -279,15 +267,11 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 								nextgraph.add_edge(node, nbr, weight = 0)
 							nextgraph[node][nbr]['weight'] += 1
 
-
-
 			remove_edges = []
 			for u,v in nextgraph.edges():
 				if nextgraph[u][v]['weight'] < thresh*n_p:
 					remove_edges.append((u, v))
 			nextgraph.remove_edges_from(remove_edges)
-
-
 
 			for _ in range(L):
 				node = np.random.choice(nextgraph.nodes())
@@ -303,14 +287,12 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 							if a in communities[i] and b in communities[i]:
 								nextgraph[a][b]['weight'] += 1
 
-
 			graph = nextgraph.copy()
 
 			if check_consensus_graph(nextgraph, n_p = n_p, delta = delta):
 				break
 
 		elif (algorithm == 'cnm'):
-
 			nextgraph = graph.copy()
 
 			for u,v in nextgraph.edges():
@@ -319,7 +301,6 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 			communities = []
 			mapping = []
 			inv_map = []
-
 
 			for _ in range(n_p):
 
@@ -334,9 +315,7 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 
 				communities.append(G_igraph.community_fastgreedy(weights = 'weight').as_clustering())
 
-
 			for i in range(n_p):
-
 				edge_list = [(mapping[i][j], mapping[i][k]) for j,k in graph.edges()]
 
 				for node,nbr in edge_list:
@@ -350,14 +329,12 @@ def fast_consensus(G,  algorithm = 'louvain', n_p = 20, thresh = 0.2, delta = 0.
 					else:
 						nextgraph[a][b]['weight'] = graph[a][b]['weight']
 
-
 			remove_edges = []
 			for u,v in nextgraph.edges():
 				if nextgraph[u][v]['weight'] < thresh*n_p:
 					remove_edges.append((u, v))
 
 			nextgraph.remove_edges_from(remove_edges)
-
 
 			for _ in range(L):
 				node = np.random.choice(nextgraph.nodes())
