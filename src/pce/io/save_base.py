@@ -10,16 +10,16 @@ def save_base_mat(
         default_name: str = "base.mat"
 ):
     """
-    保存基聚类矩阵 (BPs) 和 真实标签 (Y) 到 .mat 文件。
+    Save Base Partitions (BPs) and true labels (Y) to a .mat file.
 
-    参数:
-        BPs (np.ndarray): 基聚类矩阵 (N样本 x M成员) -> 保存为变量 'members'
-        Y (np.ndarray): 真实标签 (N样本 x 1) -> 保存为变量 'Y'
-        output_path (str): 保存路径
-        default_name (str): 默认文件名，默认为 "base.mat"
+    Args:
+        BPs (np.ndarray): Base Partitions matrix (N samples x M members) -> saved as variable 'members'
+        Y (np.ndarray): True labels (N samples x 1) -> saved as variable 'Y'
+        output_path (str): Save path
+        default_name (str): Default filename, defaults to "base.mat"
     """
     try:
-        # --- 1. 路径处理 ---
+        # --- 1. Path handling ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
             final_path = os.path.join(output_path, default_name)
@@ -32,35 +32,35 @@ def save_base_mat(
         if not final_path.endswith('.mat'):
             final_path = os.path.splitext(final_path)[0] + '.mat'
 
-        # --- 2. 数据格式规范化 ---
+        # --- 2. Data format normalization ---
         if not isinstance(BPs, np.ndarray):
             BPs = np.array(BPs)
 
         if not isinstance(Y, np.ndarray):
             Y = np.array(Y)
 
-        # 强制转换为 double (np.float64)
+        # Force convert to double (np.float64)
         Y = Y.astype(np.float64)
 
-        # 【关键修改】强制 Y 为 N x 1 的列向量
-        # 即使传入的是 (N,) 或 (1, N)，这都会将其转为 (N, 1)
+        # [Key Modification] Force Y to be an N x 1 column vector
+        # Even if passed as (N,) or (1, N), it will be reshaped to (N, 1)
         if Y.ndim == 1:
             Y = Y.reshape(-1, 1)
         elif Y.shape[0] == 1 and Y.shape[1] > 1:
-            # 如果是 1 x N，转置为 N x 1
+            # If 1 x N, transpose to N x 1
             Y = Y.T
 
-        # 双重保险：检查 BPs 和 Y 的行数是否一致（N样本数应相同）
+        # Double check: Check if row counts of BPs and Y match (N samples should be the same)
         if BPs.shape[0] != Y.shape[0]:
             print(f"Warning: Sample count mismatch! BPs: {BPs.shape[0]}, Y: {Y.shape[0]}")
 
-        # --- 3. 构造保存字典 ---
+        # --- 3. Construct save dictionary ---
         save_dict = {
             'BPs': BPs,  # N x M
-            'Y': Y  # N x 1 (现在确保是列向量了)
+            'Y': Y  # N x 1 (now ensured to be a column vector)
         }
 
-        # --- 4. 保存 ---
+        # --- 4. Save ---
         scipy.io.savemat(final_path, save_dict)
         # print(f"Base clusterings saved to {final_path}")
 

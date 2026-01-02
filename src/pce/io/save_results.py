@@ -15,19 +15,19 @@ def save_results_csv(
         float_format: str = "%.4f"
 ):
     """
-    智能保存 CSV，支持自动追加均值和标准差，并用空行分隔。
-    改进点：
-    1. 支持直接传入单个 Dict（无需手动加 []）。
-    2. 只有一行数据时，自动将标准差设为 0，避免 NaN。
-    3. 遇到 None 或非数值列时自动跳过格式化，防止报错。
+    Smartly save to CSV, supporting automatic appending of mean and standard deviation, separated by empty lines.
+    Improvements:
+    1. Supports passing a single Dict directly (no need to manually wrap in []).
+    2. When there is only one row of data, automatically sets standard deviation to 0 to avoid NaN.
+    3. Automatically skips formatting when encountering None or non-numeric columns to prevent errors.
     """
     try:
-        # --- 输入兼容性处理 (新增) ---
-        # 如果用户只传了一个字典，自动把它变成列表
+        # --- Input compatibility handling (New) ---
+        # If the user passed only a dictionary, automatically wrap it in a list
         if isinstance(data, dict):
             data = [data]
 
-        # --- 1. 路径处理 (保持不变) ---
+        # --- 1. Path handling (Unchanged) ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
             final_path = os.path.join(output_path, default_name)
@@ -37,30 +37,30 @@ def save_results_csv(
             if parent_dir and not os.path.exists(parent_dir):
                 os.makedirs(parent_dir, exist_ok=True)
 
-        # --- 2. 数据处理 ---
+        # --- 2. Data processing ---
         df = pd.DataFrame(data)
         df.index = df.index + 1
 
         if add_summary and not df.empty:
-            # 2.1 先计算统计量
+            # 2.1 Calculate statistics first
             means = df.mean(numeric_only=True)
             stds = df.std(numeric_only=True, ddof=1).fillna(0)
 
             stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
 
-            # ================= [新增逻辑开始] =================
-            # 2.2 构造 Str 行：格式为 "Mean±Std" (数值*100后保留2位小数)
+            # ================= [New Logic Start] =================
+            # 2.2 Construct Str row: format as "Mean±Std" (value*100 then keep 2 decimal places)
             str_data = {}
             for col in df.columns:
                 if col in means.index:
-                    # 【修改点】判断列名是否包含 'time' (不区分大小写)
+                    # [Modification] Check if column name contains 'time' (case insensitive)
                     if 'time' in str(col).lower():
-                        # Time 列：不乘 100，保留 2 位小数
+                        # Time column: do not multiply by 100, keep 2 decimal places
                         m_val = means[col]
                         s_val = stds[col]
                         str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
                     else:
-                        # 指标列：乘 100，保留 2 位小数 (百分比格式)
+                        # Metric column: multiply by 100, keep 2 decimal places (percentage format)
                         m_val = means[col] * 100
                         s_val = stds[col] * 100
                         str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
@@ -68,32 +68,32 @@ def save_results_csv(
                     str_data[col] = ""
             str_row_df = pd.DataFrame([str_data], index=['Str'])
 
-            # 2.3 【关键修复】安全的格式化函数
-            # 如果 x 不是数字（比如 None 或字符串），直接返回 x，避免报错
+            # 2.3 [Key Fix] Safe formatting function
+            # If x is not a number (e.g. None or string), return x directly to avoid error
             def safe_format(x):
                 if isinstance(x, (int, float)) and not pd.isna(x):
                     return float_format % x
                 return x
 
-            # 使用 map 替代 applymap (Pandas 2.1+ 推荐用法，旧版本也没问题)
+            # Use map instead of applymap (Pandas 2.1+ recommendation, older versions are also fine)
             df_str = df.map(safe_format)
             stats_str = stats.map(safe_format)
 
-            # 2.4 构造空行
+            # 2.4 Construct empty row
             empty_row = pd.DataFrame(
                 [[''] * df.shape[1]],
                 columns=df.columns,
                 index=['']
             )
 
-            # 2.5 拼接
+            # 2.5 Concatenate
             df_final = pd.concat([df_str, empty_row, stats_str, str_row_df])
 
         else:
             df_final = df
 
-        # --- 3. 保存 ---
-        # na_rep='' 确保 None 被保存为空字符串而不是 'NaN'
+        # --- 3. Save ---
+        # na_rep='' ensures None is saved as empty string instead of 'NaN'
         df_final.to_csv(
             final_path,
             index=True,
@@ -113,19 +113,19 @@ def save_results_xlsx(
         output_path: str,
         default_name: str = "result.xlsx",
         add_summary: bool = True,
-        excel_format: str = "0.0000"  # Excel 的格式字符串，对应 %.4f
+        excel_format: str = "0.0000"  # Excel format string, corresponds to %.4f
 ):
     """
-    保存为 Excel (.xlsx) 格式。
-    优势：可以直接指定单元格显示格式，WPS/Excel 打开时即显示为 4 位小数，且保持数值类型。
+    Save as Excel (.xlsx) format.
+    Advantage: Can directly specify cell display format, shows as 4 decimal places when opened in WPS/Excel, and keeps numeric type.
     """
     try:
-        # --- [新增] 输入兼容性处理 ---
-        # 如果用户只传了一个字典，自动把它变成列表
+        # --- [New] Input compatibility handling ---
+        # If the user passed only a dictionary, automatically wrap it in a list
         if isinstance(data, dict):
             data = [data]
 
-        # --- 1. 路径处理 ---
+        # --- 1. Path handling ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
             final_path = os.path.join(output_path, default_name)
@@ -135,15 +135,15 @@ def save_results_xlsx(
             if parent_dir and not os.path.exists(parent_dir):
                 os.makedirs(parent_dir, exist_ok=True)
 
-        # 强制后缀名为 .xlsx (防止用户传了 .csv 路径进来)
+        # Force extension to be .xlsx (prevent user from passing .csv path)
         if not final_path.endswith('.xlsx'):
             final_path = os.path.splitext(final_path)[0] + '.xlsx'
 
-        # --- 2. 数据处理 ---
+        # --- 2. Data processing ---
         df = pd.DataFrame(data)
         df.index = df.index + 1
 
-        # 强制转 float，确保是数值类型
+        # Force convert to float, ensure numeric type
         numeric_cols = df.select_dtypes(include=np.number).columns
         df[numeric_cols] = df[numeric_cols].astype(float)
 
@@ -153,19 +153,19 @@ def save_results_xlsx(
 
             stats = pd.DataFrame({'Mean': means, 'Std': stds}).T
 
-            # ================= [新增逻辑开始] =================
-            # 构造 Str 行：格式为 "Mean±Std" (数值*100后保留2位小数)
+            # ================= [New Logic Start] =================
+            # Construct Str row: format as "Mean±Std" (value*100 then keep 2 decimal places)
             str_data = {}
             for col in df.columns:
                 if col in means.index:
-                    # 【修改点】判断列名是否包含 'time'
+                    # [Modification] Check if column name contains 'time'
                     if 'time' in str(col).lower():
-                        # Time 列：不乘 100，保留 2 位小数
+                        # Time column: do not multiply by 100, keep 2 decimal places
                         m_val = means[col]
                         s_val = stds[col]
                         str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
                     else:
-                        # 指标列：乘 100，保留 2 位小数 (百分比格式)
+                        # Metric column: multiply by 100, keep 2 decimal places (percentage format)
                         m_val = means[col] * 100
                         s_val = stds[col] * 100
                         str_data[col] = f"{m_val:.2f}±{s_val:.2f}"
@@ -173,47 +173,47 @@ def save_results_xlsx(
                     str_data[col] = ""
 
             str_row_df = pd.DataFrame([str_data], index=['Str'])
-            # ================= [新增逻辑结束] =================
+            # ================= [New Logic End] =================
 
-            # 构造空行
+            # Construct empty row
             empty_row = pd.DataFrame(
                 [[np.nan] * df.shape[1]],
                 columns=df.columns,
                 index=['']
             )
 
-            # 拼接：原始数据 -> 空行 -> 统计数据 -> Str行
-            # 注意：拼接后，因为有了 Str 行，这些列在 Pandas 内部会变成 object 类型
-            # 但不影响 xlsxwriter 将其中的 float 写入为数字
+            # Concatenate: Raw data -> Empty row -> Statistics -> Str row
+            # Note: After concatenation, because of the Str row, these columns will become object type in Pandas
+            # But it does not affect xlsxwriter writing the floats as numbers
             df = pd.concat([df, empty_row, stats, str_row_df])
 
-        # --- 3. 使用 XlsxWriter 引擎保存并设置格式 ---
-        # 这一步是关键：直接操作 Excel 的格式对象
+        # --- 3. Use XlsxWriter engine to save and set format ---
+        # This step is key: directly manipulate Excel format objects
         with pd.ExcelWriter(final_path, engine='xlsxwriter') as writer:
-            # 写入数据
+            # Write data
             df.to_excel(writer, index=True, index_label="Round", sheet_name='Result')
 
-            # 获取 workbook 和 worksheet 对象
+            # Get workbook and worksheet objects
             workbook = writer.book
             worksheet = writer.sheets['Result']
 
-            # 定义数字格式 (例如 "0.0000")
+            # Define number format (e.g. "0.0000")
             num_fmt = workbook.add_format({'num_format': excel_format})
 
-            # 定义表头格式 (可选：加粗、居中)
+            # Define header format (optional: bold, center)
             # header_fmt = workbook.add_format({'bold': True, 'align': 'center'})
 
-            # 智能设置列宽和格式
-            # enumerate(df.columns) 拿到的是数据列名
-            # 在 Excel 中，第 0 列是 Index ("Round")，数据列从第 1 列开始
+            # Smartly set column width and format
+            # enumerate(df.columns) gets data column names
+            # In Excel, column 0 is Index ("Round"), data columns start from column 1
             for i, col in enumerate(df.columns):
-                # 如果该列是数值列，应用格式
+                # If the column is numeric, apply format
                 if col in numeric_cols:
                     # set_column(first_col, last_col, width, cell_format)
-                    # i + 1 是因为第 0 列被 index 占用了
+                    # i + 1 is because column 0 is occupied by index
                     worksheet.set_column(i + 1, i + 1, 12, num_fmt)
                 else:
-                    # 非数值列，只设置宽度
+                    # Non-numeric column, only set width
                     worksheet.set_column(i + 1, i + 1, 12)
 
         # print(f"Results saved to {final_path}")
@@ -229,15 +229,15 @@ def save_results_mat(
         add_summary: bool = True
 ):
     """
-    保存为 .mat 格式。
-    改进：支持单行数据，修复 Std 为 NaN，自动处理 None 值。
+    Save as .mat format.
+    Improvement: Supports single row data, fixes Std being NaN, automatically handles None values.
     """
     try:
-        # --- 1. 输入兼容性处理 (新增) ---
+        # --- 1. Input compatibility handling (New) ---
         if isinstance(data, dict):
             data = [data]
 
-        # --- 2. 路径处理 ---
+        # --- 2. Path handling ---
         if output_path.endswith(('/', '\\')) or os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
             final_path = os.path.join(output_path, default_name)
@@ -250,49 +250,49 @@ def save_results_mat(
         if not final_path.endswith('.mat'):
             final_path = os.path.splitext(final_path)[0] + '.mat'
 
-        # --- 3. 数据处理 (升级) ---
-        # 【修改2】使用 DataFrame 处理数据，比 item.values() 更安全
-        # 它能自动把 None (如 Time) 变成 NaN，确保矩阵是数值类型
+        # --- 3. Data processing (Upgraded) ---
+        # [Modification 2] Use DataFrame to process data, safer than item.values()
+        # It can automatically turn None (like Time) into NaN, ensuring matrix is numeric type
         df = pd.DataFrame(data)
 
-        # 转换为 numpy float 矩阵
-        # 如果 Time 是 None，这里会变成 np.nan，不会报错
+        # Convert to numpy float matrix
+        # If Time is None, it will become np.nan here, no error
         results_mat = df.astype(float).values
 
-        # 构造基础保存字典
+        # Construct basic save dictionary
         save_dict = {'result': results_mat}
 
         if add_summary:
-            # --- 4. 统计计算 (修复 NaN 问题) ---
-            # 【修改3】使用 nanmean / nanstd 忽略 NaN 影响
+            # --- 4. Statistical calculation (Fix NaN issue) ---
+            # [Modification 3] Use nanmean / nanstd to ignore NaN effects
             summary_mean = np.nanmean(results_mat, axis=0)
 
-            # 计算标准差 (ddof=1)
+            # Calculate standard deviation (ddof=1)
             summary_std_raw = np.nanstd(results_mat, axis=0, ddof=1)
-            # 【核心修复】将 NaN (单行数据产生) 替换为 0.0
+            # [Core Fix] Replace NaN (generated by single row data) with 0.0
             summary_std = np.nan_to_num(summary_std_raw, nan=0.0)
 
-            # --- 5. 构造字符串列表 ---
+            # --- 5. Construct string list ---
             summary_str_list = []
             for i, (m, s) in enumerate(zip(summary_mean, summary_std)):
-                # 最后一列 (Time) 不乘 100
+                # Last column (Time) do not multiply by 100
                 if i == len(summary_mean) - 1:
                     val_str = f"{m:.2f}±{s:.2f}"
                 else:
                     val_str = f"{m * 100:.2f}±{s * 100:.2f}"
                 summary_str_list.append(val_str)
 
-            # 转为 numpy object 数组 (对应 MATLAB Cell Array)
+            # Convert to numpy object array (corresponds to MATLAB Cell Array)
             summary_str_arr = np.array(summary_str_list, dtype=object)
 
-            # 更新字典
+            # Update dictionary
             save_dict.update({
                 'result_summary': summary_mean,
                 'result_summary_std': summary_std,
                 'result_summary_str': summary_str_arr
             })
 
-        # --- 6. 保存 ---
+        # --- 6. Save ---
         scipy.io.savemat(final_path, save_dict)
         # print(f"Results saved to {final_path}")
 

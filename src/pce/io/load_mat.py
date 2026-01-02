@@ -6,18 +6,18 @@ from typing import Tuple, Optional, Union, List, Any
 
 
 # =========================================================================
-#  内部核心函数 (Private Core) - 负责处理 IO 和 MATLAB 版本兼容
+#  Private Core Functions - Responsible for IO and MATLAB Version Compatibility
 # =========================================================================
 
 def _load_mat_core(file_path: Union[str, Path], target_keys: List[str]) -> Any:
     """
-    (Internal) 尝试从 .mat 文件中读取指定的变量名列表中的任意一个。
+    (Internal) Attempts to read any one of the specified variable names list from the .mat file.
     """
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
 
-    # 内部帮助函数：在字典/h5对象中查找键
+    # Internal helper function: find key in dictionary/h5 object
     def find_variable(data_obj, keys):
         for key in keys:
             if key in data_obj:
@@ -25,19 +25,19 @@ def _load_mat_core(file_path: Union[str, Path], target_keys: List[str]) -> Any:
         return None
 
     try:
-        # 1. 尝试 scipy.io (< v7.3)
+        # 1. Try scipy.io (< v7.3)
         mat = scipy.io.loadmat(str(path))
         data = find_variable(mat, target_keys)
         if data is not None:
             return data
 
     except NotImplementedError:
-        # 2. 尝试 h5py (>= v7.3)
+        # 2. Try h5py (>= v7.3)
         try:
             with h5py.File(path, 'r') as f:
                 data = find_variable(f, target_keys)
                 if data is not None:
-                    # h5py 读取也是反的，需要转置
+                    # h5py reading is transposed, needs transposition
                     return np.array(data).T
         except Exception as e:
             raise IOError(f"Failed to read v7.3 mat file: {e}")
@@ -48,7 +48,7 @@ def _load_mat_core(file_path: Union[str, Path], target_keys: List[str]) -> Any:
 
 
 # =========================================================================
-#  公开接口 (Public APIs)
+#  Public APIs
 # =========================================================================
 
 def load_mat_X_Y(
@@ -57,33 +57,33 @@ def load_mat_X_Y(
         flatten_y: bool = True
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    加载原始特征数据 (X) 和标签 (Y)。
+    Load raw feature data (X) and labels (Y).
     """
-    # 定义搜索的变量名
+    # Define variable names to search for
     x_keys = ['X', 'data', 'fea', 'features', 'samples']
     y_keys = ['Y', 'label', 'gnd', 'labels', 'class']
 
-    # 调用核心加载逻辑
+    # Call core loading logic
     X = _load_mat_core(file_path, x_keys)
     Y = _load_mat_core(file_path, y_keys)
 
-    # 验证 X 是否存在
+    # Verify if X exists
     if X is None:
         raise IOError(f"Could not find feature matrix (keys tried: {x_keys}) in {file_path}")
 
-    # 验证 Y 是否存在 (部分无监督场景允许 Y 为空，根据你的需求决定是否报错)
+    # Verify if Y exists (some unsupervised scenarios allow Y to be empty, decide whether to error based on your needs)
     if Y is None:
         raise IOError(f"Could not find label vector (keys tried: {y_keys}) in {file_path}")
 
-    # --- 后处理 X ---
+    # --- Post-process X ---
     if ensure_x_float and X.dtype != np.float64:
         X = X.astype(np.float64)
 
-    # --- 后处理 Y ---
+    # --- Post-process Y ---
     if flatten_y:
         Y = Y.ravel()
 
-    # 智能转换 Y 的类型 (float int -> int)
+    # Smartly convert Y type (float int -> int)
     if np.issubdtype(Y.dtype, np.floating) and np.all(np.mod(Y, 1) == 0):
         Y = Y.astype(np.int64)
 
@@ -96,10 +96,10 @@ def load_mat_BPs_Y(
         flatten_y: bool = True
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    加载基聚类结果 (BPs) 和标签 (Y)。
+    Load Base Partitions (BPs) and labels (Y).
 
     Args:
-        fix_matlab_index: 如果检测到最小值为 1，是否自动减 1 以适应 Python (默认 True)
+        fix_matlab_index: If minimum value is detected as 1, automatically subtract 1 to adapt to Python (default True)
     """
     bps_keys = ['BPs', 'base_partitions', 'members', 'labels_mat']
     y_keys = ['Y', 'label', 'gnd', 'labels', 'class']
@@ -113,17 +113,17 @@ def load_mat_BPs_Y(
     if Y is None:
         raise IOError(f"Could not find label vector in {file_path}")
 
-    # --- 后处理 BPs ---
-    # 1. 确保是整数
+    # --- Post-process BPs ---
+    # 1. Ensure integer
     if np.issubdtype(BPs.dtype, np.floating):
         BPs = BPs.astype(np.int64)
 
-    # 2. 处理 MATLAB 1-based 索引
+    # 2. Handle MATLAB 1-based indexing
     if fix_matlab_index and np.min(BPs) == 1:
-        # 这是一个很棒的自动处理特性
+        # This is a great automatic handling feature
         BPs = BPs - 1
 
-    # --- 后处理 Y ---
+    # --- Post-process Y ---
     if flatten_y:
         Y = Y.ravel()
 
