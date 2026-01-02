@@ -16,16 +16,57 @@ from .. import analysis
 
 
 class GridSearcher:
+    """
+    Automated hyperparameter grid search engine for cluster ensemble experiments.
+
+    This class handles the execution of systematic experiments across multiple
+    datasets and parameter combinations. It features intelligent pruning of
+    mathematically redundant tasks and manages hierarchical logging and result
+    persistence for large-scale benchmarking.
+    """
+
     def __init__(self, input_dir: str, output_dir: str):
+        """
+        Initialize the GridSearcher with input and output directory configurations.
+
+        Parameters
+        ----------
+        input_dir : str
+            Path to the directory containing input datasets in .mat format. Supports
+            both raw features (X) and pre-computed base partitions (BPs).
+        output_dir : str
+            Root directory where experimental summaries, per-task logs, and
+            visualizations will be stored. Subdirectories are automatically created
+            for each dataset.
+        """
+
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _filter_kwargs(self, func, all_params: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
         """
-        Core magic: Extract required parameters from a large dictionary based on the function signature.
-        Returns: (valid_params, ignored_keys)
+        Extract valid keyword arguments for a specific function from a generic dictionary.
+
+        Utilizes Python's `inspect` module to match provided keys with the function's
+        signature, ensuring that only relevant parameters are passed to algorithms.
+
+        Parameters
+        ----------
+        func : callable
+            The target function (e.g., a consensus or generator method).
+        all_params : Dict[str, Any]
+            A superset of parameters collected from grid and fixed configs.
+
+        Returns
+        -------
+        valid_params : Dict[str, Any]
+            Dictionary containing only parameters accepted by `func`.
+        ignored_keys : List[str]
+            List of parameter names that were present in `all_params` but not
+            required by `func`.
         """
+
         if func is None:
             return {}, []
 
@@ -45,7 +86,27 @@ class GridSearcher:
         return valid_params, ignored_keys
 
     def _setup_experiment_logger(self, log_path: Path) -> logging.Logger:
-        """Create an independent Logger for each experiment folder"""
+        """
+        Create and configure an independent logger for a specific experiment task.
+
+        This helper method initializes a dedicated logger for each individual grid
+        search task, setting up a file handler to record execution details directly
+        into the experiment's output folder. This ensures full traceability and
+        debugging capability for every parameter combination.
+
+        Parameters
+        ----------
+        log_path : Path
+            The file system path (typically 'run.log' within the experiment directory)
+            where the execution logs will be persisted.
+
+        Returns
+        -------
+        logger : logging.Logger
+            A configured logger instance equipped with a file handler and a
+            standardized timestamp-based message formatter.
+        """
+
         logger = logging.getLogger(str(log_path))
         logger.setLevel(logging.INFO)
         logger.handlers = []  # Clear old handlers
@@ -58,7 +119,29 @@ class GridSearcher:
         return logger
 
     def _compute_avg_metrics(self, metrics_res: Any) -> Dict[str, float]:
-        """Internal function: Process metrics results."""
+        """
+        Process raw metrics results and compute the mean values across multiple runs.
+
+        This function handles the aggregation of performance indicators (e.g., ACC,
+        NMI, ARI) from multiple independent experiment repetitions. It converts
+        raw list-based metrics into a summarized dictionary of averages, which is
+        essential for generating the final grid search summary table.
+
+        Parameters
+        ----------
+        metrics_res : Any
+            The raw metrics data to be processed. Supports two formats:
+            - List[Dict]: Multiple dictionaries from a batch evaluation (nRepeat runs).
+            - Dict: A single dictionary from a one-off evaluation.
+
+        Returns
+        -------
+        avg_metrics : Dict[str, float]
+            A dictionary mapping each metric name (key) to its calculated average
+            value (float). Returns an empty dictionary if the input is empty or
+            invalid.
+        """
+
         if isinstance(metrics_res, list):
             if not metrics_res:
                 return {}
@@ -70,11 +153,26 @@ class GridSearcher:
 
     def _prune_combinations(self, raw_combinations: List[Dict], fixed_params: Dict) -> List[Dict]:
         """
-        [New Feature] Intelligent Deduplication & Parameter Cleaning
-        Logic:
-        1. Deduplication: Skip if parameter changes are invalid for the current generator and consensus.
-        2. Cleaning: Remove redundant parameters not needed by the current method in the retained tasks.
+        Perform intelligent deduplication and cleaning of task combinations.
+
+        By generating a mathematical 'signature' for each task (based on the effective
+        parameters of the chosen generator and consensus method), this function
+        eliminates redundant runs that would yield identical results.
+
+        Parameters
+        ----------
+        raw_combinations : List[Dict]
+            The initial list of all parameter combinations (Cartesian product).
+        fixed_params : Dict
+            Fixed experimental settings used to determine method signatures.
+
+        Returns
+        -------
+        valid_tasks : List[Dict]
+            A pruned list of unique tasks, with redundant parameters removed
+            from each task's configuration dictionary.
         """
+
         valid_tasks = []
         seen_signatures = set()
 
@@ -148,6 +246,30 @@ class GridSearcher:
         return valid_tasks
 
     def run(self, param_grid: Dict[str, List[Any]], fixed_params: Dict[str, Any] = None):
+        """
+        Execute the grid search based on the provided parameter grid and fixed settings.
+
+        This method generates a Cartesian product of all parameters in `param_grid`,
+        prunes redundant combinations to save computation time, and iterates through
+        all datasets to perform the ensemble experiments.
+
+        Parameters
+        ----------
+        param_grid : Dict[str, List[Any]]
+            Dictionary defining the search space. It must contain 'consensus_method'
+            and lists of hyperparameters to be swept (e.g., {'t': [10, 20], 'k': [5, 10]}).
+        fixed_params : Dict[str, Any], optional
+            Static parameters shared across all grid search tasks, such as
+            'generator_method', 'nBase', or 'seed'. Parameters in `param_grid`
+            take precedence over these fixed values if keys overlap.
+
+        Returns
+        -------
+        None
+            Summarized performance reports ('grid_summary.csv') and detailed per-task
+            outputs are saved to the `output_dir`.
+        """
+
         if fixed_params is None: fixed_params = {}
 
         # ================= NEW: Force fix consensus_method =================
