@@ -2,6 +2,8 @@
 Installation
 ============
 
+This section provides a comprehensive guide to setting up the py-cluster-ensemble (PCE) environment. It covers system requirements, standard installation procedures, and a detailed breakdown of the scientific library stack that powers PCE's core modules. By following these instructions, you will ensure a stable platform for cluster ensemble generation, consensus execution, and academic-grade data analysis.
+
 Requirements
 ------------
 

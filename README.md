@@ -244,7 +244,26 @@ ana.plot_parameter_sensitivity(
 | **`BPs`** | `np.ndarray` | **基聚类矩阵**<br>形状为 `(n_samples, n_estimators)`<br>数据会被强制转换为 `np.int64`，如果触发了 `fix_matlab_index`，返回的数据范围将从 0 开始 |
 | **`Y`** | `np.ndarray` | **标签向量**<br>形状通常为 `(n_samples,)`<br>同 `load_mat_X_Y` 中的 Y 处理逻辑 |
 
-### 1.3 save_base_mat 参数说明
+### 1.3 load_rda_X_Y 参数和返回值说明
+
+专门用于加载单细胞研究中的 `.rda` 格式数据集（如 `yan.rda`）。该函数实现了从 R 数据对象到 NumPy 数组的转换，并自动执行 SC3 流程所需的对数变换预处理。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`rda_path`** | **`Union[str, Path]`** | **必填** | **`.rda` 文件的路径**<br>该文件必须包含 R 对象 `'yan'` (表达数据) 和 `'ann'` (注释信息) |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| **`X`** | `np.ndarray` | **对数变换后的表达矩阵**<br>形状为 `(n_cells, n_genes)` |
+| **`Y`** | `np.ndarray` | **整数标签向量**<br>形状为 `(n_cells,)`。从 `'ann'` 对象派生，自动将字符串标签映射为从 0 开始的整数 |
+| **`gene_names`** | `np.ndarray` | **基因名称数组**<br>形状为 `(n_genes,)` |
+| **`cell_names`** | `np.ndarray` | **细胞标识符数组**<br>形状为 `(n_cells,)` |
+
+### 1.4 save_base_mat 参数说明
 
 将生成的基聚类矩阵和真实标签保存为 MATLAB 兼容的 `.mat` 文件，便于跨平台验证。
 
@@ -255,7 +274,7 @@ ana.plot_parameter_sensitivity(
 | **`output_path`** | **`str`** | **必填** | **输出路径**<br>支持智能识别：<br>**1. 目录路径** (以 `/` 或 `\` 结尾，或已存在的文件夹)：文件将保存到该目录下，文件名由 `default_name` 指定<br>**2. 文件路径** (如 `output/data.mat`)：直接保存为该文件，代码会自动补全 `.mat` 后缀并创建不存在的父目录 |
 | `default_name` | `str` | `"base.mat"` | **默认文件名**<br>仅当 `output_path` 被判定为目录时使用 |
 
-### 1.4 save_results_csv 参数说明
+### 1.5 save_results_csv 参数说明
 
 将实验结果列表导出为 CSV 文本文件，适合快速查看或作为轻量级数据交换格式。
 
@@ -267,7 +286,7 @@ ana.plot_parameter_sensitivity(
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
 | `float_format` | `str` | `"%.4f"` | **浮点数格式控制**<br>指定写入 CSV 时浮点数的精度。默认保留 4 位小数 |
 
-### 1.5 save_results_xlsx 参数说明
+### 1.6 save_results_xlsx 参数说明
 
 将实验结果导出为 Excel 文件，支持数值类型保留，便于后续在 Excel 中进行公式计算或制图。
 
@@ -279,7 +298,7 @@ ana.plot_parameter_sensitivity(
 | `add_summary` | `bool` | `True` | **是否追加统计摘要**<br>如果为 `True`，会在原始数据后插入一个**空行**，然后计算并追加所有数值列的 **均值 (Mean)** 和 **标准差 (Std)** |
 | `excel_format` | `str` | `"0.0000"` | **Excel 数值格式控制**<br>指定 Excel 单元格的数字显示格式字符串。例如 `"0.0000"` 表示显示 4 位小数<br>相比 CSV，此方式能保持单元格为**数值类型**（便于在 Excel 中进行求和等后续计算），而非纯文本 |
 
-### 1.6 save_results_mat 参数说明
+### 1.7 save_results_mat 参数说明
 
 将实验结果保存为 MATLAB 结构化数据，方便在 MATLAB 环境中加载并进行后续分析。
 
@@ -1445,6 +1464,7 @@ FastEnsemble 算法的高效集成接口，专为大规模网络/图数据（Net
 1. io
 
    - [x] load_mat.py（原始数据 / 基聚类）
+   - [x] load_rda.py（SC3数据）
    - [x] save_base.py（保存基聚类）
      - [x] save_base_mat.py（保存mat基聚类）
    - [x] save_results.py（保存结果）
@@ -1539,4 +1559,3 @@ FastEnsemble 算法的高效集成接口，专为大规模网络/图数据（Net
 
    - [x] sc3.py
    - [x] fast_ensemble.py
-   
