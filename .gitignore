@@ -1,40 +1,37 @@
 # .gitignore
 
-# 1. 排除 Python 编译文件
+# 1. Exclude Python compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# 2. 排除虚拟环境
+# 2. Exclude virtual environments
 .venv/
 venv/
 env/
 
-# 3. 排除 IDE 配置 (VSCode/PyCharm)
+# 3. Exclude IDE configurations (VSCode/PyCharm)
 .idea/
 .vscode/
 *.swp
 
-# 4. 排除打包产生的临时文件
+# 4. Exclude temporary packaging files
 dist/
 build/
 *.egg-info/
 
-# 5. 排除 macOS 垃圾文件
+# 5. Exclude macOS system files
 .DS_Store
 
-# 6. 排除本地测试文件
+# 6. Exclude local test files
 local_demo/
 
-# 7. 排除其他算法文件
+# 7. Exclude other algorithm files
 local_methods/
 
-# 8. 排除输出文件
-local_demo/output/
-
-# 9. 忽略generators和consensus中的old文件
+# 8. Ignore old files in generators and consensus
 src/pce/*/old/
 
-# 10. 排除文档打包文件
+# 9. Exclude documentation build files
 docs/_build/
 docs/*/generated/
