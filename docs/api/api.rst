@@ -120,6 +120,7 @@ Designed for research optimization, this module automates hyperparameter searchi
 
 .. autosummary::
     :toctree: generated/
+    :template: class.rst
     :nosignatures:
 
     grid.GridSearcher
