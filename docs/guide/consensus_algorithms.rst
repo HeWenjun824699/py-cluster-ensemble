@@ -2,31 +2,49 @@
 Consensus Algorithms
 ====================
 
-[cite_start]As the core engine of PCE, the consensus module implements a comprehensive range of algorithms (2003–2025) to derive final partitions from base clustering matrices[cite: 6].
+As the core engine of the PCE toolkit, the consensus module implements a comprehensive suite of algorithms spanning over two decades of research (2003–2025). These methods are designed to derive a single, robust consensus partition from a pool of diverse base clusterings.
 
 Algorithm Categories
 --------------------
 
-PCE categorizes its 27+ consensus algorithms into several technical families:
+PCE categorizes its 27+ consensus algorithms into several technical families based on their underlying theoretical frameworks:
 
 1. **Graph-Based Methods**:
-   * [cite_start]Classic algorithms like **CSPA**, **MCLA**, and **HGPA** (2003) which model the problem as graph or hypergraph partitioning[cite: 6].
-   * [cite_start]Modern weighted graph methods like **LWEA** and **LWGP** (2018)[cite: 6].
+
+   * **Classic Graph Partitioning**: Includes foundational algorithms like **CSPA**, **MCLA**, and **HGPA** (2003). These model the ensemble problem as a graph or hypergraph partitioning task to find the optimal cut.
+   * **Weighted Graph Methods**: Modern extensions such as **LWEA** and **LWGP** (2018), which introduce local weighting mechanisms to account for the varying reliability of base clusters.
+
 2. **Matrix & Tensor-Based Methods**:
-   * [cite_start]Methods that treat ensembles as low-rank approximation or tensor decomposition problems, such as **CELTA**, **GTLEC**, and **TRCE** (2021/2023)[cite: 6].
-3. **Optimized Linkage Methods**:
-   * [cite_start]Probability trajectory-based methods like **PTAAL**, **PTACL**, and **PTASL** (2016)[cite: 6].
+
+   * These methods treat the ensemble task as a optimization problem. Examples include **CELTA** (2021), **GTLEC** (2023), and **TRCE** (2021), which leverage low-rank matrix approximation or tensor decomposition to capture high-order correlations between samples and clusters.
+
+3. **Optimized Linkage & Probability Trajectories**:
+
+   * **Probability Trajectory (PT) Methods**: Includes **PTAAL**, **PTACL**, **PTASL**, and **PTGP** (2016). These algorithms use random walks on a co-association graph to define "probability trajectories," which are then used to optimize linkage criteria.
+
 4. **Advanced & Hybrid Strategies**:
-   * [cite_start]**SPACE (2024)**: Combines Active Learning with Self-Paced Learning for semi-supervised refinement[cite: 7].
-   * [cite_start]**CDEC (2025)**: Introduces balance-adaptive weighting to handle cluster size constraints[cite: 7].
+
+   * **Active & Self-Paced Learning**: **SPACE** (2024) integrates active learning to query informative constraints, combined with self-Paced learning to gradually incorporate them into the consensus process.
+   * **Adaptive Weighting**: **CDEC** (2025) introduces a balance-adaptive weighting mechanism to handle cluster size constraints and adaptive importance for different base partitions.
 
 Usage Pattern
 -------------
 
-Most consensus functions in PCE follow a standardized API:
+PCE is designed with a highly standardized API, ensuring that almost all consensus functions share a consistent calling signature. This uniformity allows researchers to easily swap different algorithms within a single pipeline for performance comparison.
 
 .. code-block:: python
 
-   labels_list, time_list = pce.consensus.method_name(BPs, nClusters=k, nBase=20, nRepeat=10)
+   import pce.consensus as con
 
-[cite_start]This design allows researchers to easily swap algorithms in a single pipeline to compare performance across different theoretical frameworks[cite: 6, 10].
+   # Standard calling pattern for consensus algorithms
+   # labels_list: list of predicted labels for each repetition
+   # time_list: list of execution times for each repetition
+   labels_list, time_list = con.cspa(
+       BPs,             # Base Partitions matrix (N x M)
+       nClusters=k,     # Target number of clusters
+       nBase=20,        # Number of base partitions used in each ensemble
+       nRepeat=10,      # Number of experiment repetitions
+       seed=2026        # Random seed for reproducibility
+   )
+
+By maintaining this consistent interface, PCE empowers users to conduct rigorous comparative studies across different theoretical frameworks (e.g., comparing a graph-based method with a tensor-based method) with minimal code changes.
