@@ -37,3 +37,4 @@ src/pce/*/old/
 
 # 10. 排除文档打包文件
 docs/_build/
+docs/*/generated/

@@ -32,11 +32,13 @@ sys.path.insert(0, os.path.abspath('../src'))
 
 # 2. 启用必要的扩展
 extensions = [
-    'sphinx.ext.autodoc',    # 自动提取 Docstrings
-    'sphinx.ext.napoleon',   # 必选：解析 NumPy/Google Style 注释
-    'sphinx.ext.mathjax',    # 必选：渲染 LaTeX 数学公式
-    'sphinx.ext.viewcode',   # 可选：在文档中显示源代码链接
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary'
 ]
+autosummary_generate = True
 
 # 3. 设置主题
 html_theme = 'sphinx_rtd_theme'
