@@ -33,6 +33,7 @@ researchers and the academic community.
    :maxdepth: 2
    :caption: Examples
 
+   examples/base_clustering_generation
    examples/batch_processing
    examples/grid_search_optimization
    examples/visualization_gallery
