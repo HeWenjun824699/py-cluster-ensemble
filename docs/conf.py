@@ -48,3 +48,12 @@ html_theme = 'sphinx_rtd_theme'
 napoleon_numpy_docstring = True
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+# 5. Mock heavy dependencies for Read the Docs
+autodoc_mock_imports = [
+    'igraph',
+    'leidenalg',
+    'community',
+    'pyreadr',
+    'fastcluster'
+]

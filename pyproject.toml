@@ -26,6 +26,9 @@ pandas = "^2.2"         # IO module dependency
 xlsxwriter = "^3.2"     # Used for formatted output in save_xlsx
 pyreadr = "^0.5.4"      # Used for reading RData files
 fastcluster = "^1.2.6"  # Used for fastcluster
+igraph = "^0.11"        # Graph algorithms for FastEnsemble
+leidenalg = "^0.10"     # Leiden algorithm for FastEnsemble
+python-louvain = "^0.16" # Louvain algorithm for FastEnsemble
 sphinx = { version = "^7.0", optional = true }
 sphinx-rtd-theme = { version = "^2.0", optional = true }
 nbsphinx = { version = "^0.9", optional = true }
