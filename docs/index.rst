@@ -1,6 +1,11 @@
 Welcome to PCE documentation!
 =======================================
 
+.. image:: _static/logo.png
+   :alt: PCE
+   :align: center
+   :width: 800px
+
 **py-cluster-ensemble (PCE)** is a comprehensive Python toolkit for cluster ensemble
 generation, consensus, and automated experimentation, specifically designed for
 researchers and the academic community.
