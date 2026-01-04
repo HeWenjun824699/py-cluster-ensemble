@@ -598,7 +598,7 @@ files = [
 
 [[package]]
 name = "matplotlib"
-version = "3.10.7"
+version = "3.7.5"
 description = "Python plotting package"
 optional = false
 python-versions = ">=3.10"

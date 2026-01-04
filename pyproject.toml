@@ -2,7 +2,7 @@
 name = "py-cluster-ensemble"
 version = "1.0.0"
 description = "A Python toolkit for Cluster Ensembles generation, consensus, and visualization."
-authors = ["PCE Team <your.email@example.com>"]
+authors = ["PCE Team 18534968246@163.com"]
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/HeWenjun824699/py-cluster-ensemble"
@@ -19,7 +19,7 @@ numpy = "^1.26"
 scipy = "^1.11"
 scikit-learn = "^1.3"
 networkx = "^3.2"       # Used for graph algorithms like CSPA/MCLA
-matplotlib = "^3.7.5"   # Used for visualization
+matplotlib = "~3.7.5"   # Used for visualization
 seaborn = "^0.13"       # Used for plotting high-quality consensus matrix heatmaps
 tqdm = "^4.66"          # Progress bar (useful for long-running ensemble algorithms)
 pandas = "^2.2"         # IO module dependency
