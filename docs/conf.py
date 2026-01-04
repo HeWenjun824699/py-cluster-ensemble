@@ -30,7 +30,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx_rtd_theme'
 ]
 autosummary_generate = True
 
