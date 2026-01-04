@@ -32,6 +32,10 @@ pytest = "^8.0"         # Testing framework
 pytest-cov = "^4.1"     # Coverage check
 ruff = "^0.3"           # Fast linting tool
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

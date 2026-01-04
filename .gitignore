@@ -1,37 +1,33 @@
-# .gitignore
-
-# 1. Exclude Python compiled files
+# Python compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# 2. Exclude virtual environments
+# Virtual environments
 .venv/
-venv/
-env/
 
-# 3. Exclude IDE configurations (VSCode/PyCharm)
+# IDE configurations (VSCode/PyCharm)
 .idea/
 .vscode/
 *.swp
 
-# 4. Exclude temporary packaging files
+# Temporary packaging files
 dist/
 build/
 *.egg-info/
 
-# 5. Exclude macOS system files
+# MacOS system files
 .DS_Store
 
-# 6. Exclude local test files
+# Local test files
 local_demo/
 
-# 7. Exclude other algorithm files
+# Other algorithm files
 local_methods/
 
-# 8. Ignore old files in generators and consensus
+# Old files in generators and consensus
 src/pce/*/old/
 
-# 9. Exclude documentation build files
+# Documentation build files
 docs/_build/
 docs/*/generated/
