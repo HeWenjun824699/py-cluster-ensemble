@@ -36,9 +36,9 @@ extensions = [
 autosummary_generate = True
 
 autodoc_default_options = {
-    'members': True,            # 确保显示类成员（如 run 方法）
-    'undoc-members': True,      # 显示没有 docstring 的成员（可选）
-    'show-inheritance': True,   # 显示继承关系
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
 }
 
 # 3. Set the HTML theme
