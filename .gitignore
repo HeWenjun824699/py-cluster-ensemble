@@ -31,3 +31,7 @@ src/pce/*/old/
 # Documentation build files
 docs/_build/
 docs/*/generated/
+
+# Coverage files
+.coverage
+htmlcov/
