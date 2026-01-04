@@ -1,6 +1,5 @@
-import pytest
-import numpy as np
 import pandas as pd
+
 from pce.analysis.plot import plot_2d_scatter, plot_coassociation_heatmap, plot_metric_line, plot_parameter_sensitivity
 
 

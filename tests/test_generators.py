@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+
 from pce.generators import litekmeans, cdkmeans, rskmeans, rpkmeans, bagkmeans, hetero_clustering
 
 
