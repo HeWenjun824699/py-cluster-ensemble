@@ -1,6 +1,13 @@
 Welcome to PCE documentation!
 =======================================
 
+.. attention::
+
+   **PRE-RELEASE DOCUMENTATION**
+   This toolkit (PCE) is currently under active development for academic submission.
+   The API is unstable and subject to change without notice.
+   Please do not cite or use this version for production.
+
 .. image:: _static/logo.png
    :alt: PCE
    :align: center
