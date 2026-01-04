@@ -1,8 +1,8 @@
 import numpy as np
-from .getAllSegs import getAllSegs
-from .simxjac import simxjac
-from .computePTS_II import computePTS_II
-from .Ncut.ncutW_2 import ncutW_2
+from pce.consensus.methods.ECPCS_TSMC_2021.getAllSegs import getAllSegs
+from pce.consensus.methods.ECPCS_TSMC_2021.simxjac import simxjac
+from pce.consensus.methods.ECPCS_TSMC_2021.computePTS_II import computePTS_II
+from pce.consensus.methods.ECPCS_TSMC_2021.Ncut.ncutW_2 import ncutW_2
 
 def ECPCS_MC(baseCls, t, K):
     """

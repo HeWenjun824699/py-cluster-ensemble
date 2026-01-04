@@ -1,7 +1,7 @@
 import numpy as np
-from .clstoclbs import clstoclbs
-from .checks import checks
-from .metis import metis
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.clstoclbs import clstoclbs
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.checks import checks
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.metis import metis
 
 
 def cspa(cls, k=None):

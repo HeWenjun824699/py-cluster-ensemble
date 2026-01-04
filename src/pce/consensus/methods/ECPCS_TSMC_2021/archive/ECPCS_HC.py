@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import squareform
-from .getAllSegs import getAllSegs
-from .simxjac import simxjac
-from .computePTS_II import computePTS_II
-from .getECA import getECA
+from pce.consensus.methods.ECPCS_TSMC_2021.getAllSegs import getAllSegs
+from pce.consensus.methods.ECPCS_TSMC_2021.simxjac import simxjac
+from pce.consensus.methods.ECPCS_TSMC_2021.computePTS_II import computePTS_II
+from pce.consensus.methods.ECPCS_TSMC_2021.getECA import getECA
 
 def ECPCS_HC(baseCls, t, K):
     """

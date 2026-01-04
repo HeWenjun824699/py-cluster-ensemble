@@ -73,7 +73,7 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
         _ensure_dir(file_path)
         g.savefig(file_path)
     
-    plt.show()
+    # plt.show()
 
 def plot_silhouette(consensus_matrix, labels, file_path=None):
     """
@@ -135,7 +135,7 @@ def plot_silhouette(consensus_matrix, labels, file_path=None):
     if file_path:
         _ensure_dir(file_path)
         plt.savefig(file_path)
-    plt.show()
+    # plt.show()
 
 def plot_expression(data, labels, file_path=None):
     """
@@ -184,7 +184,7 @@ def plot_expression(data, labels, file_path=None):
     if file_path:
         _ensure_dir(file_path)
         g.savefig(file_path)
-    plt.show()
+    # plt.show()
 
 def plot_de_genes(data, labels, de_genes_dict, p_val=0.01, file_path=None):
     """
@@ -242,7 +242,7 @@ def plot_de_genes(data, labels, de_genes_dict, p_val=0.01, file_path=None):
     if file_path:
         _ensure_dir(file_path)
         g.savefig(file_path)
-    plt.show()
+    # plt.show()
 
 def plot_markers(data, labels, marker_res, auroc_thr=0.85, p_val_thr=0.01, file_path=None):
     """
@@ -311,7 +311,7 @@ def plot_markers(data, labels, marker_res, auroc_thr=0.85, p_val_thr=0.01, file_
     if file_path:
         _ensure_dir(file_path)
         g.savefig(file_path)
-    plt.show()
+    # plt.show()
 
 def plot_cluster_stability(stability_indices, clusters, file_path=None):
     """
@@ -336,4 +336,4 @@ def plot_cluster_stability(stability_indices, clusters, file_path=None):
     if file_path:
         _ensure_dir(file_path)
         plt.savefig(file_path)
-    plt.show()
+    # plt.show()

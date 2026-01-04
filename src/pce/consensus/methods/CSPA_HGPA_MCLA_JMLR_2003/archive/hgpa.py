@@ -1,6 +1,6 @@
 import numpy as np
-from .cltoclb import cltoclb
-from .clhgraph import clhgraph
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.cltoclb import cltoclb
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.clhgraph import clhgraph
 
 
 def hgpa(cls, k=None):

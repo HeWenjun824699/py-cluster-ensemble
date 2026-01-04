@@ -1,7 +1,7 @@
 import numpy as np
-from .clstoclbs import clstoclbs
-from .clcgraph import clcgraph
-from .clbtocl import clbtocl
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.clstoclbs import clstoclbs
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.clcgraph import clcgraph
+from pce.consensus.methods.CSPA_HGPA_MCLA_JMLR_2003.clbtocl import clbtocl
 
 
 def mcla(cls, k=None):
