@@ -2,7 +2,7 @@
 name = "py-cluster-ensemble"
 version = "1.0.0"
 description = "A Python toolkit for Cluster Ensembles generation, consensus, and visualization."
-authors = ["Your Name <your.email@example.com>"]
+authors = ["PCE Team <your.email@example.com>"]
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/HeWenjun824699/py-cluster-ensemble"
