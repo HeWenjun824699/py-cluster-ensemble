@@ -4,6 +4,7 @@ from .rskmeans import rskmeans
 from .rpkmeans import rpkmeans
 from .bagkmeans import bagkmeans
 from .hetero_clustering import hetero_clustering
+from .spectral import spectral
 
 __all__ = [
     "litekmeans",
@@ -11,6 +12,7 @@ __all__ = [
     "rskmeans",
     "rpkmeans",
     "bagkmeans",
-    "hetero_clustering"
+    "hetero_clustering",
+    "spectral"
 ]
 

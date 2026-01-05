@@ -38,6 +38,7 @@ The generation module offers diverse strategies to construct base clustering poo
    generators.rpkmeans
    generators.bagkmeans
    generators.hetero_clustering
+   generators.spectral
 
 Consensus
 =========
@@ -75,6 +76,7 @@ As the core engine of the toolkit, this module implements a wide range of consen
     consensus.ceam
     consensus.space
     consensus.cdec
+    consensus.icsc
 
 Metrics
 =======
@@ -147,4 +149,6 @@ This module encapsulates end-to-end, domain-specific clustering solutions, integ
 
     applications.sc3
     applications.fast_ensemble
+    applications.icsc_mul_application
+    applications.icsc_sub_application
 

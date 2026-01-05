@@ -25,6 +25,7 @@ from .kcc_uh import kcc_uh
 from .ceam import ceam
 from .space import space
 from .cdec import cdec
+from .icsc import icsc
 
 __all__ = [
     "cspa",
@@ -53,5 +54,6 @@ __all__ = [
     "kcc_uh",
     "ceam",
     "space",
-    "cdec"
+    "cdec",
+    "icsc"
 ]
