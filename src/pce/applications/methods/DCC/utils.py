@@ -1,5 +1,5 @@
 import torch
-from coverage.sqldata import os
+import os
 from torch.utils.data import Dataset
 import numpy as np
 from sklearn.metrics import roc_auc_score

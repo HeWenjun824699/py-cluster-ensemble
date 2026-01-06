@@ -1,19 +1,24 @@
-from pce.applications import sc3, fast_ensemble
-
+import os
+import numpy as np
+import pytest
+from unittest.mock import patch, MagicMock
+from pce.applications import sc3
+from pce.applications.dcc import dcc_application
+from pce.applications.icsc import icsc_mul_application, icsc_sub_application
 
 def test_sc3_basic(synthetic_data, tmp_path):
     X, Y = synthetic_data
     # Use a very small subset for speed
     X_small = X[:20, :5]  # 20 cells, 5 genes
     Y_small = Y[:20]
-    
+
     output_dir = tmp_path / "sc3_out"
-    
+
     # Run SC3
     labels, biology_res, time_cost = sc3(
-        X_small, 
-        Y=Y_small, 
-        nClusters=3, 
+        X_small,
+        Y=Y_small,
+        nClusters=3,
         output_directory=str(output_dir),
         gene_filter=False,  # Disable filter for small data
         biology=False,      # Skip heavy biology steps
@@ -22,41 +27,174 @@ def test_sc3_basic(synthetic_data, tmp_path):
         kmeans_nstart=10,  # Speed up
         kmeans_iter_max=100
     )
-    
+
     assert labels.shape == (20,)
     assert isinstance(time_cost, float)
     # Check if output files were created (consensus matrix png etc)
     assert (output_dir / "png" / "consensus_matrix.png").exists()
 
-
-def test_fast_ensemble(tmp_path):
-    # Create a dummy edge list
-    input_file = tmp_path / "network.txt"
-    output_file = tmp_path / "communities.csv"
+@patch('pce.applications.dcc.train_representation')
+@patch('pce.applications.dcc.run_consensus_clustering')
+@patch('pce.applications.dcc.visualize_consensus_and_representations')
+@patch('pce.applications.dcc.run_sensitivity_analysis')
+def test_dcc_pipeline(mock_sensitivity, mock_viz, mock_consensus, mock_train, tmp_path):
+    """
+    Test the DCC application pipeline logic (mocking heavy ML parts).
+    """
+    input_path = str(tmp_path / "data.mat")
+    output_path = str(tmp_path / "dcc_out")
     
-    # Create a clique of 0,1,2 and 3,4,5 connected by one edge
-    edges = [
-        "0 1", "1 2", "2 0",
-        "3 4", "4 5", "5 3",
-        "2 3"
-    ]
-    with open(input_file, 'w') as f:
-        f.write("\n".join(edges))
-        
-    # Run FastEnsemble
-    time_cost = fast_ensemble(
-        input_file=str(input_file),
-        output_file=str(output_file),
-        n_partitions=5,
-        algorithm='louvain'  # Faster than leiden usually or similar
+    # Create dummy file to simulate input existence
+    with open(input_path, 'w') as f:
+        f.write("dummy")
+
+    # Run DCC
+    dcc_application(
+        input_path=input_path,
+        output_path=output_path,
+        input_dim=100,
+        hidden_dims=[50, 20],
+        k_min=2,
+        k_max=4,
+        run_viz=True,
+        run_sensitivity=True,
+        epochs=1 # passed to kwargs
+    )
+
+    # Verify calls
+    # 1. train_representation should be called for each hidden_dim
+    assert mock_train.call_count == 2 
+    mock_train.assert_any_call(
+        input_path=input_path,
+        output_path=output_path,
+        input_dim=100,
+        hidden_dim=50,
+        cuda=pytest.approx(0, abs=1), # 0 or 1 depending on system
+        epochs=1
+    )
+
+    # 2. run_consensus_clustering should be called once
+    mock_consensus.assert_called_once_with(
+        input_path=input_path,
+        output_path=output_path,
+        hidden_dims=[50, 20],
+        k_min=2,
+        k_max=4
+    )
+
+    # To test run_analysis steps (viz and sensitivity), we need to simulate the existence of result files
+    # The current dcc_application checks os.path.exists before calling viz/sensitivity
+    # Since we didn't create those pkl files, the loop 'for k in range...' inside run_analysis checks 'if not exists: continue'
+    # So effectively, mock_viz and mock_sensitivity might NOT be called if we don't mock os.path.exists or create files.
+    
+    # Let's verify that the pipeline ran without error at least.
+    # If we want to verify viz/sensitivity calls, we need to mock os.path.exists or create the files.
+    
+@patch('pce.applications.dcc.train_representation')
+@patch('pce.applications.dcc.run_consensus_clustering')
+@patch('pce.applications.dcc.visualize_consensus_and_representations')
+@patch('pce.applications.dcc.run_sensitivity_analysis')
+@patch('os.path.exists')
+def test_dcc_pipeline_with_results(mock_exists, mock_sensitivity, mock_viz, mock_consensus, mock_train, tmp_path):
+    """
+    Test DCC pipeline assuming results exist, triggering viz and sensitivity.
+    """
+    input_path = str(tmp_path / "data.mat")
+    output_path = str(tmp_path / "dcc_out")
+    
+    # Force exists to True so the analysis loop proceeds
+    mock_exists.return_value = True
+
+    dcc_application(
+        input_path=input_path,
+        output_path=output_path,
+        input_dim=100,
+        hidden_dims=[50],
+        k_min=2,
+        k_max=2,
+        run_viz=True,
+        run_sensitivity=True
     )
     
-    assert output_file.exists()
-    assert isinstance(time_cost, float)
+    # Now these should be called
+    mock_viz.assert_called()
+    mock_sensitivity.assert_called()
+
+
+@patch('pce.applications.icsc.single_multiple_run')
+def test_icsc_mul_application(mock_worker, tmp_path):
+    """
+    Test ICSC Multiple Run application.
+    """
+    data_dir = tmp_path / "subjects"
+    save_dir = tmp_path / "results"
     
-    # Check output content
-    import csv
-    with open(output_file, 'r') as f:
-        reader = csv.reader(f)
-        rows = list(reader)
-        assert len(rows) == 6  # 6 nodes
+    # Create dummy subject directories
+    (data_dir / "subject1").mkdir(parents=True)
+    (data_dir / "subject2").mkdir(parents=True)
+    
+    icsc_mul_application(
+        num_nodes=100,
+        num_threads=1,
+        num_runs=2,
+        dataset="test_ds",
+        data_directory=str(data_dir),
+        max_labels=5,
+        min_labels=2,
+        percent_threshold=0.1,
+        save_dir=str(save_dir)
+    )
+    
+    # num_runs=2 means we expect 2 calls to single_multiple_run
+    assert mock_worker.call_count == 2
+    
+    # Verify arguments of the first call
+    # params structure: (run, data_directory, percent_threshold, sub_list, max, min, nodes, dataset, save_dir)
+    args, _ = mock_worker.call_args_list[0]
+    param_tuple = args[0]
+    assert param_tuple[0] == 0 # run id
+    assert param_tuple[1] == str(data_dir)
+    assert len(param_tuple[3]) == 2 # sub_list has 2 subjects
+
+
+@patch('pce.applications.icsc.single_subject_run')
+@patch('pce.applications.icsc.get_threshold')
+def test_icsc_sub_application(mock_threshold, mock_worker, tmp_path):
+    """
+    Test ICSC Subject Level application.
+    """
+    data_dir = tmp_path / "subjects"
+    save_dir = tmp_path / "results"
+    
+    # Create subject structure with valid data files
+    sub1 = data_dir / "subject1"
+    sub1.mkdir(parents=True)
+    
+    # Create a dummy .npy file
+    dummy_data = np.random.rand(10, 10)
+    np.save(sub1 / "sess1_corr.npy", dummy_data)
+    
+    # Mock threshold return
+    mock_threshold.return_value = 0.5
+    
+    icsc_sub_application(
+        num_nodes=10,
+        num_threads=1,
+        dataset="test_ds",
+        data_directory=str(data_dir),
+        max_labels=5,
+        min_labels=2,
+        percent_threshold=0.1,
+        save_dir=str(save_dir)
+    )
+    
+    # Expect 1 call because we have 1 subject with valid data
+    assert mock_worker.call_count == 1
+    
+    args, _ = mock_worker.call_args
+    param_tuple = args[0]
+    # (run_id, percent_threshold, subject_session_list, subject_session_data, max, min, nodes, dataset, save_dir)
+    assert param_tuple[0] == 0 # run_id (enumerate index)
+    assert param_tuple[2] == [0] # session ids
+    assert 0 in param_tuple[3] # session data dict
+

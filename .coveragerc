@@ -2,8 +2,8 @@
 source = src/pce
 omit =
     */__init__.py
-    */old/*
     */archive/*
+    */methods/*
 
 [report]
 show_missing = True

@@ -3,13 +3,13 @@ import numpy as np
 from pce.consensus import (
     cspa, mcla, hgpa, ptaal, ptacl, ptasl, ptgp, lwea, lwgp, drec, usenc, celta,
     ecpcs_hc, ecpcs_mc, spce, trce, cdkm, mdecbg, mdechc, mdecsc, eccms, gtlec,
-    kcc_uc, kcc_uh, ceam, space, cdec
+    kcc_uc, kcc_uh, ceam, space, cdec, icsc, dcc
 )
 
 ALL_CONSENSUS_METHODS = [
     cspa, mcla, hgpa, ptaal, ptacl, ptasl, ptgp, lwea, lwgp, drec, usenc, celta,
     ecpcs_hc, ecpcs_mc, spce, trce, cdkm, mdecbg, mdechc, mdecsc, eccms, gtlec,
-    kcc_uc, kcc_uh, ceam, space, cdec
+    kcc_uc, kcc_uh, ceam, space, cdec, icsc, dcc
 ]
 
 
