@@ -6,6 +6,22 @@ import matplotlib.pyplot as plt
 def calculate_km(durations, events):
     """
     Calculates Kaplan-Meier survival curve and 95% Confidence Interval (Greenwood).
+
+    Parameters
+    ----------
+    durations : array-like
+        Array of time durations (time to event or censoring).
+    events : array-like
+        Array of event indicators (1 if event occurred, 0 if censored).
+
+    Returns
+    -------
+    tuple of numpy.ndarray
+        A tuple containing:
+        - times: The time points.
+        - survival: The survival probabilities.
+        - ci_lower: The lower bound of the 95% confidence interval.
+        - ci_upper: The upper bound of the 95% confidence interval.
     """
     df = pd.DataFrame({'T': durations, 'E': events}).sort_values('T')
     
@@ -57,11 +73,20 @@ def calculate_km(durations, events):
 def dcc_survival_analysis(csv_path, output_dir, output_filename='survival_analysis.png'):
     """
     Generates Kaplan-Meier survival curves.
-    
-    Args:
-        csv_path: Path to the CSV file (los, y, sub).
-        output_dir: Directory to save the plot.
-        output_filename: Name of the output file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to the CSV file (must contain columns 'los', 'y', 'sub').
+    output_dir : str
+        Directory to save the plot.
+    output_filename : str, optional
+        Name of the output file. Default is 'survival_analysis.png'.
+
+    Returns
+    -------
+    None
+        The function saves the plot to the specified directory.
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

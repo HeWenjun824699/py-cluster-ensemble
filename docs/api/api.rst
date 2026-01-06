@@ -153,4 +153,10 @@ This module encapsulates end-to-end, domain-specific clustering solutions, integ
     applications.icsc_mul_application
     applications.icsc_sub_application
     applications.dcc_application
+    applications.dcc_cluster_transfer
+    applications.dcc_relative_risk
+    applications.dcc_comorbidity_bubble
+    applications.dcc_KDIGO_circlize
+    applications.dcc_survival_analysis
+    applications.dcc_KDIGO_dynamic
 

@@ -5,6 +5,21 @@ import matplotlib.pyplot as plt
 from matplotlib.legend import Legend
 
 def get_num_proportion(data):
+    """
+    Extracts numerical values and proportions from string data.
+
+    Parameters
+    ----------
+    data : array-like
+        Input data containing strings in the format "number(proportion)".
+
+    Returns
+    -------
+    tuple of numpy.ndarray
+        A tuple containing two arrays:
+        - The extracted numerical values (n).
+        - The extracted proportions (p).
+    """
     data = np.array(data)
     n, p = [], []
     for line in data:
@@ -32,11 +47,20 @@ def get_num_proportion(data):
 def dcc_comorbidity_bubble(csv_path, output_dir, output_filename='comorbidity_bubble.png'):
     """
     Generates a bubble chart from comorbidity data.
-    
-    Args:
-        csv_path: Path to the CSV file (expected format: first col labels, rest "n(p%)").
-        output_dir: Directory to save the plot.
-        output_filename: Name of the output file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to the CSV file (expected format: first col labels, rest "n(p%)").
+    output_dir : str
+        Directory to save the plot.
+    output_filename : str, optional
+        Name of the output file. Default is 'comorbidity_bubble.png'.
+
+    Returns
+    -------
+    None
+        The function saves the plot to the specified directory.
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

@@ -6,11 +6,20 @@ import matplotlib.pyplot as plt
 def dcc_KDIGO_circlize(csv_path, output_dir, output_filename='KDIGO_circlize.png'):
     """
     Generates a Heatmap (proxy for Chord Diagram) showing relationship between Stages and Clusters.
-    
-    Args:
-        csv_path: Path to the CSV file.
-        output_dir: Directory to save the plot.
-        output_filename: Name of the output file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to the CSV file.
+    output_dir : str
+        Directory to save the plot.
+    output_filename : str, optional
+        Name of the output file. Default is 'KDIGO_circlize.png'.
+
+    Returns
+    -------
+    None
+        The function saves the plot to the specified directory.
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

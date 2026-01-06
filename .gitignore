@@ -19,14 +19,10 @@ build/
 # MacOS system files
 .DS_Store
 
-# Local test files
+# Local files
 local_demo/
-
-# Other algorithm files
 local_methods/
-
-# Old files in generators and consensus
-src/pce/*/old/
+local_old/
 
 # Documentation build files
 docs/_build/

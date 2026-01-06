@@ -11,32 +11,32 @@ pce.applications.dcc_application(
     seed=2026
 )
 
-# pce.applications.dcc_cluster_transfer(
-#     csv_path='./sample/cluster_transfer.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_cluster_transfer(
+    csv_path='./sample/cluster_transfer.csv',
+    output_dir='./outputs/sample'
+)
 
-# pce.applications.dcc_relative_risk(
-#     csv_path='./sample/rr.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_relative_risk(
+    csv_path='./sample/rr.csv',
+    output_dir='./outputs/sample'
+)
 
-# pce.applications.dcc_comorbidity_bubble(
-#     csv_path='./sample/com_iv.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_comorbidity_bubble(
+    csv_path='./sample/com_iv.csv',
+    output_dir='./outputs/sample'
+)
 
-# pce.applications.dcc_KDIGO_circlize(
-#     csv_path='./sample/KDIGO_circlize.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_KDIGO_circlize(
+    csv_path='./sample/KDIGO_circlize.csv',
+    output_dir='./outputs/sample'
+)
 
-# pce.applications.dcc_survival_analysis(
-#     csv_path='./sample/survival.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_survival_analysis(
+    csv_path='./sample/survival.csv',
+    output_dir='./outputs/sample'
+)
 
-# pce.applications.dcc_KDIGO_dynamic(
-#     csv_path='./sample/KDIGO_dynamic.csv',
-#     output_dir='./outputs/sample'
-# )
+pce.applications.dcc_KDIGO_dynamic(
+    csv_path='./sample/KDIGO_dynamic.csv',
+    output_dir='./outputs/sample'
+)

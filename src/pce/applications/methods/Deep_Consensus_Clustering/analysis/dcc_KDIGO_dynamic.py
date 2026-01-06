@@ -6,11 +6,20 @@ import matplotlib.pyplot as plt
 def dcc_KDIGO_dynamic(csv_path, output_dir, output_filename='KDIGO_dynamic.png'):
     """
     Generates a stacked bar chart (proxy for alluvial) showing AKI stage dynamics over time.
-    
-    Args:
-        csv_path: Path to the CSV file.
-        output_dir: Directory to save the plot.
-        output_filename: Name of the output file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to the CSV file.
+    output_dir : str
+        Directory to save the plot.
+    output_filename : str, optional
+        Name of the output file. Default is 'KDIGO_dynamic.png'.
+
+    Returns
+    -------
+    None
+        The function saves the plot to the specified directory.
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
