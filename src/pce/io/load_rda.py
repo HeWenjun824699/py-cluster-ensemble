@@ -2,7 +2,7 @@ import numpy as np
 import pyreadr
 
 def load_rda_X_Y(rda_path):
-    """
+    r"""
     Load the yan.rda example dataset from the SC3 Nature Methods 2017 study.
 
     This function bridges the gap between R's .rda data format and Python's

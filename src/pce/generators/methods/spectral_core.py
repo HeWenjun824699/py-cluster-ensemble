@@ -1,4 +1,6 @@
-﻿import numpy as np
+﻿import warnings
+
+import numpy as np
 from sklearn import cluster
 
 
@@ -31,14 +33,16 @@ def spectral_core(X, n_clusters, seed=2026, n_init=100, affinity='nearest_neighb
         np.random.seed(seed)
 
     try:
-        sc = cluster.SpectralClustering(
-            n_clusters=n_clusters,
-            random_state=seed,
-            n_init=n_init,
-            affinity=affinity,
-            assign_labels=assign_labels
-        )
-        labels = sc.fit_predict(X)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Graph is not fully connected")
+            sc = cluster.SpectralClustering(
+                n_clusters=n_clusters,
+                random_state=seed,
+                n_init=n_init,
+                affinity=affinity,
+                assign_labels=assign_labels
+            )
+            labels = sc.fit_predict(X)
     except Exception as e:
         # Fallback mechanism if svd fails (rare but possible with unconnected graphs)
         print(f"Spectral clustering failed with k={n_clusters}, error: {e}")

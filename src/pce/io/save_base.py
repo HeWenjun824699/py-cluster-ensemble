@@ -9,7 +9,7 @@ def save_base_mat(
         output_path: str,
         default_name: str = "base.mat"
 ):
-    """
+    r"""
     Save Base Partitions (BPs) and true labels (Y) to a MATLAB compatible .mat file.
 
     This function prepares ensemble data for cross-platform use by ensuring

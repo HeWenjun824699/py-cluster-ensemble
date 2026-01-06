@@ -1,5 +1,7 @@
 from typing import Optional
+
 import numpy as np
+
 from .methods.spectral_core import spectral_core
 from .utils.get_k_range import get_k_range
 
