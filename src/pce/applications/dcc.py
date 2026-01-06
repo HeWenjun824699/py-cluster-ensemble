@@ -162,7 +162,7 @@ def run_analysis(input_path, output_path, hidden_dims, k_min, k_max, run_viz=Tru
             visualize_consensus_and_representations(
                 results_dir=results_dir,
                 representations_dir=representations_dir,
-                output_dir=os.path.join(analysis_dir, 'analysis', f'k_{k}'),
+                output_dir=os.path.join(analysis_dir, f'k_{k}'),
                 k=k,
                 hidden_dims=hidden_dims
             )
@@ -173,7 +173,7 @@ def run_analysis(input_path, output_path, hidden_dims, k_min, k_max, run_viz=Tru
                 data_path=input_path,
                 results_dir=results_dir,
                 k=k,
-                output_dir=os.path.join(analysis_dir, 'analysis', f'k_{k}'),
+                output_dir=os.path.join(analysis_dir, f'k_{k}'),
                 n_bootstrapping=kwargs.get('n_bootstrapping', 100),  # Default lower for speed in pipeline
                 bootstrapping_proportion=kwargs.get('bootstrapping_proportion', 0.7)
             )
