@@ -2,10 +2,10 @@ import os
 import torch
 import traceback
 
-from .methods.Deep_Consensus_Clustering.get_representations import train_representation
-from .methods.Deep_Consensus_Clustering.consensus_clustering import run_consensus_clustering
-from .methods.Deep_Consensus_Clustering.visualize_consensus_and_representations import visualize_consensus_and_representations
-from .methods.Deep_Consensus_Clustering.sensitivity_analysis import run_sensitivity_analysis
+from .methods.DCC.get_representations import train_representation
+from .methods.DCC.consensus_clustering import run_consensus_clustering
+from .methods.DCC.visualize_consensus_and_representations import visualize_consensus_and_representations
+from .methods.DCC.sensitivity_analysis import run_sensitivity_analysis
 
 
 def dcc_application(input_path, output_path, input_dim, hidden_dims, k_min=3, k_max=10, run_viz=True, run_sensitivity=True, **kwargs):
