@@ -10,11 +10,28 @@ from .methods.Deep_Consensus_Clustering.sensitivity_analysis import run_sensitiv
 
 def dcc_application(input_path, output_path, input_dim, hidden_dims, k_min=3, k_max=10, run_viz=True, run_sensitivity=True, **kwargs):
     """
-    Deep Consensus Clustering Pipeline
-    args:
-        hidden_dims: list of integers, e.g. [3, 4, 5, ..., 12]
-        run_viz: Whether to run visualization.
-        run_sensitivity: Whether to run sensitivity analysis (requires labels in data).
+    Deep Consensus Clustering Pipeline.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    output_path : str
+        Path to save the output results.
+    input_dim : int
+        Dimension of the input features.
+    hidden_dims : list of int
+        List of hidden dimensions for the autoencoder, e.g. [3, 4, 5, ..., 12].
+    k_min : int, optional
+        Minimum number of clusters, by default 3.
+    k_max : int, optional
+        Maximum number of clusters, by default 10.
+    run_viz : bool, optional
+        Whether to run visualization, by default True.
+    run_sensitivity : bool, optional
+        Whether to run sensitivity analysis (requires labels in data), by default True.
+    **kwargs : dict
+        Additional keyword arguments passed to internal functions.
     """
     try:
         # Step 1: Representation Learning
@@ -36,12 +53,28 @@ def dcc_application(input_path, output_path, input_dim, hidden_dims, k_min=3, k_
 
 
 def run_representations(input_path, output_path, input_dim, hidden_dims, **kwargs):
+    """
+    Run the representation learning step (Step 1).
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    output_path : str
+        Path to save the output results.
+    input_dim : int
+        Dimension of the input features.
+    hidden_dims : list of int
+        List of hidden dimensions to iterate over.
+    **kwargs : dict
+        Additional arguments for the training function (e.g. epochs, lr).
+    """
     print("\n=== Step 1: Generating Representations ===")
 
     use_cuda = 1 if torch.cuda.is_available() else 0
     print(f"CUDA Available: {torch.cuda.is_available()} (use_cuda={use_cuda})")
 
-    # 循环调用函数生成不同维度的特征
+    # Loop to generate representations for different hidden dimensions
     for h_dim in hidden_dims:
         print(f"\n--> [Pipeline] Processing hidden_dims={h_dim}...")
 
@@ -56,9 +89,27 @@ def run_representations(input_path, output_path, input_dim, hidden_dims, **kwarg
 
 
 def run_consensus(input_path, output_path, hidden_dims, k_min=3, k_max=10, **kwargs):
+    """
+    Run the consensus clustering step (Step 2).
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    output_path : str
+        Path to save the output results.
+    hidden_dims : list of int
+        List of hidden dimensions used in the previous step.
+    k_min : int, optional
+        Minimum number of clusters, by default 3.
+    k_max : int, optional
+        Maximum number of clusters, by default 10.
+    **kwargs : dict
+        Additional arguments.
+    """
     print("\n=== Step 2: Consensus Clustering ===")
 
-    # 直接调用重构后的函数
+    # Call the refactored consensus clustering function directly
     run_consensus_clustering(
         input_path=input_path,
         output_path=output_path,
@@ -70,6 +121,28 @@ def run_consensus(input_path, output_path, hidden_dims, k_min=3, k_max=10, **kwa
 
 
 def run_analysis(input_path, output_path, hidden_dims, k_min, k_max, run_viz=True, run_sensitivity=True, **kwargs):
+    """
+    Run the analysis and visualization step (Step 3).
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input data file.
+    output_path : str
+        Path to save the output results.
+    hidden_dims : list of int
+        List of hidden dimensions.
+    k_min : int
+        Minimum number of clusters.
+    k_max : int
+        Maximum number of clusters.
+    run_viz : bool, optional
+        Whether to generate visualizations, by default True.
+    run_sensitivity : bool, optional
+        Whether to run sensitivity analysis, by default True.
+    **kwargs : dict
+        Additional arguments, e.g. 'n_bootstrapping', 'bootstrapping_proportion'.
+    """
     print("\n=== Step 3: Analysis & Visualization ===")
     
     results_dir = os.path.join(output_path, 'results/pkls')

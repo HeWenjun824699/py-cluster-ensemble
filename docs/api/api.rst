@@ -77,6 +77,7 @@ As the core engine of the toolkit, this module implements a wide range of consen
     consensus.space
     consensus.cdec
     consensus.icsc
+    consensus.dcc
 
 Metrics
 =======
@@ -151,4 +152,5 @@ This module encapsulates end-to-end, domain-specific clustering solutions, integ
     applications.fast_ensemble
     applications.icsc_mul_application
     applications.icsc_sub_application
+    applications.dcc_application
 

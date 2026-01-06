@@ -119,7 +119,7 @@ def worker_kmeans_dynamic(rep_path, k, i, seed=2026):
     Worker function for K-Means with dynamic path support.
     i: hidden_dimension (used to find the specific rep file)
     """
-    # 构建正确的文件路径
+    # Construct the correct file path
     file_path = os.path.join(rep_path, f'rep_{i}.pkl')
     with open(file_path, 'rb') as f:
         r = pickle.load(f)

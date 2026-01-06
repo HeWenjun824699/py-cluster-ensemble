@@ -9,25 +9,34 @@ from .utils.get_k_target import get_k_target
 
 def _compute_consensus_matrix(BPs: np.ndarray) -> np.ndarray:
     """
-    计算共识矩阵 (Co-association Matrix)。
-    BPs: (n_samples, n_base_partitions)
+    Compute the consensus matrix (Co-association Matrix).
+
+    Parameters
+    ----------
+    BPs : np.ndarray
+        Base partitions matrix of shape (n_samples, n_base_partitions).
+
+    Returns
+    -------
+    np.ndarray
+        Consensus matrix of shape (n_samples, n_samples).
     """
     n_samples, n_partitions = BPs.shape
     consensus_matrix = np.zeros((n_samples, n_samples), dtype=np.float32)
 
-    # 优化计算：逐个基聚类累加
-    # 相比于原代码的 n_samples 循环，这里按 n_partitions 循环通常更快
+    # Optimization: Iterate over base partitions
+    # Usually faster than iterating over n_samples compared to original code
     for i in range(n_partitions):
-        # 取出第 i 个基聚类结果 (n_samples,)
+        # Get the i-th base partition result (n_samples,)
         labels = BPs[:, i]
 
-        # 构造连接矩阵：如果在同一个簇，则为 1
-        # 利用广播机制: (N, 1) == (1, N) -> (N, N)
-        # 注意：这在 N 很大(>10000)时会爆内存，如果是大图需要用稀疏矩阵
+        # Construct connectivity matrix: 1 if in the same cluster, else 0
+        # Use broadcasting: (N, 1) == (1, N) -> (N, N)
+        # Note: This might cause memory issues if N is very large (>10000); sparse matrix needed for large graphs
         mat = (labels[:, None] == labels[None, :]).astype(np.float32)
         consensus_matrix += mat
 
-    # 归一化
+    # Normalize
     consensus_matrix /= n_partitions
     return consensus_matrix
 
@@ -45,20 +54,42 @@ def dcc(
     """
     DCC Consensus Strategy (K-Means on Co-association Matrix).
 
-    Parameters (Same as CSPA standard)
+    Parameters
     ----------
-    BPs : np.ndarray (n_samples, n_estimators)
-    ...
+    BPs : np.ndarray
+        Base partitions matrix of shape (n_samples, n_estimators).
+    Y : np.ndarray, optional
+        True labels, used only to infer the number of clusters if nClusters is not provided.
+    nClusters : int, optional
+        The target number of clusters. If None, it will be inferred from Y or default to valid range.
+    nBase : int, default=20
+        Number of base partitions to use in each repeat.
+    nRepeat : int, default=10
+        Number of repetitions (or chunks) to process.
+    seed : int, default=2026
+        Random seed for reproducibility.
+    return_matrix : bool, default=False
+        Whether to return the last computed consensus matrix.
+
+    Returns
+    -------
+    labels_list : List[np.ndarray]
+        List of predicted labels for each repetition.
+    time_list : List[float]
+        List of execution times for each repetition.
+    M : np.ndarray, optional
+        The consensus matrix from the last repetition, returned only if return_matrix is True.
     """
 
-    # 1. 索引处理 (1-based -> 0-based，虽然本算法不依赖数值本身，但保持习惯)
+    # 1. Index processing (1-based -> 0-based).
+    # Although this algorithm does not depend on the values themselves, maintaining consistency is good practice.
     if np.min(BPs) == 1:
         BPs = BPs - 1
 
     nSmp = BPs.shape[0]
     nTotalBase = BPs.shape[1]
 
-    # 获取目标聚类数
+    # Get target number of clusters
     nCluster = get_k_target(n_clusters=nClusters, y=Y)
 
     labels_list = []
@@ -77,17 +108,17 @@ def dcc(
         if end_idx > nTotalBase:
             end_idx = nTotalBase
 
-        # 切片获取当前 Ensemble 的基聚类
+        # Slice to get current Ensemble's base partitions
         BPi = BPs[:, start_idx:end_idx]
 
         t_start = time.time()
 
         try:
-            # --- DCC Consensus 核心逻辑 ---
-            # 1. 计算共识矩阵 (N x N)
+            # --- DCC Consensus Core Logic ---
+            # 1. Compute consensus matrix (N x N)
             M = _compute_consensus_matrix(BPi)
 
-            # 2. 在共识矩阵上运行 K-Means
+            # 2. Run K-Means on the consensus matrix
             kmeans = KMeans(n_clusters=nCluster, random_state=random_seeds[iRepeat], n_init=10)
             label_pred = kmeans.fit_predict(M)
 

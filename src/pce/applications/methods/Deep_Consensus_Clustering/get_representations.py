@@ -14,12 +14,12 @@ from .utils import AKIData, evaluate, get_embedding
 
 def train_representation(input_path, output_path, input_dim, hidden_dim, **kwargs):
     """
-    直接接收参数进行训练，未提供的参数将使用默认值。
+    Receive parameters directly for training; unspecified parameters will use default values.
     """
 
-    # 1. 定义默认参数配置 (对应原 argparse 的 default)
+    # 1. Define default parameter configuration (corresponding to original argparse defaults)
     cfg = {
-        # --- 路径参数 ---
+        # --- Path Parameters ---
         'input_path': input_path,
         'filename_train': 'data_train.pkl',
         'filename_valid': 'data_valid.pkl',
@@ -28,14 +28,14 @@ def train_representation(input_path, output_path, input_dim, hidden_dim, **kwarg
         'log_path': output_path + './runs',
         'output_path': output_path + "./representations",
 
-        # --- 训练参数 ---
+        # --- Training Parameters ---
         'pre_epoch': 1,
         'epoch': 100,
         'batch_size': 32,
         'lr': 1e-4,
         'dropout': 0.0,
 
-        # --- 模型参数 ---
+        # --- Model Parameters ---
         'input_dim': input_dim,
         'hidden_dims': hidden_dim,
         'n_layers': 1,
@@ -43,28 +43,28 @@ def train_representation(input_path, output_path, input_dim, hidden_dim, **kwarg
         'lambda_outcome': 10.0,
         'seed': 2026,
 
-        # --- 工具参数 ---
+        # --- Utility Parameters ---
         'cuda': 1 if torch.cuda.is_available() else 0
     }
 
-    # 2. 用用户传入的 kwargs 更新配置 (覆盖默认值)
-    # 例如：传入 n_layers=2 会覆盖上面的 'n_layers': 1
+    # 2. Update configuration with user-provided kwargs (override defaults)
+    # Example: passing n_layers=2 will override 'n_layers': 1 above
     cfg.update(kwargs)
 
-    # 3. 将字典转换为对象 (Namespace)
-    # 这样 model.py 里的 args.input_dim 就能正常工作了，不需要改 model 代码
+    # 3. Convert dictionary to object (Namespace)
+    # This way, args.input_dim in model.py works correctly without changing model code
     args = SimpleNamespace(**cfg)
 
-    # ================= 以下逻辑保持不变 =================
+    # ================= Logic below remains unchanged =================
 
-    # 设置随机种子
+    # Set random seed
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     if args.cuda:
         torch.cuda.manual_seed(args.seed)
 
-    # 路径处理
+    # Path handling
     if not args.input_path.endswith('/'):
         args.input_path += '/'
 
@@ -73,19 +73,19 @@ def train_representation(input_path, output_path, input_dim, hidden_dim, **kwarg
     path_data = args.input_path + args.filename_data
     path_test = args.input_path + args.filename_test
 
-    # 加载数据
+    # Load data
     data_train = AKIData(path_train)
     dataloader_train = DataLoader(data_train, batch_size=args.batch_size, shuffle=False)
     data_valid = AKIData(path_valid)
     dataloader_valid = DataLoader(data_valid, batch_size=args.batch_size, shuffle=True)
 
-    # 创建输出目录
+    # Create output directory
     if not os.path.isdir(args.output_path):
         os.makedirs(args.output_path)
 
     writer = SummaryWriter(args.log_path)
 
-    # 初始化模型 (Model 接收 args 对象)
+    # Initialize model (Model receives args object)
     model = Model(args)
 
     # Pretrain
@@ -115,7 +115,7 @@ def train_representation(input_path, output_path, input_dim, hidden_dim, **kwarg
             saved_iter = e
             saved_iter_list.append(saved_iter)
 
-    # 生成最终表示
+    # Generate final representation
     data = AKIData(path_data)
     dataloader = DataLoader(data, batch_size=args.batch_size, shuffle=False)
 

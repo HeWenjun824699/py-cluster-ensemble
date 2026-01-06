@@ -13,10 +13,10 @@ from ....consensus.dcc import dcc
 def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_max=10, **kwargs):
     """
     Args:
-        input_path: 数据集根目录
-        output_path: 输出根目录 (包含 representations 和 results)
-        hidden_dims: list, 之前生成表示时使用的 hidden_dims 列表
-        k_min, k_max: 聚类数范围
+        input_path: Dataset root directory
+        output_path: Output root directory (including representations and results)
+        hidden_dims: list, list of hidden_dims used during representation generation
+        k_min, k_max: Range of cluster numbers
     """
 
     cfg = {
@@ -25,7 +25,7 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
     cfg.update(kwargs)
     args = SimpleNamespace(**cfg)
 
-    # 1. 路径准备
+    # 1. Path preparation
     rep_folder = os.path.join(output_path, "representations")
     res_folder = os.path.join(output_path, "results")
     pkl_folder = os.path.join(res_folder, "pkls")
@@ -37,18 +37,18 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
     if not os.path.exists(png_folder):
         os.makedirs(png_folder)
 
-    # 2. 加载 Ground Truth (用于排序)
+    # 2. Load Ground Truth (for sorting)
     data_file = os.path.join(input_path, 'data.pkl')
     with open(data_file, 'rb') as f:
         data = pickle.load(f)
     y = np.array(data[1])
 
-    # 3. 初始化变量
+    # 3. Initialize variables
     cdf = []
     areas = []
     consensus_bars = []
 
-    # 确保 hidden_dims 是列表 (如果是 range 对象转为 list)
+    # Ensure hidden_dims is a list (convert to list if it's a range object)
     hidden_dims_list = list(hidden_dims)
     n_estimators = len(hidden_dims_list)
 
@@ -56,86 +56,86 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
 
     plt.figure()
 
-    # 4. 主循环：遍历不同的 K 值
+    # 4. Main loop: iterate through different K values
     for k in range(k_min, k_max):
         print(f"  Processing k={k}...")
 
-        # --- A. 生成基聚类 (Base Clustering) ---
-        # 这里的 i 对应 hidden_dims_list 中的每一个 hidden_dim
+        # --- A. Generate Base Clustering ---
+        # Here i corresponds to each hidden_dim in hidden_dims_list
         clusters = [worker_kmeans_dynamic(rep_folder, k, i, seed=args.seed) for i in
                     tqdm(hidden_dims_list, desc=f"Base Clustering k={k}")]
 
         """
-        旧逻辑:
+        Old Logic:
         
         clusters = np.array(clusters)  # Shape: [num_models, num_samples]
 
-        # --- B. 计算共识矩阵 (Consensus Matrix) ---
-        # 改为单线程执行：避免多进程传输大数组时的序列化开销和死锁风险
+        # --- B. Calculate Consensus Matrix ---
+        # Changed to single-threaded execution: avoid serialization overhead and deadlock risks when transferring large arrays in multiprocessing
         print(f"  Calculating Consensus Matrix for k={k}...")
 
-        # 直接使用列表推导式 (List Comprehension) 配合 tqdm 显示进度
+        # Use List Comprehension directly with tqdm to show progress
         m = [worker_m(clusters, i) for i in tqdm(range(clusters.shape[1]), desc="Building Matrix")]
 
-        # 归一化：除以基聚类模型的数量 (即 hidden_dims 的个数)
+        # Normalize: divide by the number of base clustering models (i.e., count of hidden_dims)
         m = np.array(m, dtype=np.float32) / len(hidden_dims_list)
 
-        # 保存原始共识矩阵
+        # Save original consensus matrix
         with open(os.path.join(res_folder, 'pkls', f'm_{k}.pkl'), 'wb') as f:
             pickle.dump(m, f)
 
-        # --- C. 最终聚类 (Final Clustering on Matrix) ---
+        # --- C. Final Clustering on Matrix ---
         model = KMeans(n_clusters=k, random_state=args.seed)
         model.fit(m)
         res = np.array(model.labels_)
 
-        # 根据死亡率排序 (re-labeling)
+        # Sort by mortality rate (re-labeling)
         res = correspond(res, y)
         """
 
-        # 转换为 dcc_consensus 需要的格式 (n_samples, n_estimators)
+        # Convert to format required by dcc_consensus (n_samples, n_estimators)
         BPs = np.array(clusters).T
 
-        # --- B & C. 替换为调用 dcc_consensus ---
-        # 我们设置 nRepeat=1，因为这里的逻辑是针对特定 k 的一次确定性分析
+        # --- B & C. Replaced with dcc_consensus call ---
+        # We set nRepeat=1 because the logic here is for a deterministic analysis of a specific k
         print(f"  Running DCC Consensus for k={k}...")
         labels_list, _, m = dcc(
             BPs=BPs,
             Y=None,
-            nClusters=k,  # 当前循环的 k
-            nBase=n_estimators,  # 基聚类数量
+            nClusters=k,  # Current loop k
+            nBase=n_estimators,  # Number of base clusters
             nRepeat=1,
             seed=args.seed,
             return_matrix=True
         )
 
-        # 获取结果 (因为 nRepeat=1, 取第一个)
+        # Get result (take the first one since nRepeat=1)
         res = labels_list[0]
 
-        # 保存原始共识矩阵 (保持原有逻辑)
+        # Save original consensus matrix (keep original logic)
         with open(os.path.join(res_folder, 'pkls', f'm_{k}.pkl'), 'wb') as f:
             pickle.dump(m, f)
 
-        # --- 后处理：根据 Ground Truth 排序 (Re-labeling) ---
+        # --- Post-processing: Sort by Ground Truth (Re-labeling) ---
         res = correspond(res, y)
 
         s = sorted(res)
         with open(os.path.join(res_folder, 'pkls', f'consensus_cluster_{k}.pkl'), 'wb') as f:
             pickle.dump(res, f)
 
-        # --- D. 计算统计指标 (CDF, PAC 等) ---
-        # 计算簇的边界 (用于可视化)
+        # --- D. Calculate statistical metrics (CDF, PAC, etc.) ---
+        # Calculate cluster boundaries (for visualization)
         c_num = []
         for i in range(1, len(s)):
             if s[i] != s[i - 1]:
                 c_num.append(i)
         c_num.append(len(s))
 
-        # 对矩阵进行排序以便可视化 (可选，此处主要为了计算指标)
+        # Sort matrix for visualization (optional, mainly for metric calculation here)
         m = m[:, res.argsort()]
         m = m[res.argsort(), :]
 
-        # 计算 Consensus Value (用于柱状图)
+        # Calculate Consensus Value (for bar plot)
         b = []
         for i in range(len(c_num)):
             if i == 0:
@@ -148,26 +148,26 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
                 b.append(area_sum / count if count > 0 else 0)
         consensus_bars.append(b)
 
-        # 计算 CDF
+        # Calculate CDF
         consensus_value = m.ravel()
         hist, bin_edges = np.histogram(consensus_value, bins=100, range=(0, 1))
-        # 修正直方图统计 (排除自身的对角线或微小误差，这里保留原逻辑)
+        # Correct histogram statistics (exclude diagonal or tiny errors, keeping original logic here)
         # hist[-1] -= m.shape[0]
 
         c = np.cumsum(hist / sum(hist))
         cdf.append(c)
 
-        # 绘图: CDF 曲线
+        # Plot: CDF Curve
         width = (bin_edges[1] - bin_edges[0])
         plt.plot(bin_edges[1:] - width / 2, c, label=f'k={k}')
 
-        # 计算 Area Under CDF
-        # 这里使用简单的矩形近似或梯形公式
-        delta_a = [h * width for h in c]  # 简化计算
+        # Calculate Area Under CDF
+        # Use simple rectangle approximation or trapezoidal formula here
+        delta_a = [h * width for h in c]  # Simplified calculation
         a = np.sum(delta_a)
         areas.append(a)
 
-    # 5. 保存图表
+    # 5. Save charts
     plt.xlim([0, 1])
     plt.ylim([0, 1])
     plt.grid()
@@ -178,11 +178,11 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
     plt.savefig(os.path.join(res_folder, 'pngs', 'cdf.png'), dpi=300)
     plt.close()
 
-    # Delta K 图
+    # Delta K Plot
     delta_k = []
     for i in range(len(areas)):
         if i == 0:
-            delta_k.append(areas[0])  # 或者 0，视定义而定
+            delta_k.append(areas[0])  # Or 0, depending on definition
         else:
             # Relative change calculation
             if areas[i - 1] != 0:
@@ -200,7 +200,7 @@ def run_consensus_clustering(input_path, output_path, hidden_dims, k_min=3, k_ma
     plt.savefig(os.path.join(res_folder, 'pngs', 'delta.png'), dpi=300)
     plt.close()
 
-    # Average Consensus 图
+    # Average Consensus Plot
     plt.figure()
     index = 0
     i_s = []
