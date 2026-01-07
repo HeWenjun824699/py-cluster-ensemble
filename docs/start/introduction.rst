@@ -11,7 +11,7 @@ Project Metadata
 
 * **Version**: 1.0.0
 * **License**: MIT
-* **Repository**: https://github.com/HeWenjun824699/py-cluster-ensemble
+* **Repository**: https://github.com/WenjunHe-ML/py-cluster-ensemble
 * **Target Audience**: Researchers, Data Scientists, and Academic Community.
 
 Core Capabilities
@@ -22,7 +22,7 @@ PCE fills the gap in the Python ecosystem for a unified ensemble clustering tool
 Extensive Algorithm Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Implements a wide range of **27+ consensus algorithms** spanning over two decades of research, covering the period from **2003 to 2025**. This includes classic graph-based methods (CSPA, MCLA), matrix/tensor decomposition, and the latest adaptive weighting strategies.
+Implements a wide range of **30+ consensus algorithms** spanning over two decades of research, covering the period from **2003 to 2025**. This includes classic graph-based methods (CSPA, MCLA), matrix/tensor decomposition, and the latest adaptive weighting strategies.
 
 Seamless MATLAB Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

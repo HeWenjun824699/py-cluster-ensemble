@@ -1,6 +1,6 @@
 import os
 
-from pce.applications.sc3 import sc3_application
+from pce.applications import sc3_application
 from pce.io.load_rda import load_rda_X_Y
 from pce.metrics.evaluation_single import evaluation_single
 from pce.io.save_results import save_results_csv, save_results_xlsx, save_results_mat

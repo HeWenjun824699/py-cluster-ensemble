@@ -7,7 +7,7 @@ As the core engine of the PCE toolkit, the consensus module implements a compreh
 Algorithm Categories
 --------------------
 
-PCE categorizes its 27+ consensus algorithms into several technical families based on their underlying theoretical frameworks:
+PCE categorizes its 30+ consensus algorithms into several technical families based on their underlying theoretical frameworks:
 
 1. **Graph-Based Methods**:
 

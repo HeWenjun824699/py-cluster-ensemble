@@ -52,6 +52,8 @@ For large-scale benchmarking, you may need to generate partitions using multiple
        "RPKM": pce.generators.rpkmeans,
        "BAGKM": pce.generators.bagkmeans,
        "HETCLU": pce.generators.hetero_clustering
+       "SC3": pce.generators.sc3_generator
+       "SPECTRAL": pce.generators.spectral
    }
 
    # Iterate through all datasets
