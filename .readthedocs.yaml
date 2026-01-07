@@ -17,3 +17,4 @@ sphinx:
 
 formats:
   - htmlzip
+  - pdf
