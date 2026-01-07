@@ -1397,30 +1397,84 @@ SC3 (Single-Cell Consensus Clustering) 算法的严格 Python 移植版接口。
 | **`biology_res`** | `dict` | **分析结果字典**<br>包含 DE 基因、Markers 和 Outliers 的详细统计数据 |
 | **`time_cost`** | `float` | **耗时**<br>算法从数据输入到处理完成的总时长（秒） |
 
-### 9.2 fast_ensemble 参数和返回值说明
+### 9.2 ICSC 参数和返回值说明
 
-> **来源：** FastEnsemble: Scalable ensemble clustering on large networks-PLOS-2025
+> **来源：** Iterative consensus spectral clustering improves detection of subject and group level brain functional modules-Scientific Reports-2020
 
-FastEnsemble 算法的高效集成接口，专为大规模网络/图数据（Network/Graph）的社区检测（Community Detection）设计。该方法通过在图结构上运行多次基础划分，并利用边修剪（Edge Pruning）与共识策略，实现在海量节点规模下的高线性扩展性。
+ICSC (Iterative Consensus Spectral Clustering) 是一种用于脑功能模块检测的迭代共识谱聚类算法。该模块包含群体级（Group Level）和个体级（Subject Level）两种应用模式，支持多进程并行处理。
+
+#### 9.2.1 icsc_mul_application (Group Level / Multiple Runs)
+
+用于执行群体级或多次独立运行的 ICSC 流程。
 
 **参数 (Parameters)**
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`input_file`** | **`str`** | **必填** | **输入边列表文件路径**<br>指向包含图结构的 Edge-list 文件（如 `.txt` 或 `.csv`），每行通常为 `node1 node2` |
-| **`output_file`** | **`str`** | **必填** | **结果保存路径**<br>指定输出社区划分结果的 CSV 文件路径 |
-| `n_partitions` | `int` | `10` | **共识分区数**<br>对应核心算法中的 `n_p`，即在共识阶段生成的初始分区数量 |
-| `threshold` | `float` | `0.8` | **边修剪阈值**<br>对应核心算法中的 `tr`。用于共识图构建过程中的边权重过滤，取值范围 $[0, 1]$ |
-| `resolution` | `float` | `0.01` | **解析度参数**<br>Leiden 算法或 Louvain 算法的解析度（Resolution），用于控制社区划分的粒度 |
-| `algorithm` | `str` | `'leiden-cpm'` | **聚类算法选择**<br>支持 `'leiden-cpm'` (默认), `'leiden-mod'` 或 `'louvain'` |
-| `relabel` | `bool` | `False` | **节点重编号开关**<br>是否将图节点重新映射为从 $0$ 到 $N-1$ 的连续整数。若开启，输出结果将自动映射回原始 ID |
-| `delimiter` | `str` | `','` | **输出分隔符**<br>指定保存结果 CSV 文件时使用的分隔符 |
+| **`num_nodes`** | **`int`** | **必填** | **图节点数**<br>脑网络中的节点数量（通常对应 ROI 的数量） |
+| **`num_threads`** | **`int`** | **必填** | **并行线程数**<br>用于并行执行独立运行的进程数量 |
+| **`num_runs`** | **`int`** | **必填** | **独立运行次数**<br>执行 ICSC 算法的重复次数 |
+| **`dataset`** | **`str`** | **必填** | **数据集名称**<br>用于标识当前处理的数据集，会影响日志和结果文件的命名 |
+| **`data_directory`** | **`str`** | **必填** | **数据目录路径**<br>包含受试者数据的文件夹路径，程序会自动扫描该目录下以 `subject` 开头的文件或目录 |
+| **`max_labels`** | **`int`** | **必填** | **最大聚类簇数**<br>搜索范围的上限 |
+| **`min_labels`** | **`int`** | **必填** | **最小聚类簇数**<br>搜索范围的下限 |
+| **`percent_threshold`** | **`float`** | **必填** | **连接阈值百分比**<br>用于对相关性矩阵进行阈值处理以构建图结构的百分比参数 |
+| **`save_dir`** | **`str`** | **必填** | **结果保存目录**<br>实验结果的输出路径 |
 
 **返回值 (Returns)**
 
 | 变量名 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| **`time_cost`** | `float` | **耗时**<br>算法从读取图结构到完成结果写入的总执行时间（单位：秒） |
+| - | `None` | **无返回值**<br>该函数作为主控制器，不直接返回数据。它会在控制台打印每个 Run 的完成状态，并将结果保存到 `save_dir` 指定的目录中 |
+
+#### 9.2.2 icsc_sub_application (Subject Level)
+
+用于执行个体级（Subject Level）的 ICSC 流程。该函数会自动加载受试者目录下的 Session 数据（`.npy` 格式），进行阈值预处理，并对每个受试者启动并行聚类任务。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`num_nodes`** | **`int`** | **必填** | **图节点数**<br>脑网络中的节点数量 |
+| **`num_threads`** | **`int`** | **必填** | **并行线程数**<br>用于并行处理不同受试者的进程数量 |
+| **`dataset`** | **`str`** | **必填** | **数据集名称**<br>标识数据集 |
+| **`data_directory`** | **`str`** | **必填** | **数据目录路径**<br>受试者数据的根目录。程序会遍历该目录下的 `subject*` 文件夹，并读取其中以 `_corr.npy` 结尾的 Session 文件 |
+| **`max_labels`** | **`int`** | **必填** | **最大聚类簇数**<br>搜索范围的上限 |
+| **`min_labels`** | **`int`** | **必填** | **最小聚类簇数**<br>搜索范围的下限 |
+| **`percent_threshold`** | **`float`** | **必填** | **连接阈值百分比**<br>预处理阶段用于计算二值化掩码的阈值 |
+| **`save_dir`** | **`str`** | **必填** | **结果保存目录**<br>结果输出路径 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| - | `None` | **无返回值**<br>该函数作为主控制器，不直接返回数据。它会在控制台打印每个 Subject ID 的完成状态，并将结果保存到磁盘 |
+
+### 9.3 DCC 参数和返回值说明
+
+> **来源：** Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation-IJMI-2024
+
+DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类的端到端分析流水线。该模块封装了从**特征学习 (AutoEncoder)**、**共识聚类 (Consensus)** 到**敏感度分析与可视化**的全过程。
+
+**参数 (Parameters)**
+
+| 参数名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **`input_path`** | **`str`** | **必填** | **输入数据路径**<br>原始数据文件的路径 |
+| **`output_path`** | **`str`** | **必填** | **结果输出根目录**<br>流水线会自动在该目录下创建 `results`, `representations`, `analysis` 等子目录 |
+| **`input_dim`** | **`int`** | **必填** | **输入特征维度**<br>数据的特征数量，用于构建神经网络输入层 |
+| **`hidden_dims`** | **`List[int]`** | **必填** | **隐藏层维度列表**<br>例如 `[3, 4, 5]`。算法会遍历列表中的每个维度作为 AutoEncoder 的瓶颈层大小，分别生成表示并进行后续集成 |
+| `k_min` | `int` | `3` | **最小聚类数**<br>分析范围的起始 K 值 |
+| `k_max` | `int` | `10` | **最大聚类数**<br>分析范围的结束 K 值 |
+| `run_viz` | `bool` | `True` | **是否运行可视化**<br>若为 `True`，将在 Step 3 生成共识矩阵热力图及表示学习的降维散点图 |
+| `run_sensitivity` | `bool` | `True` | **是否运行敏感度分析**<br>若为 `True`，将基于 Bootstrap 采样进行稳定性评估（注意：此步骤计算量较大） |
+| `**kwargs` | `dict` | - | **其他参数**<br>透传给内部训练函数的参数，如 `epochs`, `lr` (学习率), `n_bootstrapping` (敏感度分析采样次) 等 |
+
+**返回值 (Returns)**
+
+| 变量名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| - | `None` | **无返回值**<br>DCC 采用流水线模式运行，结果直接持久化到 `output_path`。包含：<br>1. **Representations**: 训练好的深度特征表示<br>2. **Results**: `.pkl` 格式的共识聚类结果<br>3. **Analysis**: 可视化图表与敏感度分析报告 |
 
 </details>
 

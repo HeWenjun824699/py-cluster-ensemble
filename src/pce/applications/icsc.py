@@ -8,8 +8,8 @@ from .methods.ICSC.utils import get_threshold
 
 
 def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
-                             data_directory, max_labels, min_labels,
-                             percent_threshold, save_dir):
+                         data_directory, max_labels, min_labels,
+                         percent_threshold, save_dir):
     """
     Main controller function: Prepare data and start multiprocessing pool.
 
