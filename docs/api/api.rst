@@ -38,6 +38,7 @@ The generation module offers diverse strategies to construct base clustering poo
    generators.rpkmeans
    generators.bagkmeans
    generators.hetero_clustering
+   generators.sc3_generator
    generators.spectral
 
 Consensus
@@ -76,6 +77,7 @@ As the core engine of the toolkit, this module implements a wide range of consen
     consensus.ceam
     consensus.space
     consensus.cdec
+    consensus.sc3
     consensus.icsc
     consensus.dcc
 
@@ -148,8 +150,7 @@ This module encapsulates end-to-end, domain-specific clustering solutions, integ
     :toctree: generated/
     :nosignatures:
 
-    applications.sc3
-    applications.fast_ensemble
+    applications.sc3_application
     applications.icsc_mul_application
     applications.icsc_sub_application
     applications.dcc_application
@@ -159,4 +160,3 @@ This module encapsulates end-to-end, domain-specific clustering solutions, integ
     applications.dcc_KDIGO_circlize
     applications.dcc_survival_analysis
     applications.dcc_KDIGO_dynamic
-

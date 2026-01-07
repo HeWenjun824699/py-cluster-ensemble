@@ -25,6 +25,7 @@ from .kcc_uh import kcc_uh
 from .ceam import ceam
 from .space import space
 from .cdec import cdec
+from .sc3 import sc3
 from .icsc import icsc
 from .dcc import dcc
 
@@ -56,6 +57,7 @@ __all__ = [
     "ceam",
     "space",
     "cdec",
+    "sc3",
     "icsc",
     "dcc"
 ]

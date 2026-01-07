@@ -2,6 +2,7 @@
 source = src/pce
 omit =
     */__init__.py
+    */archive/*
     */methods/*
 
 [report]

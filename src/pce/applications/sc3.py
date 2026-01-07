@@ -9,7 +9,7 @@ from .methods.SC3.analysis import organise_de_genes, organise_marker_genes, orga
 from .methods.SC3.export import sc3_export_results
 from .methods.SC3.plot import plot_consensus, plot_silhouette, plot_expression, plot_de_genes, plot_markers
 
-def sc3(
+def sc3_application(
         X: np.ndarray,
         Y: Optional[np.ndarray] = None,
         nClusters: Optional[int] = None,
@@ -30,71 +30,99 @@ def sc3(
         seed: int = 2026
 ) -> tuple[np.ndarray, dict, float]:
     """
-    SC3 (Single-Cell Consensus Clustering) wrapper for single-cell RNA-seq data.
+    Execute the SC3 (Single-Cell Consensus Clustering) pipeline on single-cell RNA-seq data.
 
-    A strict Python port of the original SC3 R package (Nature Methods, 2017).
-    It provides a robust consensus clustering framework for single-cell expression
-    data, incorporating gene filtering, multiple dimensionality reductions,
-    consensus aggregation, and biological downstream analysis.
+    This function serves as a Python wrapper for the SC3 algorithm originally published 
+    in Nature Methods (2017). It implements a consensus clustering framework tailored 
+    for single-cell expression data, including gene filtering, dimensionality reduction, 
+    consensus aggregation, and optional downstream biological analysis.
 
     Parameters
     ----------
     X : np.ndarray
-        Input expression matrix of shape (n_samples, n_features). Corresponds
-        to the 'counts' or 'logcounts' slot in the R package.
+        Input gene expression matrix of shape (n_samples, n_features), where `n_samples` 
+        represents cells and `n_features` represents genes. This corresponds to the 
+        'counts' or 'logcounts' matrix in the original R package.
     Y : np.ndarray, optional
-        True labels. Not used by the SC3 algorithm (strictly unsupervised),
-        retained in the signature only for framework interface compatibility.
+        True class labels for the samples. This parameter is not utilized by the 
+        unsupervised SC3 algorithm and is included primarily for interface consistency. 
+        Default is None.
     nClusters : int, optional
-        Target number of clusters (k). If None, it is automatically estimated
-        using Tracy-Widom theory (sc3_estimate_k).
-    gene_names : Union[List[str], np.ndarray], optional
-        List of gene symbols. If None, generated as 'Gene_0', 'Gene_1', etc.
-        Required for biological reports (DE/Markers).
-    cell_names : Union[List[str], np.ndarray], optional
-        List of cell identifiers. If None, generated as 'Cell_0', 'Cell_1', etc.
+        The target number of clusters (k). If None, the optimal number of clusters 
+        is automatically estimated using the Tracy-Widom theory. Default is None.
+    gene_names : list of str or np.ndarray, optional
+        A list or array of gene symbols corresponding to the columns of X. If None, 
+        names are generated as 'Gene_0', 'Gene_1', etc. Required for meaningful 
+        biological analysis reports (DE/Markers). Default is None.
+    cell_names : list of str or np.ndarray, optional
+        A list or array of cell identifiers corresponding to the rows of X. If None, 
+        names are generated as 'Cell_0', 'Cell_1', etc. Default is None.
     output_directory : str, optional
-        Path to save analysis results. If provided, the algorithm exports an
-        Excel report (DE, Markers, Outliers) and PNG visualizations.
+        Filesystem path to save analysis results. If provided, the function exports 
+        an Excel report (containing DE genes, marker genes, and outlier scores) and 
+        generates visualization plots (PNG format). Default is None.
     gene_filter : bool, default=True
-        Whether to perform gene filtering based on dropout percentages.
+        If True, performs gene filtering based on dropout percentages to remove 
+        rare or ubiquitous genes.
     pct_dropout_min : int, default=10
-        Minimum dropout percentage; genes expressed in fewer cells are filtered.
+        Minimum dropout percentage. Genes expressed in fewer than this percentage 
+        of cells are filtered out.
     pct_dropout_max : int, default=90
-        Maximum dropout percentage; ubiquitously expressed genes are filtered.
+        Maximum dropout percentage. Genes expressed in more than this percentage 
+        of cells (ubiquitous genes) are filtered out.
     d_region_min : float, default=0.04
-        Lower bound for the range of dimensions $d$ used in spectral clustering.
+        The lower bound of the interval for the number of eigenvectors (expressed 
+        as a fraction of total cells) used in spectral clustering.
     d_region_max : float, default=0.07
-        Upper bound for the range of dimensions $d$ used in spectral clustering.
+        The upper bound of the interval for the number of eigenvectors used in 
+        spectral clustering.
     svm_max : int, default=5000
-        Threshold for dataset size. If n_samples > `svm_max`, SVM prediction
-        mode is enabled for acceleration.
+        The maximum number of cells allowed before switching to SVM-based prediction. 
+        If the number of cells exceeds this threshold, a subset is used for clustering, 
+        and the rest are predicted using a Support Vector Machine.
     svm_num_cells : int, optional
-        Number of cells to use for training the SVM in large-scale mode.
+        The specific number of cells to use for the training set when SVM prediction 
+        mode is triggered (i.e., when n_samples > svm_max). If None, a default 
+        heuristic is used. Default is None.
     biology : bool, default=False
-        Whether to compute biological features such as DE genes, marker genes,
-        and outlier scores.
+        If True, computes biological features including differential expression (DE) 
+        genes, marker genes, and cell outlier scores.
     kmeans_nstart : int, default=1000
-        Number of random restarts for the K-means step to ensure stability.
-    kmeans_iter_max : int, default=1e9
-        Maximum number of iterations for the K-means algorithm.
+        The number of random initializations (restarts) for the K-means algorithm 
+        to maximize the probability of finding the global optimum.
+    kmeans_iter_max : int, default=1000000000
+        The maximum number of iterations allowed for a single run of the K-means 
+        algorithm.
     n_cores : int, optional
-        Number of CPU cores for parallel computation of the distance matrix.
+        The number of CPU cores to utilize for parallel computation, particularly 
+        for distance matrix calculations. If None, sequential processing is used. 
+        Default is None.
     seed : int, default=2026
-        Random seed for reproducibility of K-means and sampling processes.
+        The random seed used for initializing K-means and random sampling, ensuring 
+        reproducibility of results.
 
     Returns
     -------
     labels : np.ndarray
-        Predicted cluster labels of shape (n_samples,).
+        An array of shape (n_samples,) containing the predicted cluster labels 
+        for each cell.
     biology_res : dict
-        A dictionary containing statistics for Differential Expression (DE),
-        Marker genes, and Outlier scores.
+        A dictionary containing calculated biological statistics, including:
+        - 'de': Differential expression results.
+        - 'marker': Marker gene results.
+        - 'outlier': Outlier scores.
+        Returns an empty dictionary if `biology` is False and `output_directory` is None.
     time_cost : float
-        The total execution time in seconds.
+        The total wall-clock time consumed by the execution in seconds.
+
+    Notes
+    -----
+    The biological analysis (DE, markers, outliers) is computationally intensive. 
+    It is automatically enabled if `output_directory` is specified, regardless of 
+    the `biology` parameter value, to ensure there is data to export.
     """
 
-    # Run SC3-Nature methods-2017
+    # Initialize SC3 model (Nature Methods, 2017)
     start_time = time.time()
     try:
         model = SC3(
@@ -110,10 +138,10 @@ def sc3(
             seed=seed
         )
 
-        # If output_directory is set, force biology calculation to have something to export
+        # Force biology computation if output directory is specified to ensure exportable results
         run_biology = biology or (output_directory is not None)
 
-        # nClusters=None will trigger internal estimate_k()
+        # Run the model (nClusters=None triggers automatic k estimation via Tracy-Widom theory)
         labels, biology_res = model.run(
             n_clusters=nClusters,
             biology=run_biology,
@@ -123,14 +151,14 @@ def sc3(
 
         # Post-processing: Analysis and Export
         if output_directory is not None:
-            # Handle Gene Names (Filtering)
+            # Handle Gene Names (for export vs plotting)
             if gene_names is None:
                 original_gene_names = np.array([f"Gene_{i}" for i in range(X.shape[1])])
             else:
                 original_gene_names = np.array(gene_names)
             
-            # The model uses filtered data for plotting, so we need filtered names for plots
-            # But for export, we want FULL list.
+            # The model uses filtered data for plotting, so we need names aligned to the filtered matrix.
+            # However, for the exported Excel report, we want the full list of genes.
             if model.gene_mask is not None:
                 filtered_gene_names = original_gene_names[model.gene_mask]
             else:
@@ -142,19 +170,19 @@ def sc3(
             else:
                 cell_names = np.array(cell_names)
 
-            # Determine K
+            # Determine K (number of clusters found)
             k = len(np.unique(labels))
 
             cells_df = pd.DataFrame(index=cell_names)
             genes_df = pd.DataFrame({'feature_symbol': original_gene_names})
 
-            # Add Clusters to Cells DF
-            cells_df[f"sc3_{k}_clusters"] = labels + 1 # R uses 1-based indexing
+            # Add Cluster assignments to Cells DataFrame (convert to 1-based indexing for R consistency)
+            cells_df[f"sc3_{k}_clusters"] = labels + 1 
 
             if biology_res:
-                # Organise results (Full Dimensions)
+                # Organise biological results (mapped to full dimensions)
                 
-                # DE Genes
+                # Differential Expression (DE) Genes
                 de_df = organise_de_genes(biology_res, original_gene_names, k, model.gene_mask)
                 if de_df is not None:
                     genes_df = pd.merge(genes_df, de_df, on='feature_symbol', how='left')
@@ -164,43 +192,43 @@ def sc3(
                 if mark_df is not None:
                     genes_df = pd.merge(genes_df, mark_df, on='feature_symbol', how='left')
 
-                # Outliers
+                # Outlier Scores
                 outl_df = organise_outliers(biology_res, cell_names, k)
                 if outl_df is not None:
-                    # Merge by index
+                    # Merge by index (cell names)
                     cells_df = cells_df.merge(outl_df, left_index=True, right_index=True, how='left')
 
-                # Export Excel
+                # Export results to Excel
                 sc3_export_results(cells_df, genes_df, output_directory)
 
-            # Export Plots (Use Filtered Data)
+            # Generate and Export Visualization Plots (using Filtered Data)
             try:
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
 
-                # 1. Consensus Matrix
+                # 1. Consensus Matrix Plot
                 plot_consensus(
                     model.consensus_matrix,
                     labels=labels,
                     file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
                 )
 
-                # 2. Silhouette
+                # 2. Silhouette Plot
                 plot_silhouette(
                     model.consensus_matrix,
                     labels=labels,
                     file_path=os.path.join(output_directory, "png", "silhouette.png")
                 )
 
-                # 3. Gene Expression (Filtered data)
+                # 3. Gene Expression Plot (on filtered data)
                 plot_expression(
                     model.data,
                     labels=labels,
                     file_path=os.path.join(output_directory, "png", "expression.png")
                 )
 
-                # 4. DE Genes
-                # For plotting, we pass the raw p-values dictionary (which is aligned to FILTERED data)
+                # 4. DE Genes Heatmap
+                # Pass the raw DE p-values dictionary (aligned to filtered data)
                 if 'de' in biology_res:
                     plot_de_genes(
                         model.data,
@@ -209,8 +237,8 @@ def sc3(
                         file_path=os.path.join(output_directory, "png", "de_genes.png")
                     )
 
-                # 5. Marker Genes
-                # For plotting, we pass the raw marker dict (aligned to FILTERED data)
+                # 5. Marker Genes Heatmap
+                # Pass the raw marker dictionary (aligned to filtered data)
                 if 'marker' in biology_res:
                     plot_markers(
                         model.data,
@@ -223,7 +251,7 @@ def sc3(
                 print(f"Plot generation failed: {plot_e}")
 
     except Exception as e:
-        print(f"SC3-Nature methods-2017 execution failed: {e}")
+        print(f"SC3 execution failed: {e}")
         import traceback
         traceback.print_exc()
         labels = np.zeros(X.shape[0], dtype=int)

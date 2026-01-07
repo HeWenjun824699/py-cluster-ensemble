@@ -1,11 +1,10 @@
 import numpy as np
 import warnings
-from sklearn.cluster import KMeans
 from sklearn.svm import SVC
-from scipy.cluster.hierarchy import linkage, fcluster, leaves_list
-from scipy.spatial.distance import pdist
-from .core_functions import calculate_distance, transformation, consensus_matrix, estkTW
+from .core_functions import estkTW
 from .biology import get_de_genes, get_marker_genes, get_outl_cells
+from ....generators.sc3_generator import sc3_generator
+from ....consensus.sc3 import sc3
 
 class SC3:
     """
@@ -15,8 +14,7 @@ class SC3:
     
     def __init__(self, data, gene_filter=True, pct_dropout_min=10, pct_dropout_max=90, 
                  d_region_min=0.04, d_region_max=0.07, svm_max=5000, 
-                 svm_num_cells=None,
-                 n_cores=None, seed=None):
+                 svm_num_cells=None, n_cores=None, seed=None):
         """
         Initialize SC3-Nature methods-2017 object.
         
@@ -66,7 +64,7 @@ class SC3:
         self.d_region_min = d_region_min
         self.d_region_max = d_region_max
         self.svm_max = svm_max
-        
+
         # SVM Subsampling Logic (Happens AFTER gene filtering)
         self.svm_train_inds = None
         self.svm_study_inds = None
@@ -92,10 +90,6 @@ class SC3:
             self.study_data = None
             
         # State storage
-        self.distances = {}
-        self.transformations = {}
-        self.kmeans_partitions = []
-        self.consensus_matrix = None
         self.labels = None
         self.biology = {}
         
@@ -111,106 +105,13 @@ class SC3:
         
         if len(self.n_dims) > 15:
             self.n_dims = sorted(self.rng.choice(self.n_dims, 15, replace=False))
-            
+
     def estimate_k(self):
         """
         Estimate optimal k using Tracy-Widom theory.
         Runs on full dataset as per R implementation.
         """
         return estkTW(self.data)
-        
-    def calc_dists(self):
-        """
-        Calculate distance matrices on TRAINING data.
-        """
-        metrics = ['euclidean', 'pearson', 'spearman']
-        for metric in metrics:
-            try:
-                self.distances[metric] = calculate_distance(self.train_data, metric)
-            except Exception as e:
-                warnings.warn(f"Failed to calculate {metric} distance: {e}")
-                
-    def calc_transfs(self):
-        """
-        Calculate transformations on TRAINING data.
-        """
-        if not self.distances:
-            self.calc_dists()
-            
-        trans_methods = ['pca', 'laplacian']
-        
-        for dist_name, dist_mat in self.distances.items():
-            for trans_method in trans_methods:
-                key = f"{dist_name}_{trans_method}"
-                try:
-                    self.transformations[key] = transformation(dist_mat, trans_method)
-                except Exception as e:
-                    warnings.warn(f"Failed to calculate transformation {key}: {e}")
-
-    def kmeans(self, n_clusters, n_init=10, max_iter=300):
-        """
-        Run K-means on transformations of TRAINING data.
-        """
-        if not self.transformations:
-            self.calc_transfs()
-            
-        self.kmeans_partitions = []
-        
-        for trans_key, trans_mat in self.transformations.items():
-            for d in self.n_dims:
-                if d > trans_mat.shape[1]:
-                    continue
-                
-                X_subset = trans_mat[:, :d]
-                
-                try:
-                    # Note: n_cores/n_jobs removed from KMeans as it is deprecated in newer sklearn
-                    km = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, 
-                                random_state=self.rng)
-                    km.fit(X_subset)
-                    self.kmeans_partitions.append(km.labels_)
-                except Exception as e:
-                    pass
-                    
-        self.kmeans_partitions = np.array(self.kmeans_partitions).T 
-        
-    def consensus(self, n_clusters):
-        """
-        Calculate consensus matrix and clustering on TRAINING data.
-        """
-        if len(self.kmeans_partitions) == 0:
-            raise RuntimeError("No K-means partitions generated.")
-            
-        self.consensus_matrix = consensus_matrix(self.kmeans_partitions)
-        
-        cons_dists = pdist(self.consensus_matrix, metric='euclidean')
-        Z = linkage(cons_dists, method='complete')
-        cutree_labels = fcluster(Z, t=n_clusters, criterion='maxclust')
-        
-        # Re-index clusters to match dendrogram order (matches R's reindex_clusters)
-        # 1. Get leaf order from dendrogram
-        leaves_order = leaves_list(Z)
-        
-        # 2. Sort labels by their appearance in the dendrogram
-        ordered_labels = cutree_labels[leaves_order]
-        
-        # 3. Find unique labels in order of appearance
-        unique_labels_in_order = []
-        seen = set()
-        for lbl in ordered_labels:
-            if lbl not in seen:
-                unique_labels_in_order.append(lbl)
-                seen.add(lbl)
-        
-        # 4. Map old_label -> new_label (1..k)
-        # unique_labels_in_order[0] -> 1
-        # unique_labels_in_order[1] -> 2
-        mapping = {old: new for new, old in enumerate(unique_labels_in_order, 1)}
-        
-        new_labels = np.array([mapping[l] for l in cutree_labels])
-        
-        # Return 0-based for Python consistency
-        return new_labels - 1
 
     def run_svm(self, train_labels):
         """
@@ -245,24 +146,65 @@ class SC3:
         """
         Run the SC3-Nature methods-2017 pipeline (with optional SVM hybrid mode).
         """
+        # 1. Estimate K if needed
         if n_clusters is None:
             n_clusters = self.estimate_k()
             print(f"Estimated k: {n_clusters}")
-            
-        self.calc_dists()
-        self.calc_transfs()
-        self.kmeans(n_clusters=n_clusters, n_init=kmeans_nstart, max_iter=kmeans_iter_max)
-        
-        # Clustering on training data
-        train_labels = self.consensus(n_clusters=n_clusters)
-        
+
+        # 2. Generate Base Partitions (Using sc3_generator)
+        print("Generating base partitions...")
+        bps_list = []
+        # Triple loop: Metric -> Transformation -> Dimensions
+        metrics = ['euclidean', 'pearson', 'spearman']
+        trans_methods = ['pca', 'laplacian']
+        for metric in metrics:
+            for trans in trans_methods:
+                for d in self.n_dims:
+                    # Call generator for exactly 1 partition with specific params
+                    # Pass master seed but ideally SC3 doesn't vary much here except kmeans init
+                    bp = sc3_generator(
+                        X=self.train_data,
+                        nClusters=int(n_clusters),
+                        nPartitions=1,  # Generate 1 specific column
+                        metric=metric,  # Fixed metric
+                        trans_method=trans,  # Fixed transformation
+                        n_eigen=d,  # Fixed dimension
+                        seed=self.seed if self.seed else 2026,
+                        maxiter=kmeans_iter_max,
+                        n_init=kmeans_nstart
+                    )
+                    bps_list.append(bp)
+
+        # Stack all columns: (n_samples, n_total_combinations)
+        BPs = np.hstack(bps_list)
+        actual_n_partitions = BPs.shape[1]
+        print(f"Generated {actual_n_partitions} base partitions.")
+
+        # 3. Consensus Clustering (Using sc3_consensus)
+        # Standard SC3 workflow typically uses all generated base partitions and runs only once
+        nBase = len(metrics) * len(trans_methods) * len(self.n_dims)
+        print("Computing consensus...")
+        labels_list, _ = sc3(
+            BPs=BPs,
+            nClusters=n_clusters,
+            nBase=nBase,
+            nRepeat=1,
+            seed=self.seed if self.seed else 2026
+        )
+
+        # sc3_consensus returns a list, take the result of the first run
+        train_labels = labels_list[0]
+
+        # 4. SVM Hybrid Extension (if applicable)
         if self.svm_train_inds is not None:
-            # Predict rest
+            print("Running SVM extension...")
             self.labels = self.run_svm(train_labels)
         else:
             self.labels = train_labels
-            
+
+        # 5. Biological Analysis (Optional)
         if biology:
+            print("Calculating biological features...")
             self.calc_biology()
-            
+
         return self.labels, self.biology

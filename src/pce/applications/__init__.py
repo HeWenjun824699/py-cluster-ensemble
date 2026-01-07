@@ -1,4 +1,4 @@
-﻿from .sc3 import sc3
+﻿from .sc3 import sc3_application
 from .icsc import icsc_mul_application
 from .icsc import icsc_sub_application
 from .dcc import dcc_application
@@ -10,7 +10,7 @@ from .methods.DCC.analysis.dcc_survival_analysis import dcc_survival_analysis
 from .methods.DCC.analysis.dcc_KDIGO_dynamic import dcc_KDIGO_dynamic
 
 __all__ = [
-    "sc3",
+    "sc3_application",
     "icsc_mul_application",
     "icsc_sub_application",
     "dcc_application",
