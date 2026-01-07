@@ -1,11 +1,11 @@
 import time
 import numpy as np
-from typing import Optional
+from typing import Optional, List, Tuple, Union
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
 
 
-def consensus_matrix(partitions: np.ndarray) -> np.ndarray:
+def _consensus_matrix(partitions: np.ndarray) -> np.ndarray:
     """
     Calculate the consensus matrix from base partitions.
 
@@ -41,8 +41,10 @@ def sc3(
         nClusters: Optional[int] = None,
         nBase: int = 20,
         nRepeat: int = 10,
-        seed: int = 2026
-) -> tuple[list[np.ndarray], list[float]]:
+        seed: int = 2026,
+        return_matrix: bool = False
+) -> Union[Tuple[List[np.ndarray], List[float]],
+           Tuple[List[np.ndarray], List[float], np.ndarray]]:
     """
     SC3 Consensus Strategy.
 
@@ -65,6 +67,8 @@ def sc3(
         The number of repetition experiments.
     seed : int, default=2026
         Random seed for selecting base partitions.
+    return_matrix : bool, default=False
+        Whether to return the last computed consensus matrix.
 
     Returns
     -------
@@ -72,6 +76,8 @@ def sc3(
         A list of predicted labels for each repetition (0-based indexing).
     time_list : list of float
         A list of time costs (in seconds) for each ensemble run.
+    cons_mat : np.ndarray, optional
+        The consensus matrix from the last repetition, returned only if return_matrix is True.
     """
 
     # 1. Preprocessing
@@ -91,6 +97,7 @@ def sc3(
     # 2. Experiment Loop Setup
     labels_list = []
     time_list = []
+    cons_mat = None
 
     rs = np.random.RandomState(seed)
     # Seeds for selection
@@ -118,7 +125,7 @@ def sc3(
             # -------------------------------------------------
             # Step B: Compute Consensus Matrix
             # -------------------------------------------------
-            cons_mat = consensus_matrix(subset_bps)
+            cons_mat = _consensus_matrix(subset_bps)
 
             # -------------------------------------------------
             # Step C: Hierarchical Clustering (SC3 Logic)
@@ -144,4 +151,7 @@ def sc3(
         labels_list.append(final_label)
         time_list.append(time.time() - t_start)
 
-    return labels_list, time_list
+    if return_matrix:
+        return labels_list, time_list, cons_mat
+    else:
+        return labels_list, time_list

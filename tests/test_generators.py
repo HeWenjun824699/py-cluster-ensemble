@@ -1,6 +1,6 @@
 import numpy as np
 
-from pce.generators import litekmeans, cdkmeans, rskmeans, rpkmeans, bagkmeans, hetero_clustering, spectral
+from pce.generators import litekmeans, cdkmeans, rskmeans, rpkmeans, bagkmeans, hetero_clustering, sc3_generator, spectral
 
 
 def test_litekmeans_basic(synthetic_data):
@@ -83,6 +83,16 @@ def test_hetero_clustering_specific_algo(synthetic_data):
     # Test with specific algorithm
     BPs = hetero_clustering(X=X, Y=Y, nPartitions=n_partitions, algorithms='kmeans')
     assert BPs.shape == (n_samples, n_partitions)
+
+
+def test_sc3_generator(synthetic_data):
+    X, Y = synthetic_data
+    n_samples = X.shape[0]
+    n_partitions = 2
+
+    BPs = sc3_generator(X=X, Y=Y, nPartitions=n_partitions)
+    assert BPs.shape == (n_samples, n_partitions)
+
 
 def test_spectral(synthetic_data):
     X, Y = synthetic_data

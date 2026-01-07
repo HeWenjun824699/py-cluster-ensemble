@@ -15,7 +15,7 @@ def test_sc3_basic(synthetic_data, tmp_path):
     output_dir = tmp_path / "sc3_out"
 
     # Run SC3
-    labels, biology_res, time_cost = sc3(
+    labels, biology_res, time_cost = sc3.sc3_application(
         X_small,
         Y=Y_small,
         nClusters=3,

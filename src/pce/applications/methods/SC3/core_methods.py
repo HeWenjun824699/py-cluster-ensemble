@@ -90,6 +90,7 @@ class SC3:
             self.study_data = None
             
         # State storage
+        self.consensus_matrix = None
         self.labels = None
         self.biology = {}
         
@@ -184,12 +185,13 @@ class SC3:
         # Standard SC3 workflow typically uses all generated base partitions and runs only once
         nBase = len(metrics) * len(trans_methods) * len(self.n_dims)
         print("Computing consensus...")
-        labels_list, _ = sc3(
+        labels_list, _, self.consensus_matrix = sc3(
             BPs=BPs,
             nClusters=n_clusters,
             nBase=nBase,
             nRepeat=1,
-            seed=self.seed if self.seed else 2026
+            seed=self.seed if self.seed else 2026,
+            return_matrix=True
         )
 
         # sc3_consensus returns a list, take the result of the first run
