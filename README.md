@@ -1614,38 +1614,71 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
 
 ---
 
-## <span id="roadmap">🎯 项目规划 (Roadmap)</span>
+## <span id="roadmap">🎯 项目规划与功能特性 (Roadmap & Features)</span>
 
 ### ✅ 已完成特性 (Implemented Features)
 
-**1. 核心算法库 (Core Algorithms Library)**
-> 👑 **行业领先的算法覆盖度**: 收录 **20 大类、30 小类** 聚类集成算法，时间跨度覆盖 **2003 至 2025** 年。
+**1. 核心算法生态 (Core Algorithms Ecosystem)**
+> 👑 **行业领先的算法覆盖度**: 收录 **30 种** 主流聚类集成算法与 **8 种** 基聚类生成策略，时间跨度覆盖 **2003 至 2025** 年，涵盖图论、谱分析、张量学习、深度学习及主动学习等前沿领域。
 
-- [x] **基聚类生成 (Generators)**: 6 种差异化生成策略
-  - **K-Means 变体**: `LiteKMeans` (高速), `CDK-Means` (坐标下降)
-  - **扰动策略**: `RSKMeans` (随机子空间), `RPKMeans` (随机投影), `BagKMeans` (Bagging 重采样)
-  - **异构策略**: `Hetero-Clustering` (混合模型)
-- [x] **经典集成 (Classics)**: `CSPA`, `MCLA`, `HGPA` (JMLR-03)
-- [x] **图与谱聚类集成 (Graph & Spectral)**: `LWEA`, `LWGP`, `PTGP`, `SPCE`, `ECCMS`
-- [x] **矩阵与张量分解 (Matrix & Tensor)**: `CELTA`, `GTLEC`, `TRCE`
-- [x] **深度/高级策略 (Advanced)**: `SPACE` (自步主动学习), `CDEC` (自适应加权-2025), `CEAM` (多层网络扩散)
+#### **A. 基聚类生成器 (Generators) - [8 种策略]**
+提供从高速生成到深度扰动的多样化基聚类池构建方案：
+- **⚡ K-Means 变体**: `LiteKMeans` (极速版), `CDK-Means` (坐标下降法)
+- **🎲 数据扰动与子空间**: `RSKMeans` (随机特征子空间), `RPKMeans` (随机投影), `BagKMeans` (Bagging 重采样)
+- **🧩 异构与特定领域**: `Hetero-Clustering` (混合模型: Ward/Average/GMM/Spectral), `SC3-KMeans` (单细胞策略), `Spectral` (谱聚类生成)
+
+#### **B. 集成共识算法 (Consensus Algorithms) - [30 种策略]**
+全方位覆盖从经典到 SOTA 的集成逻辑，满足不同数据规模与结构的实验需求：
+
+- **🏛️ 经典基石 (The Classics)**
+  - `CSPA`, `MCLA`, `HGPA` (JMLR-2003 三大基石)
+
+- **🕸️ 图分割与谱集成 (Graph & Spectral)**
+  - **局部加权与扩散**: `LWEA`, `LWGP` (局部加权), `CEAM` (多层网络扩散), `USENC` (超大规模谱集成)
+  - **概率轨迹 (TKDE-16)**: `PTAAL`, `PTACL`, `PTASL`, `PTGP` (全系列收录)
+  - **谱增强与迭代**: `SPCE` (自步谱集成), `ECCMS` (共协矩阵自增强), `ICSC` (迭代谱一致性), `ECPCS` (包含 `HC` 和 `MC` 两种策略)
+
+- **🧊 矩阵分解与张量学习 (Matrix & Tensor)**
+  - `CELTA` (低秩张量近似), `TRCE` (三层鲁棒张量), `GTLEC` (图张量学习)
+
+- **⚙️ 优化与离散方法 (Optimization & Discrete)**
+  - `CDKM` (离散核 K-Means)
+  - `KCC` (包含 `UC` 类别效用与 `SH` 调和效用策略)
+
+- **🧬 多样性与自适应 (Diversity & Adaptive)**
+  - `MDEC` 系列 (TCYB-22): `MDECBG` (二分图), `MDECHC` (层次), `MDECSC` (谱聚类)
+  - `CDEC` (平衡自适应加权 - TCSVT-2025)
+
+- **🧠 深度、主动与领域应用 (Deep / Active / Application)**
+  - **深度/表示学习**: `DREC` (双重正则化/密集表示), `DCC` (深度共识聚类)
+  - **主动学习**: `SPACE` (自步主动学习集成)
+  - **生物/单细胞**: `SC3` (单细胞一致性集成)
+
+---
 
 **2. 基础设施与自动化 (Infrastructure & Automation)**
-- [x] **IO 增强**: 完美兼容 MATLAB v7.3 (`.mat`), 支持 CSV/Excel/MAT 多格式导出
-- [x] **自动化流水线**: `consensus_batch` 实现从“目录扫描 -> 生成 -> 集成 -> 评估”的全链路自动化
-- [x] **智能网格搜索**: `GridSearcher` 支持超参数笛卡尔积扫描、自动剪枝与日志记录
+- [x] **全能 IO 接口**: 
+  - 完美兼容 MATLAB v7.3 (`.mat` HDF5) 数据格式。
+  - 支持 SC3 专用 `.rda` 格式读取。
+  - 结果支持导出为 `CSV`, `Excel`, `MAT` 多种格式。
+- [x] **自动化流水线 (Pipelines)**: 
+  - `consensus_batch`: 实现从“目录扫描 -> 基聚类生成 -> 集成运算 -> 指标评估”的全链路无人值守批处理。
+- [x] **智能网格搜索 (Grid Search)**: 
+  - `GridSearcher`: 支持超参数笛卡尔积扫描、自动剪枝冗余组合，并生成详细实验日志。
 
 **3. 评估与可视化 (Evaluation & Visualization)**
-- [x] **全维评估**: 内置 NMI, ARI, ACC, Purity 等 14 种聚类指标
-- [x] **论文级绘图**:
-  - 数据分布: 2D Scatter (t-SNE/PCA)
-  - 结构分析: Co-association Matrix Heatmap
-  - 实验分析: Metric Trace Plot (折线图) & Parameter Sensitivity (敏感度分析)
+- [x] **全维评估指标**: 内置 NMI, ARI, ACC, Purity, F-Score, Entropy 等 **14 种** 聚类验证指标。
+- [x] **论文级可视化**:
+  - **数据分布**: 2D Scatter (自动 t-SNE/PCA 降维)。
+  - **集成结构**: Co-association Matrix Heatmap (共协矩阵热力图)。
+  - **实验分析**: Metric Trace Plot (性能折线图) & Parameter Sensitivity (单参数敏感度分析)。
+
+---
 
 ### 🚀 v1.0.0 发布准备 (Preparation for v1.0.0)
 
-- [ ] **文档建设 (Documentation)**: 部署 ReadTheDocs 在线文档，提供详细 API 索引与教程
-- [ ] **正式发布 (Release)**: 完成 PyPI 发包流程，发布 v1.0.0 正式版
+- [x] **文档建设 (Documentation)**: 部署 ReadTheDocs 在线文档，提供详细 API 索引与教程。
+- [x] **正式发布 (Release)**: 完成 PyPI 发包流程，发布 v1.0.0 正式版。
 
 ---
 
