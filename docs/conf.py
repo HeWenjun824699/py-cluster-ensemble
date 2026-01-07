@@ -19,6 +19,10 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_static_path = ['_static']
+html_logo = "_static/docs.png"
+html_theme_options = {
+    'logo_only': True
+}
 
 
 # 1. Add source directory to sys.path
