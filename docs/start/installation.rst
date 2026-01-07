@@ -29,14 +29,8 @@ Core Numerical & Machine Learning Libraries
 * **NumPy (^1.26) & SciPy (^1.11)**: For fundamental numerical operations and matrix manipulations.
 * **Scikit-learn (^1.3)**: Provides implementations for base clustering algorithms and dimensionality reduction techniques.
 * **Fastcluster (^1.2.6)**: Optimized hierarchical clustering routines used in several consensus methods.
-* **Kneed (^0.8.5)**: Used for automatic detection of knee/elbow points in cluster evaluation.
-
-Advanced Consensus & Graph Algorithms
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* **NetworkX (>=3.2)**: Supports fundamental graph-based ensemble algorithms.
 * **python-louvain (^0.16)**: Implementation of the Louvain algorithm for community detection.
-* **igraph (^0.11) & leidenalg (^0.10)**: High-performance graph manipulation and implementation of the Leiden clustering algorithm.
+* **Kneed (^0.8.5)**: Used for automatic detection of knee/elbow points in cluster evaluation.
 
 Deep Learning & Monitoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
