@@ -18,19 +18,19 @@ h5py = "^3.11"
 numpy = "^1.26"
 scipy = "^1.11"
 scikit-learn = "^1.3"
-matplotlib = "~3.7.5"   # Used for visualization
-seaborn = "^0.13"       # Used for plotting high-quality consensus matrix heatmaps
-tqdm = "^4.66"          # Progress bar (useful for long-running ensemble algorithms)
-pandas = "^2.2"         # IO module dependency
-xlsxwriter = "^3.2"     # Used for formatted output in save_xlsx
-pyreadr = "^0.5.4"      # Used for reading RData files
-fastcluster = "^1.2.6"  # Used for fastcluster
-igraph = "^0.11"        # Graph algorithms for FastEnsemble
-leidenalg = "^0.10"     # Leiden algorithm for FastEnsemble
-python-louvain = "^0.16" # Louvain algorithm for FastEnsemble
-kneed = "^0.8.5"        # Knee point detection
-torch = "^2.2.0"        # Deep learning framework
-tensorboard = "^2.15.0" # Visualization tool for torch
+matplotlib = "~3.7.5"
+seaborn = "^0.13"
+tqdm = "^4.66"
+pandas = "^2.2"
+xlsxwriter = "^3.2"
+pyreadr = "^0.5.4"
+fastcluster = "^1.2.6"
+igraph = "^0.11"
+leidenalg = "^0.10"
+python-louvain = "^0.16"
+kneed = "^0.8.5"
+torch = "^2.2.0"
+tensorboard = "^2.15.0"
 sphinx = { version = "^7.0", optional = true }
 sphinx-rtd-theme = { version = "^2.0", optional = true }
 nbsphinx = { version = "^0.9", optional = true }
