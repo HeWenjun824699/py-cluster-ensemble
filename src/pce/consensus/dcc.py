@@ -7,40 +7,6 @@ from sklearn.cluster import KMeans
 from .utils.get_k_target import get_k_target
 
 
-def _compute_consensus_matrix(BPs: np.ndarray) -> np.ndarray:
-    """
-    Compute the consensus matrix (Co-association Matrix).
-
-    Parameters
-    ----------
-    BPs : np.ndarray
-        Base partitions matrix of shape (n_samples, n_base_partitions).
-
-    Returns
-    -------
-    np.ndarray
-        Consensus matrix of shape (n_samples, n_samples).
-    """
-    n_samples, n_partitions = BPs.shape
-    consensus_matrix = np.zeros((n_samples, n_samples), dtype=np.float32)
-
-    # Optimization: Iterate over base partitions
-    # Usually faster than iterating over n_samples compared to original code
-    for i in range(n_partitions):
-        # Get the i-th base partition result (n_samples,)
-        labels = BPs[:, i]
-
-        # Construct connectivity matrix: 1 if in the same cluster, else 0
-        # Use broadcasting: (N, 1) == (1, N) -> (N, N)
-        # Note: This might cause memory issues if N is very large (>10000); sparse matrix needed for large graphs
-        mat = (labels[:, None] == labels[None, :]).astype(np.float32)
-        consensus_matrix += mat
-
-    # Normalize
-    consensus_matrix /= n_partitions
-    return consensus_matrix
-
-
 def dcc(
         BPs: np.ndarray,
         Y: Optional[np.ndarray] = None,
@@ -135,3 +101,37 @@ def dcc(
         return labels_list, time_list, M
     else:
         return labels_list, time_list
+
+
+def _compute_consensus_matrix(BPs: np.ndarray) -> np.ndarray:
+    """
+    Compute the consensus matrix (Co-association Matrix).
+
+    Parameters
+    ----------
+    BPs : np.ndarray
+        Base partitions matrix of shape (n_samples, n_base_partitions).
+
+    Returns
+    -------
+    np.ndarray
+        Consensus matrix of shape (n_samples, n_samples).
+    """
+    n_samples, n_partitions = BPs.shape
+    consensus_matrix = np.zeros((n_samples, n_samples), dtype=np.float32)
+
+    # Optimization: Iterate over base partitions
+    # Usually faster than iterating over n_samples compared to original code
+    for i in range(n_partitions):
+        # Get the i-th base partition result (n_samples,)
+        labels = BPs[:, i]
+
+        # Construct connectivity matrix: 1 if in the same cluster, else 0
+        # Use broadcasting: (N, 1) == (1, N) -> (N, N)
+        # Note: This might cause memory issues if N is very large (>10000); sparse matrix needed for large graphs
+        mat = (labels[:, None] == labels[None, :]).astype(np.float32)
+        consensus_matrix += mat
+
+    # Normalize
+    consensus_matrix /= n_partitions
+    return consensus_matrix

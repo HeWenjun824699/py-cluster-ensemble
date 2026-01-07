@@ -5,36 +5,6 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
 
 
-def _consensus_matrix(partitions: np.ndarray) -> np.ndarray:
-    """
-    Calculate the consensus matrix from base partitions.
-
-    Parameters
-    ----------
-    partitions : numpy.ndarray
-        The cluster labels matrix of shape (n_samples, n_partitions).
-
-    Returns
-    -------
-    consensus : numpy.ndarray
-        The consensus matrix of shape (n_samples, n_samples).
-    """
-    n_samples = partitions.shape[0]
-    n_partitions = partitions.shape[1]
-
-    consensus = np.zeros((n_samples, n_samples))
-
-    for i in range(n_partitions):
-        labels = partitions[:, i]
-        # Outer equality check
-        # (N, 1) == (1, N) -> (N, N) bool matrix
-        mat = (labels[:, None] == labels[None, :])
-        consensus += mat.astype(float)
-
-    consensus /= n_partitions
-    return consensus
-
-
 def sc3(
         BPs: np.ndarray,
         Y: Optional[np.ndarray] = None,
@@ -155,3 +125,33 @@ def sc3(
         return labels_list, time_list, cons_mat
     else:
         return labels_list, time_list
+
+
+def _consensus_matrix(partitions: np.ndarray) -> np.ndarray:
+    """
+    Calculate the consensus matrix from base partitions.
+
+    Parameters
+    ----------
+    partitions : numpy.ndarray
+        The cluster labels matrix of shape (n_samples, n_partitions).
+
+    Returns
+    -------
+    consensus : numpy.ndarray
+        The consensus matrix of shape (n_samples, n_samples).
+    """
+    n_samples = partitions.shape[0]
+    n_partitions = partitions.shape[1]
+
+    consensus = np.zeros((n_samples, n_samples))
+
+    for i in range(n_partitions):
+        labels = partitions[:, i]
+        # Outer equality check
+        # (N, 1) == (1, N) -> (N, N) bool matrix
+        mat = (labels[:, None] == labels[None, :])
+        consensus += mat.astype(float)
+
+    consensus /= n_partitions
+    return consensus
