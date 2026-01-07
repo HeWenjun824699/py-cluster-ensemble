@@ -1,7 +1,6 @@
-import os
 import numpy as np
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from pce.applications import sc3
 from pce.applications.dcc import dcc_application
 from pce.applications.icsc import icsc_mul_application, icsc_sub_application
@@ -20,17 +19,16 @@ def test_sc3_basic(synthetic_data, tmp_path):
         Y=Y_small,
         nClusters=3,
         output_directory=str(output_dir),
-        gene_filter=False,  # Disable filter for small data
-        biology=False,      # Skip heavy biology steps
+        gene_filter=False,
+        biology=False,
         n_cores=1,
         seed=2026,
-        kmeans_nstart=10,  # Speed up
+        kmeans_nstart=10,
         kmeans_iter_max=100
     )
 
     assert labels.shape == (20,)
     assert isinstance(time_cost, float)
-    # Check if output files were created (consensus matrix png etc)
     assert (output_dir / "png" / "consensus_matrix.png").exists()
 
 @patch('pce.applications.dcc.train_representation')
@@ -69,7 +67,7 @@ def test_dcc_pipeline(mock_sensitivity, mock_viz, mock_consensus, mock_train, tm
         output_path=output_path,
         input_dim=100,
         hidden_dim=50,
-        cuda=pytest.approx(0, abs=1), # 0 or 1 depending on system
+        cuda=pytest.approx(0, abs=1),
         epochs=1
     )
 
@@ -82,14 +80,7 @@ def test_dcc_pipeline(mock_sensitivity, mock_viz, mock_consensus, mock_train, tm
         k_max=4
     )
 
-    # To test run_analysis steps (viz and sensitivity), we need to simulate the existence of result files
-    # The current dcc_application checks os.path.exists before calling viz/sensitivity
-    # Since we didn't create those pkl files, the loop 'for k in range...' inside run_analysis checks 'if not exists: continue'
-    # So effectively, mock_viz and mock_sensitivity might NOT be called if we don't mock os.path.exists or create files.
-    
-    # Let's verify that the pipeline ran without error at least.
-    # If we want to verify viz/sensitivity calls, we need to mock os.path.exists or create the files.
-    
+
 @patch('pce.applications.dcc.train_representation')
 @patch('pce.applications.dcc.run_consensus_clustering')
 @patch('pce.applications.dcc.visualize_consensus_and_representations')
@@ -149,12 +140,11 @@ def test_icsc_mul_application(mock_worker, tmp_path):
     assert mock_worker.call_count == 2
     
     # Verify arguments of the first call
-    # params structure: (run, data_directory, percent_threshold, sub_list, max, min, nodes, dataset, save_dir)
     args, _ = mock_worker.call_args_list[0]
     param_tuple = args[0]
-    assert param_tuple[0] == 0 # run id
+    assert param_tuple[0] == 0
     assert param_tuple[1] == str(data_dir)
-    assert len(param_tuple[3]) == 2 # sub_list has 2 subjects
+    assert len(param_tuple[3]) == 2
 
 
 @patch('pce.applications.icsc.single_subject_run')
@@ -193,8 +183,6 @@ def test_icsc_sub_application(mock_threshold, mock_worker, tmp_path):
     
     args, _ = mock_worker.call_args
     param_tuple = args[0]
-    # (run_id, percent_threshold, subject_session_list, subject_session_data, max, min, nodes, dataset, save_dir)
-    assert param_tuple[0] == 0 # run_id (enumerate index)
-    assert param_tuple[2] == [0] # session ids
-    assert 0 in param_tuple[3] # session data dict
-
+    assert param_tuple[0] == 0
+    assert param_tuple[2] == [0]
+    assert 0 in param_tuple[3]

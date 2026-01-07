@@ -75,7 +75,7 @@ Suitable for analyzing the stability of networks within a single subject across 
 
 
 Deep Consensus Clustering (DCC)
-----------------------------
+-------------------------------
 
 The DCC application implements a deep consensus clustering framework designed to uncover fine-grained subphenotypes from high-dimensional temporal clinical data.
 

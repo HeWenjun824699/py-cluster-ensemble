@@ -8,7 +8,7 @@ from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 
 
-def sc3_generator(
+def sc3_kmeans(
         X: np.ndarray,
         Y: Optional[np.ndarray] = None,
         nClusters: Optional[int] = None,

@@ -38,7 +38,7 @@ The generation module offers diverse strategies to construct base clustering poo
    generators.rpkmeans
    generators.bagkmeans
    generators.hetero_clustering
-   generators.sc3_generator
+   generators.sc3_kmeans
    generators.spectral
 
 Consensus

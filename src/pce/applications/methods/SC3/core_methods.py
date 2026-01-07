@@ -3,7 +3,7 @@ import warnings
 from sklearn.svm import SVC
 from .core_functions import estkTW
 from .biology import get_de_genes, get_marker_genes, get_outl_cells
-from ....generators.sc3_generator import sc3_generator
+from ....generators.sc3_kmeans import sc3_kmeans
 from ....consensus.sc3 import sc3
 
 class SC3:
@@ -163,7 +163,7 @@ class SC3:
                 for d in self.n_dims:
                     # Call generator for exactly 1 partition with specific params
                     # Pass master seed but ideally SC3 doesn't vary much here except kmeans init
-                    bp = sc3_generator(
+                    bp = sc3_kmeans(
                         X=self.train_data,
                         nClusters=int(n_clusters),
                         nPartitions=1,  # Generate 1 specific column
