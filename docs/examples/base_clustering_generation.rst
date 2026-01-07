@@ -70,11 +70,23 @@ For large-scale benchmarking, you may need to generate partitions using multiple
 Supported Generation Strategies
 -------------------------------
 
-Depending on your data characteristics, you can choose from the following strategies:
+PCE provides **8 distinct strategies** to construct diverse clustering pools, categorized by their underlying diversity mechanisms:
 
-* **Parameter Perturbation**: ``litekmeans`` and ``cdkmeans``.
-* **Feature Perturbation**: ``rskmeans`` (subspace sampling) and ``rpkmeans`` (random projection).
-* **Data Perturbation**: ``bagkmeans`` (bootstrap resampling).
-* **Model Perturbation**: ``hetero_clustering`` (mixing different algorithms like GMM or Spectral Clustering).
+* **K-Means Variants (Speed & Constraints)**:
 
-For a full list of parameters, please refer to the :doc:`../api/api` section.
+  * ``litekmeans``: A high-speed implementation using random initializations. Best for massive datasets.
+  * ``cdkmeans``: Uses Coordinate Descent with constraints to balance partition quality and diversity.
+
+* **Perturbation Strategies (Data & Feature)**:
+
+  * ``rskmeans``: **Feature Perturbation**. Randomly samples feature subsets (Random Subspace), effective for high-dimensional data.
+  * ``rpkmeans``: **Data Projection**. Uses Random Projection (Johnson-Lindenstrauss) to handle ultra-high dimensional or sparse data.
+  * ``bagkmeans``: **Data Perturbation**. Uses Bootstrap aggregating (Bagging) to enhance robustness against outliers and noise.
+
+* **Heterogeneous & Domain-Specific**:
+
+  * ``hetero_clustering``: **Model Perturbation**. Combines different inductive biases (e.g., Ward, GMM, Spectral) to capture diverse cluster shapes.
+  * ``sc3_kmeans``: **Bio-inspired**. Based on the SC3 algorithm for single-cell data, introducing diversity via random distances and transformations.
+  * ``spectral``: **Manifold Learning**. Uses Spectral Clustering to capture non-convex structures that standard K-Means cannot identify.
+
+For a full list of parameters and detailed usage, please refer to the :doc:`../api/api` section.
