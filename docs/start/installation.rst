@@ -46,6 +46,7 @@ IO & Data Interoperability
 * **H5py (^3.11)**: Required for ensuring full compatibility with **MATLAB v7.3** ``.mat`` files.
 * **Pyreadr (^0.5.4)**: Enables the loading of R-specific ``.rda`` or ``.rds`` files.
 * **Xlsxwriter (^3.2)**: Used to generate professionally formatted Excel outputs in the ``pce.io.save_results_xlsx`` module.
+* **Nilearn (^0.10)**: Facilitates statistical learning on neuroimaging data and handling NIfTI file formats.
 
 Visualization & Analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~
