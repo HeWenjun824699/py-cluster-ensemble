@@ -7,33 +7,41 @@ from .methods.ICSC.icsc_sub_core import single_subject_run
 from .methods.ICSC.utils import get_threshold
 
 
-def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
-                         data_directory, max_labels, min_labels,
-                         percent_threshold, save_dir,
-                         heatmap_format='png'):
+def icsc_mul_application(
+        dataset,
+        data_directory,
+        save_dir,
+        num_nodes: int = 264,
+        num_threads: int = 1,
+        num_runs: int = 1,
+        max_labels: int = 21,
+        min_labels: int = 5,
+        percent_threshold: int = 100,
+        heatmap_format: str = 'png'
+):
     """
     Main controller function: Prepare data and start multiprocessing pool.
 
     Parameters
     ----------
-    num_nodes : int
-        Number of nodes in the graph.
-    num_threads : int
-        Number of threads (processes) to use for parallel execution.
-    num_runs : int
-        Number of independent runs to execute.
     dataset : str
         Name of the dataset being processed.
     data_directory : str
         Path to the directory containing subject data.
-    max_labels : int
-        Maximum number of clusters/labels.
-    min_labels : int
-        Minimum number of clusters/labels.
-    percent_threshold : float
-        Threshold percentage for graph connectivity.
     save_dir : str
         Directory where results will be saved.
+    num_nodes : int, optional, default=264
+        Number of nodes in the graph.
+    num_threads : int, optional, default=1
+        Number of threads (processes) to use for parallel execution.
+    num_runs : int, optional, default=1
+        Number of independent runs to execute.
+    max_labels : int, optional, default=21
+        Maximum number of clusters/labels.
+    min_labels : int, optional, default=5
+        Minimum number of clusters/labels.
+    percent_threshold : int, optional, default=100
+        Threshold percentage for graph connectivity.
     heatmap_format : str, optional, default='png'
         Format to save the consensus heatmap ('png' or 'pdf').
 
@@ -77,10 +85,17 @@ def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
             print(f'Completed Run: {val}')
 
 
-def icsc_sub_application(num_nodes, num_threads, dataset,
-                         data_directory, max_labels, min_labels,
-                         percent_threshold, save_dir,
-                         heatmap_format='png'):
+def icsc_sub_application(
+        dataset,
+        data_directory,
+        save_dir,
+        num_nodes: int = 264,
+        num_threads: int = 1,
+        max_labels: int = 21,
+        min_labels: int = 5,
+        percent_threshold: int = 100,
+        heatmap_format: str = 'png'
+):
     """
     Subject-Level Main Controller.
 
@@ -91,22 +106,22 @@ def icsc_sub_application(num_nodes, num_threads, dataset,
 
     Parameters
     ----------
-    num_nodes : int
-        Number of nodes in the graph.
-    num_threads : int
-        Number of threads (processes) to use for parallel execution.
     dataset : str
         Name of the dataset being processed.
     data_directory : str
         Path to the directory containing subject data.
-    max_labels : int
-        Maximum number of clusters/labels.
-    min_labels : int
-        Minimum number of clusters/labels.
-    percent_threshold : float
-        Threshold percentage for graph connectivity.
     save_dir : str
         Directory where results will be saved.
+    num_nodes : int, optional, default=264
+        Number of nodes in the graph.
+    num_threads : int, optional, default=1
+        Number of threads (processes) to use for parallel execution.
+    max_labels : int, optional, default=21
+        Maximum number of clusters/labels.
+    min_labels : int, optional, default=5
+        Minimum number of clusters/labels.
+    percent_threshold : int, optional, default=100
+        Threshold percentage for graph connectivity.
     heatmap_format : str, optional, default='png'
         Format to save the consensus heatmap ('png' or 'pdf').
 

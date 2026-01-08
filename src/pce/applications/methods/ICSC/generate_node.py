@@ -1,7 +1,7 @@
-import pandas as pd
-import numpy as np
 import os
 
+import numpy as np
+import pandas as pd
 from nilearn import datasets
 
 
@@ -108,7 +108,8 @@ def generate_brainnet_node(labels, consensus_matrix, save_path, split_output=Tru
     """
     try:
         # Create directory if not exists
-        if not os.path.exists(os.path.dirname(save_path)):
+        path = os.path.dirname(save_path)
+        if not os.path.exists(path):
             os.makedirs(path)
 
         n_nodes = len(labels)

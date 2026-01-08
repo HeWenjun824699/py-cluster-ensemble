@@ -5,8 +5,10 @@ from sklearn import metrics
 import warnings
 
 from .utils import get_elbow, adjust_modular_partition
+from .generate_node import generate_brainnet_node
 from ....generators.spectral import spectral
 from ....consensus.icsc import icsc
+from ....analysis.plot import plot_coassociation_heatmap
 
 warnings.filterwarnings("ignore", message="Array is not symmetric, and will be converted")
 
@@ -47,7 +49,7 @@ def single_subject_run(params):
     Here receives sessions_data (dict) instead of file path list.
     """
     (run_id, percent_threshold, session_ids, sessions_data,
-     max_labels, min_labels, num_nodes, dataset, save_dir) = params
+     max_labels, min_labels, num_nodes, dataset, save_dir, heatmap_format) = params
 
     num_sessions = len(session_ids)
     np.random.seed()
@@ -213,6 +215,37 @@ def single_subject_run(params):
             final_matrix = compute_matrix_for_elbow(BPs_current)
             matrix_file = os.path.join(save_dir, 'subject_consensus_matrix_run_' + str(run_id) + '.csv')
             np.savetxt(matrix_file, final_matrix, delimiter=", ")
+
+            # ========================================================================
+            # New Logic Start
+            # ========================================================================
+            # Generate Consensus Heatmap
+            if heatmap_format == 'pdf':
+                heatmap_save_path = os.path.join(save_dir, 'pdf', f'consensus_heatmap_run_{run_id}.pdf')
+            else:
+                heatmap_save_path = os.path.join(save_dir, 'png', f'consensus_heatmap_run_{run_id}.png')
+            print(f"Run {run_id}: Generating heatmap -> {heatmap_save_path}")
+            plot_coassociation_heatmap(
+                Y=subject_consensus_labels,
+                consensus_matrix=final_matrix,
+                title=f"Consensus Matrix (Run {run_id}, Iter {iteration}, ARI={np.mean(consensus_cost):.4f})",
+                xlabel="Reordered Nodes",
+                ylabel="Reordered Nodes",
+                save_path=heatmap_save_path,
+                show=False
+            )
+
+            # Generate Node File
+            node_file_path = os.path.join(save_dir, 'node', f'ICSC_result_run_{run_id}.node')
+            print(f"Run {run_id}: Generating Node file -> {node_file_path}")
+            generate_brainnet_node(
+                labels=subject_consensus_labels,
+                consensus_matrix=final_matrix,
+                save_path=node_file_path
+            )
+            # ========================================================================
+            # New Logic End
+            # ========================================================================
 
             # Save Session Labels
             session_labels_file = os.path.join(save_dir, 'ICSC_session_labels_run_' + str(run_id) + '.csv')
