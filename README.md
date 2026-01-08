@@ -1,7 +1,7 @@
 # py-cluster-ensemble (PCE)
 
 [![PyPI version](https://img.shields.io/badge/pypi-v1.0.0-blue)](https://pypi.org/project/py-cluster-ensemble/) 
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) 
+[![Python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/) 
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](http://localhost:63342/py-cluster-ensemble/docs/_build/html/index.html)
 [![CI](https://github.com/WenjunHe-ML/py-cluster-ensemble/actions/workflows/ci.yml/badge.svg)](https://github.com/WenjunHe-ML/py-cluster-ensemble/actions/workflows/ci.yml)
