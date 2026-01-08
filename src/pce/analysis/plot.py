@@ -106,8 +106,9 @@ def plot_2d_scatter(
 
 
 def plot_coassociation_heatmap(
-        BPs: np.ndarray,
         Y: np.ndarray,
+        BPs: Optional[np.ndarray] = None,
+        consensus_matrix: Optional[np.ndarray] = None,
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
         title: Optional[str] = None,
@@ -117,18 +118,21 @@ def plot_coassociation_heatmap(
     """
     Plot a sorted co-association matrix heatmap to visualize ensemble structure.
 
-    The function calculates the co-association matrix from base partitions and
-    reorders it based on the ground truth (or reference) labels. This reordering
-    places similar samples in adjacent rows/columns, ideally forming distinct
-    diagonal blocks if the ensemble is consistent.
+    The function determines the co-association matrix either by calculating it
+    from BPs or using a pre-calculated consensus_matrix. It then reorders it
+    based on the ground truth (Y) to visualize cluster blocks.
 
     Parameters
     ----------
-    BPs : np.ndarray
-        Base Partitions matrix of shape (n_samples, n_estimators).
     Y : np.ndarray
         Ground truth or reference label vector of shape (n_samples,).
         Crucial for reordering the matrix to reveal cluster structures.
+    BPs : np.ndarray, optional
+        Base Partitions matrix of shape (n_samples, n_estimators).
+        Required if consensus_matrix is not provided.
+    consensus_matrix : np.ndarray, optional
+        Pre-calculated co-association (similarity) matrix of shape (n_samples, n_samples).
+        Values should typically be in [0, 1]. Required if BPs is not provided.
     xlabel : str, optional
         Label for the X-axis.
     ylabel : str, optional
@@ -147,18 +151,36 @@ def plot_coassociation_heatmap(
 
     set_paper_style()
 
-    # 1. Calculate Co-association Matrix (S = 1 - Hamming Distance)
-    # BPs: (N, M)
-    # print("[Analysis] Calculating Co-association Matrix...")
-    D_hamming = pairwise_distances(BPs, metric='hamming')
-    S = 1.0 - D_hamming  # Similarity matrix (0~1)
+    # -----------------------------------------------------------
+    # 1. Determine the source of the matrix
+    # -----------------------------------------------------------
+    if consensus_matrix is not None:
+        # Case 1: Direct matrix input
+        S = consensus_matrix
+        if S.shape[0] != S.shape[1]:
+            raise ValueError("Provided consensus_matrix must be square (N x N).")
+        print("[Plot] Using pre-calculated Co-association Matrix.")
+    elif BPs is not None:
+        # Case 2: Calculate from Base Partitions
+        # print("[Analysis] Calculating Co-association Matrix from BPs...")
+        D_hamming = pairwise_distances(BPs, metric='hamming')
+        S = 1.0 - D_hamming
+    else:
+        raise ValueError("Either 'BPs' or 'consensus_matrix' must be provided.")
 
+    # [Safety Check] Validate dimensions against Y
+    if len(Y) != S.shape[0]:
+        raise ValueError(f"Shape mismatch: Y has {len(Y)} samples, but Matrix is {S.shape}.")
+
+    # -----------------------------------------------------------
     # 2. Key: Sort matrix based on true labels Y
-    # So that samples of the same class cluster together, forming diagonal blocks
+    # -----------------------------------------------------------
     sort_indices = np.argsort(Y)
     S_sorted = S[sort_indices][:, sort_indices]
 
+    # -----------------------------------------------------------
     # 3. Plotting
+    # -----------------------------------------------------------
     plt.figure(figsize=(7, 6))
 
     # Use heatmap, darker colors indicate higher similarity

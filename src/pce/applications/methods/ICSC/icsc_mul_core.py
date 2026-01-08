@@ -12,6 +12,16 @@ warnings.filterwarnings("ignore", message="Array is not symmetric, and will be c
 
 
 def ensure_dir(d):
+    # Clear out any existing files
+    for filename in os.listdir(d):
+        if filename.endswith(".csv"):
+            file_path = os.path.join(d, filename)
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                print(f"Error checking/deleting {file_path}: {e}")
+
+    # Create results folder if it doesn't exist
     if not os.path.exists(d):
         print("Creating results folder: " + d)
         os.makedirs(d)

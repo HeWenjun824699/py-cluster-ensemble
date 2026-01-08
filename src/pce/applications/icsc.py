@@ -41,6 +41,7 @@ def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
     """
     ensure_dir(save_dir)
 
+    # Get list of subject directories
     sub_list = []
     if os.path.isdir(data_directory):
         file_list = os.listdir(data_directory)
@@ -110,6 +111,7 @@ def icsc_sub_application(num_nodes, num_threads, dataset,
     """
     ensure_dir(save_dir)
 
+    # Get list of subject directories
     sub_list = []
     if os.path.isdir(data_directory):
         file_list = os.listdir(data_directory)
