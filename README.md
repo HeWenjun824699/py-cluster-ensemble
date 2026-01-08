@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/) 
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](http://localhost:63342/py-cluster-ensemble/docs/_build/html/index.html)
+[![CI](https://github.com/WenjunHe-ML/py-cluster-ensemble/actions/workflows/ci.yml/badge.svg)](https://github.com/WenjunHe-ML/py-cluster-ensemble/actions/workflows/ci.yml)
 
 ![logo.png](docs/_static/logo.png)
 
