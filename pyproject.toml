@@ -27,7 +27,10 @@ pyreadr = "^0.5.4"
 fastcluster = "^1.2.6"
 python-louvain = "^0.16"
 kneed = "^0.8.5"
-torch = "^2.2.0"
+torch = [
+    {version = "^2.2.0", source = "pytorch-cpu", markers = "sys_platform == 'linux'"},
+    {version = "^2.2.0", source = "pypi", markers = "sys_platform != 'linux'"}
+]
 tensorboard = "^2.15.0"
 nilearn = "^0.10"
 sphinx = { version = "^7.0", optional = true }
@@ -49,3 +52,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx"]
+
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
