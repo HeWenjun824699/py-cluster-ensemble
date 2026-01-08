@@ -16,7 +16,7 @@ pce.analysis.plot_2d_scatter(
 # Scenario B: Plot co-association matrix heatmap
 BPs, Y = pce.io.load_mat_BPs_Y('./data/CDKM200/10X_PBMC_4271n_16653d_8c_CDKM200.mat')
 pce.analysis.plot_coassociation_heatmap(
-    BPs, Y,
+    Y, BPs=BPs,
     xlabel='Sample Index (Sorted by Ground Truth)',
     ylabel='Sample Index (Sorted by Ground Truth)',
     title='10X_PBMC_4271n_16653d_8c_CDKM200 HeatMap',
