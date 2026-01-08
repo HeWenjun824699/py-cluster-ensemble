@@ -9,7 +9,8 @@ from .methods.ICSC.utils import get_threshold
 
 def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
                          data_directory, max_labels, min_labels,
-                         percent_threshold, save_dir):
+                         percent_threshold, save_dir,
+                         heatmap_format='png'):
     """
     Main controller function: Prepare data and start multiprocessing pool.
 
@@ -33,6 +34,8 @@ def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
         Threshold percentage for graph connectivity.
     save_dir : str
         Directory where results will be saved.
+    heatmap_format : str, optional, default='png'
+        Format to save the consensus heatmap ('png' or 'pdf').
 
     Returns
     -------
@@ -59,7 +62,7 @@ def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
     for run in range(num_runs):
         # Parameter order must match single_run unpacking order
         p = (run, data_directory, percent_threshold, sub_list,
-             max_labels, min_labels, num_nodes, dataset, save_dir)
+             max_labels, min_labels, num_nodes, dataset, save_dir, heatmap_format)
         params.append(p)
 
     # Start multiprocessing
@@ -76,7 +79,8 @@ def icsc_mul_application(num_nodes, num_threads, num_runs, dataset,
 
 def icsc_sub_application(num_nodes, num_threads, dataset,
                          data_directory, max_labels, min_labels,
-                         percent_threshold, save_dir):
+                         percent_threshold, save_dir,
+                         heatmap_format='png'):
     """
     Subject-Level Main Controller.
 
@@ -103,6 +107,8 @@ def icsc_sub_application(num_nodes, num_threads, dataset,
         Threshold percentage for graph connectivity.
     save_dir : str
         Directory where results will be saved.
+    heatmap_format : str, optional, default='png'
+        Format to save the consensus heatmap ('png' or 'pdf').
 
     Returns
     -------
@@ -166,7 +172,7 @@ def icsc_sub_application(num_nodes, num_threads, dataset,
             # (run_id, percent_threshold, session_ids, sessions_data, max, min, nodes, dataset, save_dir)
             p = (run_id, percent_threshold, subject_session_list,
                  subject_session_data, max_labels, min_labels,
-                 num_nodes, dataset, save_dir)
+                 num_nodes, dataset, save_dir, heatmap_format)
             params.append(p)
         else:
             print(f"Warning: No valid session data found for {subject}")

@@ -1,25 +1,24 @@
 import os
+import shutil
+
 import numpy as np
 from numpy.random import randint
 from sklearn import metrics
 import warnings
 
 from .utils import get_threshold, get_elbow, adjust_modular_partition
+from .generate_node import generate_brainnet_node
 from ....generators.spectral import spectral
 from ....consensus.icsc import icsc
+from ....analysis.plot import plot_coassociation_heatmap
 
 warnings.filterwarnings("ignore", message="Array is not symmetric, and will be converted")
 
 
 def ensure_dir(d):
-    # Clear out any existing files
-    for filename in os.listdir(d):
-        if filename.endswith(".csv"):
-            file_path = os.path.join(d, filename)
-            try:
-                os.remove(file_path)
-            except OSError as e:
-                print(f"Error checking/deleting {file_path}: {e}")
+    # Delete previous results
+    if os.path.exists(d):
+        shutil.rmtree(d)
 
     # Create results folder if it doesn't exist
     if not os.path.exists(d):
@@ -45,7 +44,7 @@ def single_multiple_run(params):
     Note: save_dir is now passed via params, no longer relying on global variables
     """
     (run_id, directory, percent_threshold, individuals_list,
-     max_labels, min_labels, num_nodes, dataset, save_dir) = params
+     max_labels, min_labels, num_nodes, dataset, save_dir, heatmap_format) = params
 
     num_individuals = len(individuals_list)
     np.random.seed()
@@ -195,6 +194,37 @@ def single_multiple_run(params):
             final_matrix = compute_matrix_for_elbow(BPs_current)
             matrix_file = os.path.join(save_dir, f'group_consensus_matrix_run_{run_id}.csv')
             np.savetxt(matrix_file, final_matrix, delimiter=", ")
+
+            # ========================================================================
+            # New Logic Start
+            # ========================================================================
+            # Generate Consensus Heatmap
+            if heatmap_format == 'pdf':
+                heatmap_save_path = os.path.join(save_dir, 'pdf', f'consensus_heatmap_run_{run_id}.pdf')
+            else:
+                heatmap_save_path = os.path.join(save_dir, 'png', f'consensus_heatmap_run_{run_id}.png')
+            print(f"Run {run_id}: Generating heatmap -> {heatmap_save_path}")
+            plot_coassociation_heatmap(
+                Y=group_consensus_labels,
+                consensus_matrix=final_matrix,
+                title=f"Consensus Matrix (Run {run_id}, Iter {iteration}, ARI={np.mean(consensus_cost):.4f})",
+                xlabel="Reordered Nodes",
+                ylabel="Reordered Nodes",
+                save_path=heatmap_save_path,
+                show=False
+            )
+
+            # Generate Node File
+            node_file_path = os.path.join(save_dir, 'node', f'ICSC_result_run_{run_id}.node')
+            print(f"Run {run_id}: Generating Node file -> {node_file_path}")
+            generate_brainnet_node(
+                labels=group_consensus_labels,
+                consensus_matrix=final_matrix,
+                save_path=node_file_path
+            )
+            # ========================================================================
+            # New Logic End
+            # ========================================================================
 
             # Save Subject Labels
             subject_labels_file = os.path.join(save_dir, f'ICSC_subject_labels_run_{run_id}.csv')

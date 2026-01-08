@@ -159,10 +159,8 @@ def plot_coassociation_heatmap(
         S = consensus_matrix
         if S.shape[0] != S.shape[1]:
             raise ValueError("Provided consensus_matrix must be square (N x N).")
-        print("[Plot] Using pre-calculated Co-association Matrix.")
     elif BPs is not None:
         # Case 2: Calculate from Base Partitions
-        # print("[Analysis] Calculating Co-association Matrix from BPs...")
         D_hamming = pairwise_distances(BPs, metric='hamming')
         S = 1.0 - D_hamming
     else:
