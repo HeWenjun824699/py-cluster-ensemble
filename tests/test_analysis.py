@@ -16,7 +16,7 @@ def test_plot_coassociation_heatmap(base_partitions, synthetic_data, tmp_path):
     _, Y = synthetic_data
     save_path = tmp_path / "heatmap.png"
     
-    plot_coassociation_heatmap(base_partitions, Y, save_path=str(save_path), show=False)
+    plot_coassociation_heatmap(Y, BPs=base_partitions, save_path=str(save_path), show=False)
     assert save_path.exists()
 
 

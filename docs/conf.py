@@ -55,9 +55,7 @@ napoleon_use_rtype = True
 
 # 5. Mock heavy dependencies for Read the Docs
 autodoc_mock_imports = [
-    'igraph',
-    'leidenalg',
     'community',
     'pyreadr',
-    'fastcluster'
+    'fastcluster',
 ]
