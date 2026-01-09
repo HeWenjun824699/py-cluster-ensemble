@@ -19,7 +19,7 @@ def cdec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Consensus Clustering with Balance Adaptive Weighted (CDEC).
+    Towards Balance Adaptive Weighted Ensemble Clustering (CDEC).
 
     CDEC introduces balance constraints and adaptive weighting mechanisms to
     optimize a regularized objective function. It adaptively adjusts the
@@ -51,6 +51,23 @@ def cdec(
         Predicted labels for each repetition.
     time_list : list of float
         Time cost for each ensemble run.
+
+
+    .. note:: **Source**
+
+       Zhang et al., "Towards Balance Adaptive Weighted Ensemble Clustering", *IEEE TCSVT*, 2025.
+
+       **BibTeX:**
+
+       .. code-block:: bibtex
+
+            @article{zhang2025towards,
+                title={Towards Balance Adaptive Weighted Ensemble Clustering},
+                author={Zhang, Runxin and Wu, Xia and Chen, Huimin and He, Guanxiong and Wang, Zheng and Wang, Rong and Nie, Feiping},
+                journal={IEEE Transactions on Circuits and Systems for Video Technology},
+                year={2025},
+                publisher={IEEE}
+            }
     """
 
     # 1. Preprocessing

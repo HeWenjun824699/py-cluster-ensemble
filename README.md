@@ -1277,7 +1277,6 @@ ICSC (Iterative Consensus Spectral Clustering) 是一种迭代共识谱聚类算
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组 |
 | `time_list` | `List[float]` | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-
 ### 3.20 DCC-IJMI-2024
 
 > **来源：** Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation-IJMI-2024
