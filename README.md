@@ -10,7 +10,7 @@
 
 > **A Comprehensive Python Toolkit for Cluster Ensemble Generation, Consensus, and Automated Experimentation.**
 
-**py-cluster-ensemble (PCE)** 是一款专为**科研与学术界**打造的 Python 聚类集成（Cluster Ensemble）通用框架。
+**PCE: py-cluster-ensemble** 是一款专为**科研与学术界**打造的 Python 聚类集成（Cluster Ensemble）通用框架。
 
 针对 Python 生态缺乏统一集成工具的现状，PCE 提供了从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化全链路解决方案。它特别针对科研实验场景进行了深度优化，注重**实验的可复现性**与**MATLAB 迁移体验**，内置以下核心能力：
 
