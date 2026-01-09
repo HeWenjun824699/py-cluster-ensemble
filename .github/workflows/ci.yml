@@ -25,6 +25,9 @@ jobs:
       # 2. 关键步骤：生成依赖清单，但排除 hashes (避免版本校验冲突)
       - name: Export requirements
         run: |
+          # --- 修复核心：安装 export 插件 ---
+          poetry self add poetry-plugin-export
+          
           # 导出不带哈希值的 requirements.txt
           poetry export --without-hashes --format=requirements.txt > requirements.txt
       
