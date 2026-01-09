@@ -31,13 +31,39 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      # 1. 安装 Poetry (保持不变)
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-      - name: Install dependencies
+
+      # 2. 关键步骤：生成依赖清单，但排除 hashes (避免版本校验冲突)
+      - name: Export requirements
         run: |
-          poetry config virtualenvs.create false
-          poetry install --no-interaction --no-root
+          # 导出不带哈希值的 requirements.txt
+          poetry export --without-hashes --format=requirements.txt > requirements.txt
+      
+          # 从清单里把 torch 删掉！(因为我们要手动装 CPU 版)
+          # 使用 grep 反向选择，把包含 torch== 的行过滤掉，存入新文件
+          grep -v "torch==" requirements.txt > requirements_no_torch.txt
+
+      # 3. 强制安装 CPU 版 Torch (轻量级)
+      - name: Install CPU Torch
+        run: |
+          pip install torch==2.2.0 --index-url https://download.pytorch.org/whl/cpu
+
+      # 4. 安装剩下的依赖
+      - name: Install other dependencies
+        run: |
+          pip install -r requirements_no_torch.txt
+
+      # 5. 安装测试插件 (pytest-cov 通常在 dev 依赖里，可能没导出，手动补一下)
+      - name: Install test tools
+        run: |
+          pip install pytest pytest-cov
+
+      # 6. 运行测试 (注意：这里不能用 poetry run 了，直接用 pytest)
       - name: Run tests with pytest
         run: |
-          poetry run pytest tests/ --cov=./ --cov-report=xml
+          # 把当前目录加入 pythonpath，防止找不到 src 包
+          export PYTHONPATH=$PYTHONPATH:.
+          pytest tests/ --cov=./ --cov-report=xml
