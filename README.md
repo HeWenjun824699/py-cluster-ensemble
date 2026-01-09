@@ -778,7 +778,7 @@ ana.plot_parameter_sensitivity(
 
 ### 3.5.1 usenc (Ultra-Scalable Ensemble Clustering)
 
-基于超大规模集成聚类（USENC）。该方法旨在高效处理大规模数据集的集成任务，通过优化的一致性函数（Consensus Function）快速从基聚类中推导最终划分，适合处理海量数据。
+基于超大规模集成聚类（USENC）。该方法通过引入代表点（Landmarks）构建二部图，大幅降低谱分析的计算复杂度，实现海量数据集的高效集成。
 
 **参数 (Parameters)**
 
