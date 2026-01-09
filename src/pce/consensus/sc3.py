@@ -18,8 +18,10 @@ def sc3(
     """
     SC3: consensus clustering of single-cell RNA-seq data (SC3).
 
-    Computes a consensus matrix from a subset of base partitions and uses
-    Hierarchical Clustering (Complete Linkage) to derive the final partition.
+    SC3 integrates a subset of base partitions into a co-association matrix
+    and derives the final partition via Complete Linkage Hierarchical Clustering.
+    This approach ensures a stable and robust consensus result by capturing
+    high-confidence structural similarities across the ensemble.
 
     Parameters
     ----------

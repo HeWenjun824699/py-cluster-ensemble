@@ -19,10 +19,12 @@ def lwgp(
     """
     Locally weighted ensemble clustering (LWGP).
 
-    LWGP is a graph-based ensemble method that incorporates local weighting
-    to refine the similarity structure. It represents the ensemble as a
-    bipartite graph and utilizes efficient graph partitioning techniques to
-    resolve the final consensus partition.
+    LWGP is a graph-based ensemble method proposed in the locally weighted
+    clustering framework. It represents the ensemble as a weighted bipartite
+    graph between samples and clusters, incorporating local weighting to
+    reflect the reliability of base clusters. The final consensus partition
+    is obtained by partitioning this bipartite graph using efficient graph
+    cut algorithms (e.g., TARA).
 
     Parameters
     ----------

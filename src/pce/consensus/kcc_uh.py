@@ -22,10 +22,10 @@ def kcc_uh(
     """
     Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering (KCC_UH).
 
-    A variant of the KCC framework that utilizes the Harmonic Utility function.
-    By maximizing the harmonic utility in a weighted feature-transformed space,
-    it achieves robust consensus results with the computational efficiency
-    of the K-means algorithm.
+    KCC_UH maximizes the Harmonic Utility function by transforming the ensemble
+    problem into a weighted K-means task. It is designed to be robust and
+    computationally efficient by leveraging the relationship between consensus
+    clustering and the K-means objective.
 
     Parameters
     ----------

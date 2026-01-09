@@ -18,10 +18,10 @@ def mdecsc(
     """
     Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECSC).
 
-    This MDEC variant utilizes spectral clustering on a refined consensus matrix.
-    By combining segment extraction, ECI weighting, and LWCA computation, it
-    projects the ensemble data into a spectral embedding space to discover
-    the final cluster structures.
+    MDECSC is a spectral variant of the MDEC framework. It utilizes
+    Entropy-based Consensus Information (ECI) and the LWCA mechanism to
+    refine the consensus matrix, subsequently projecting the data into
+    a spectral embedding space to partition high-dimensional ensemble data.
 
     Parameters
     ----------

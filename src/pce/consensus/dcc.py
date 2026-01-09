@@ -18,7 +18,13 @@ def dcc(
 ) -> Union[Tuple[List[np.ndarray], List[float]],
            Tuple[List[np.ndarray], List[float], np.ndarray]]:
     """
-    Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation (DCC).
+    Fine-grained subphenotypes in acute kidney injury populations based on deep clustering: Derivation and interpretation (DCC).
+
+    DCC (Deep Consensus Clustering) This algorithm is designed for identifying fine-grained
+    subphenotypes in clinical populations (e.g., AKI). It leverages a deep learning-based
+    framework to learn high-level representations from base partitions, performing consensus
+    via an optimized co-association mechanism to capture subtle phenotypic variations that
+    traditional methods might overlook.
 
     Parameters
     ----------
@@ -49,7 +55,7 @@ def dcc(
 
     .. note:: **Source**
 
-        Tan et al., "Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation", *Scientific Reports*, 2024.
+        Tan et al., "Fine-grained subphenotypes in acute kidney injury populations based on deep clustering: Derivation and interpretation", *Scientific Reports*, 2024.
 
         **BibTeX**
 

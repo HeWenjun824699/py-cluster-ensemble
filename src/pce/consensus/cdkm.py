@@ -20,11 +20,11 @@ def cdkm(
     """
     Coordinate Descent Method for k-means (CDKM).
 
-    CDKM reformulates the cluster ensemble problem as a discrete kernel k-means
-    optimization task on a hypergraph. By treating the hypergraph incidence matrix
-    as the feature representation, it employs an efficient coordinate descent
-    algorithm to iteratively optimize the objective function, utilizing a
-    multi-initialization strategy to mitigate the risk of local optima.
+    CDKM solves the cluster ensemble problem by formulating it as a discrete
+    kernel k-means task on a hypergraph. It utilizes the efficient coordinate
+    descent algorithm (from Nie et al., 2021) to iteratively optimize the
+    objective function, treating the hypergraph incidence matrix as the
+    feature representation.
 
     Parameters
     ----------

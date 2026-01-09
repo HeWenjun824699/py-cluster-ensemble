@@ -18,11 +18,11 @@ def hgpa(
     """
     Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions (HGPA).
 
-    HGPA models the ensemble problem by representing each cluster in the base
-    partitions as a hyperedge in a hypergraph. The algorithm then seeks an
-    optimal partitioning of the hypergraph that minimizes the weight of cut
-    hyperedges, effectively finding a consensus that preserves the cluster
-    memberships across the ensemble.
+    HGPA models the ensemble problem by representing each cluster in the
+    base partitions as a hyperedge in a hypergraph. The algorithm then
+    seeks an optimal partitioning of the hypergraph by partitioning it
+    into $k$ disconnected components (using packages like HMETIS) to
+    minimize the weight of cut hyperedges.
 
     Parameters
     ----------

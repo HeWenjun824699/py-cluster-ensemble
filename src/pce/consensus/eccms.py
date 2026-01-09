@@ -20,10 +20,11 @@ def eccms(
     """
     Ensemble Clustering via Co-Association Matrix Self-Enhancement (ECCMS).
 
-    ECCMS implements a self-enhancement mechanism for the co-association matrix.
-    It utilizes Entropy-based Consensus Information (ECI) and selects high-confidence
-    sample pairs to refine the similarity structure before performing spectral
-    clustering for the final consensus.
+    ECCMS introduces a self-enhancement mechanism for the co-association matrix to
+    combat noise in base clusterings. It evaluates the reliability of base partitions
+    using Entropy-based Consensus Information (ECI) and refines the similarity matrix
+    by selecting high-confidence sample pairs, ensuring a more robust input for the
+    subsequent spectral clustering.
 
     Parameters
     ----------

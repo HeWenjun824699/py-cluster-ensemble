@@ -21,8 +21,11 @@ def icsc(
     """
     Iterative consensus spectral clustering improves detection of subject and group level brain functional modules (ICSC).
 
-    This function performs consensus clustering by iteratively selecting a subset of
-    base partitions, computing a co-association matrix, and applying spectral clustering.
+    ICSC is an iterative framework designed for detecting subject and group-level
+    brain functional modules. It refines the consensus by iteratively computing
+    a co-association matrix from subsets of base partitions and applying Spectral
+    Clustering with a micro-noise smoothing technique to improve stability and
+    detection accuracy.
 
     Parameters
     ----------

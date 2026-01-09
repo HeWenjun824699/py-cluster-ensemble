@@ -18,11 +18,11 @@ def ptaal(
     """
     Robust Ensemble Clustering Using Probability Trajectories (PTAAL).
 
-    PTAAL utilizes probability trajectories to model the relationships between
-    samples and clusters. It is designed to work within an active learning
-    scenario or as a standalone consensus function that leverages the
-    association-based probability trajectories of samples across base
-    partitions.
+    PTAAL implements a consensus strategy that combines probability trajectory
+    similarity (PTS) with hierarchical average linkage. It models the relationships
+    between samples by analyzing their cluster membership trajectories across multiple
+    base partitions, ultimately using the average linkage algorithm to produce the
+    final ensemble result.
 
     Parameters
     ----------

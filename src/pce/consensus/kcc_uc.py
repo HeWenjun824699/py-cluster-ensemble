@@ -23,9 +23,9 @@ def kcc_uc(
     Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering (KCC_Uc).
 
     KCC_Uc transforms the cluster ensemble problem into a K-means optimization
-    task in a transformed feature space. It aims to maximize the category
-    utility function, providing a highly efficient and scalable approach to
-    finding the consensus partition.
+    task by maximizing the Category Utility function. This approach provides
+    a scalable solution for finding a representative consensus partition in
+    a transformed feature space.
 
     Parameters
     ----------

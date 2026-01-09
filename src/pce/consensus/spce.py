@@ -17,7 +17,7 @@ def spce(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Self-paced clustering ensemble (SPCE).
+    Self-paced Clustering Ensemble (SPCE).
 
     SPCE introduces a self-paced learning mechanism into the ensemble framework.
     It optimizes a consensus matrix by gradually including base partitions from
@@ -52,7 +52,7 @@ def spce(
 
     .. note:: **Source**
 
-        Zhou et al., "Self-paced Clustering Ensemble-SPCE", *TNNLS*, 2020.
+        Zhou et al., "Self-paced Clustering Ensemble", *TNNLS*, 2020.
 
         **BibTeX**
 

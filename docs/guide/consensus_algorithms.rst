@@ -2,7 +2,7 @@
 Consensus Algorithms
 ====================
 
-As the core engine of the PCE toolkit, the consensus module implements a comprehensive suite of **30+ algorithms** spanning over two decades of research (2003–2025). These methods are designed to derive a single, robust consensus partition from a pool of diverse base clusterings, utilizing diverse theoretical frameworks.
+As the core engine of the PCE toolkit, the consensus module implements a comprehensive suite of **30+ algorithms** spanning over two decades of research (2002–2025). These methods are designed to derive a single, robust consensus partition from a pool of diverse base clusterings, utilizing diverse theoretical frameworks.
 
 Algorithm Categories
 --------------------
@@ -11,14 +11,14 @@ PCE categorizes its consensus algorithms into six technical families based on th
 
 1. **The Classics (Foundations)**
 
-   * **CSPA, MCLA, HGPA** (2003): The three foundational pillars of cluster ensembles. They model the problem using similarity matrices, meta-clustering, and hypergraph partitioning, respectively.
+   * **CSPA, MCLA, HGPA** (2002): The three foundational pillars of cluster ensembles. They model the problem using similarity matrices, meta-clustering, and hypergraph partitioning, respectively.
 
 2. **Graph Partitioning & Spectral Analysis**
 
-   * **Weighted Graph Methods**: **LWEA** and **LWGP** (2018) introduce local weighting mechanisms to account for the varying reliability of base clusters.
-   * **Probability Trajectory**: The **PT-Series** (PTAAL, PTACL, PTASL, PTGP, 2016) uses random walks on co-association graphs to capture the probability trajectories of node transitions.
-   * **Spectral & Diffusion**: Includes **USENC** (2020) for ultra-scalable spectral clustering, **CEAM** (2024) for adaptive multiplex diffusion, and iterative methods like **ICSC** (2020) and **ECPCS** (2021).
-   * **Self-Enhancement**: **SPCE** (2021) and **ECCMS** (2023) utilize self-paced learning and matrix self-enhancement techniques to improve spectral embedding quality.
+   * **Weighted Graph Methods**: **LWEA** and **LWGP** (2017) introduce local weighting mechanisms to account for the varying reliability of base clusters.
+   * **Probability Trajectory**: The **PT-Series** (PTAAL, PTACL, PTASL, PTGP, 2015) uses random walks on co-association graphs to capture the probability trajectories of node transitions.
+   * **Spectral & Diffusion**: Includes **USENC** (2019) for ultra-scalable spectral clustering, **CEAM** (2023) for adaptive multiplex diffusion, and iterative methods like **ICSC** (2020) and **ECPCS** (2018).
+   * **Self-Enhancement**: **SPCE** (2020) and **ECCMS** (2023) utilize self-paced learning and matrix self-enhancement techniques to improve spectral embedding quality.
 
 3. **Matrix Decomposition & Tensor Learning**
 
@@ -28,19 +28,19 @@ PCE categorizes its consensus algorithms into six technical families based on th
 
 4. **Optimization & Discrete Methods**
 
-   * **Direct Optimization**: **CDKM** (2022) solves the ensemble problem via Discrete Kernel K-Means with coordinate descent.
+   * **Direct Optimization**: **CDKM** (2021) solves the ensemble problem via Discrete Kernel K-Means with coordinate descent.
    * **Utility Maximization**: **KCC** (2023) transforms consensus clustering into a K-Means problem by maximizing Category Utility or Harmonic Utility functions.
    * **Matrix-Based K-Means**: **DCC** (2024) computes the co-association matrix from base partitions and treats it as similarity features for **K-Means** to derive the final partition.
 
 5. **Diversity & Adaptive Mechanisms**
 
-   * **Multi-Diversity**: The **MDEC-Series** (2022) enhances performance by exploiting structural diversity via Bipartite Graphs, Hierarchical Clustering, or Spectral Clustering.
+   * **Multi-Diversity**: The **MDEC-Series** (2021) enhances performance by exploiting structural diversity via Bipartite Graphs, Hierarchical Clustering, or Spectral Clustering.
    * **Adaptive Weighting**: **CDEC** (2025) introduces balance constraints and adaptive weighting to handle varying cluster sizes and quality.
 
 6. **Representation Learning, Active Learning & Domain-Specific**
 
-   * **Representation Learning**: **DREC** (2018) employs dense representation and dual regularization to improve robustness against noise.
-   * **Active Learning**: **SPACE** (2024) combines active user queries with self-paced learning to improve results with minimal supervision.
+   * **Representation Learning**: **DREC** (2019) employs dense representation and dual regularization to improve robustness against noise.
+   * **Active Learning**: **SPACE** (2023) combines active user queries with self-paced learning to improve results with minimal supervision.
    * **Bioinformatics**: **SC3** (2017) provides a specialized consensus pipeline for Single-Cell RNA-seq data.
 
 Usage Pattern

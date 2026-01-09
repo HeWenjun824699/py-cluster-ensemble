@@ -1279,7 +1279,7 @@ ICSC (Iterative Consensus Spectral Clustering) 是一种迭代共识谱聚类算
 
 ### 3.20 DCC-IJMI-2024
 
-> **来源：** Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation-IJMI-2024
+> **来源：** Fine-grained subphenotypes in acute kidney injury populations based on deep clustering: Derivation and interpretation-IJMI-2024
 
 DCC (Deep Consensus Clustering) 的核心集成策略实现。该算法计算基聚类的共识矩阵（Co-association Matrix），并将其视为相似度特征输入到 **K-Means** 算法中进行最终划分。
 
@@ -1717,30 +1717,30 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
      - [x] cspa.py（cspa集成算法）
      - [x] mcla.py（mcla集成算法）
      - [x] hgpa.py（hgpa集成算法）
-   - [x] PTA(AL-CL-SL)-PTGP-TKDE-2016
+   - [x] PTA(AL-CL-SL)-PTGP-TKDE-2015
      - [x] ptaal.py（ptaal集成算法）
      - [x] ptacl.py（ptacl集成算法）
      - [x] ptasl.py（ptasl集成算法）
      - [x] ptgp.py（ptgp集成算法）
-   - [x] LWEA-LWGP-TCYB-2018
+   - [x] LWEA-LWGP-TCYB-2017
      - [x] lwea.py（lwea集成算法）
      - [x] lwgp.py（lwgp集成算法）
-   - [x] DREC-Neurocomputing-2018
+   - [x] DREC-Neurocomputing-2019
      - [x] drec.py（drec集成算法）
-   - [x] USENC-TKDE-2020
+   - [x] USENC-TKDE-2019
      - [x] usenc.py（usenc集成算法）
    - [x] CELTA-AAAI-2021
      - [x] celta.py（celta集成算法）
-   - [x] ECPCS-TSMC-2021
+   - [x] ECPCS-TSMC-2018
      - [x] ecpcs_hc.py（ecpcs_hc集成算法）
      - [x] ecpcs_mc.py（ecpcs_mc集成算法）
-   - [x] SPCE-TNNLS-2021
+   - [x] SPCE-TNNLS-2020
      - [x] spce.py（spce集成算法）
    - [x] TRCE-AAAI-2021
      - [x] trce.py（trce集成算法）
-   - [x] CDKM-TPAMI-2022
+   - [x] CDKM-TPAMI-2021
      - [x] cdkm.py（cdkm集成算法）
-   - [x] MDEC-TCYB-2022
+   - [x] MDEC-TCYB-2021
      - [x] mdecbg.py（mdecbg集成算法）
      - [x] mdechc.py（mdechc集成算法）
      - [x] mdecsc.py（mdecsc集成算法）
@@ -1751,9 +1751,9 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
    - [x] KCC-TMS-2023
      - [x] kcc_uc.py（kcc_uc集成算法）
      - [x] kcc_sh.py（kcc_sh集成算法）
-   - [x] CEAM-TKDE-2024
+   - [x] CEAM-TKDE-2023
      - [x] ceam.py（ceam集成算法）
-   - [x] SPACE-TNNLS-2024
+   - [x] SPACE-TNNLS-2023
      - [x] space.py（space集成算法）
    - [x] CDEC-TCSVT-2025
      - [x] cdec.py（cdec集成算法）

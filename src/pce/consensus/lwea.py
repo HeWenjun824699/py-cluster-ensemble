@@ -19,10 +19,11 @@ def lwea(
     """
     Locally weighted ensemble clustering (LWEA).
 
-    LWEA introduces a local weighting strategy to evaluate the reliability of
-    clusters in base partitions. It constructs a weighted bipartite graph
-    representing the relationships between samples and clusters, and solves the
-    consensus partition via graph partitioning or spectral methods.
+    LWEA evaluates the reliability of base clusters through a local weighting
+    strategy. It constructs a Locally Weighted Co-association (LWCA) matrix
+    that captures the refined similarity between samples. The consensus
+    partition is then solved by an efficient hierarchical (agglomerative)
+    clustering algorithm based on the weighted similarities.
 
     Parameters
     ----------

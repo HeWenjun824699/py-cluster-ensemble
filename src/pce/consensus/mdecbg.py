@@ -18,10 +18,11 @@ def mdecbg(
     """
     Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECBG).
 
-    MDECBG belongs to the Multi-Diversity Ensemble Clustering (MDEC) framework.
-    It integrates diverse information from base partitions by constructing
-    segments and utilizing Entropy-based Consensus Information (ECI) to weight
-    a bipartite graph, which is then partitioned for the final result.
+    MDECBG is a representative algorithm of the Multi-Diversity Ensemble
+    Clustering (MDEC) framework. It integrates diverse base partitions by
+    constructing segments and employing Entropy-based Consensus Information
+    (ECI) to weight a bipartite graph. The final results are produced by
+    efficient bipartite graph partitioning.
 
     Parameters
     ----------

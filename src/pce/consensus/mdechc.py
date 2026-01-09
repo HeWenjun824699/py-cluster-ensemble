@@ -18,10 +18,11 @@ def mdechc(
     """
     Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECHC).
 
-    A variant of the MDEC framework that solves the consensus problem through
-    hierarchical clustering. It leverages ECI and Locally Weighted Co-association
-    (LWCA) matrices to capture diverse cluster relationships before performing
-    agglomerative clustering.
+    MDECHC is a variant of the MDEC framework designed for high-dimensional
+    data. It captures diverse relationships by combining Entropy-based
+    Consensus Information (ECI) with a Locally Weighted Co-association (LWCA)
+    mechanism, and solves the consensus problem using agglomerative
+    hierarchical clustering.
 
     Parameters
     ----------
