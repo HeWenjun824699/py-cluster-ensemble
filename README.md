@@ -173,7 +173,7 @@ ana.plot_2d_scatter(
 # 适用场景: 观察集成的一致性结构 (需先运行场景 B 生成 BPs)
 BPs, Y = io.load_mat_BPs_Y('data/base_partitions.mat')
 ana.plot_coassociation_heatmap(
-    BPs, Y,
+    Y, BPs=BPs, 
     title='Ensemble Consensus Matrix',
     save_path='output/heatmap.png'
 )

@@ -42,7 +42,7 @@ Analyze the consistency of the ensemble by plotting a co-association heatmap. By
 
    # 2. Plot co-association matrix heatmap
    ana.plot_coassociation_heatmap(
-       BPs, Y,
+       Y, BPs=BPs,
        xlabel='Sample Index (Sorted by Ground Truth)',
        ylabel='Sample Index (Sorted by Ground Truth)',
        title='Ensemble Consensus Matrix Heatmap',

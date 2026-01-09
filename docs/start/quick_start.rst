@@ -121,7 +121,7 @@ PCE features paper-quality visualization tools to analyze results and communicat
     # Use case: Observe ensemble consensus structure (requires BPs from Scenario B)
     BPs, Y = io.load_mat_BPs_Y('./data/base_partitions.mat')
     ana.plot_coassociation_heatmap(
-        BPs, Y,
+        Y, BPs=BPs,
         title='Ensemble Consensus Matrix',
         save_path='./output/heatmap.png'
     )
