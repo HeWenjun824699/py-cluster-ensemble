@@ -16,12 +16,13 @@ def usenc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Uncertainty-Based Ensemble Clustering (USENC).
+    Ultra-scalable spectral clustering and ensemble clustering (USENC).
 
-    USENC handles the consensus problem by explicitly considering the uncertainty
-    of sample assignments in base partitions. It utilizes an uncertainty-aware
-    consensus function to aggregate diverse clustering results, making it robust
-    to noise and low-quality base clusterers.
+    USENC addresses the scalability bottleneck in ensemble clustering by
+    reformulating the consensus problem as a bipartite graph partitioning task.
+    It constructs a bipartite graph between samples and base clusters to
+    efficiently approximate spectral clustering, achieving near-linear time
+    complexity and making it highly effective for large-scale datasets.
 
     Parameters
     ----------
@@ -46,6 +47,26 @@ def usenc(
         A list of predicted label arrays for `nRepeat` repetitions.
     time_list : list of float
         A list of execution times (in seconds) for each repetition.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Ultra-scalable spectral clustering and ensemble clustering", *TKDE*, 2019.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2019ultra,
+                title={Ultra-scalable spectral clustering and ensemble clustering},
+                author={Huang, Dong and Wang, Chang-Dong and Wu, Jian-Sheng and Lai, Jian-Huang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Knowledge and Data Engineering},
+                volume={32},
+                number={6},
+                pages={1212--1226},
+                year={2019},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

@@ -16,7 +16,7 @@ def sc3(
 ) -> Union[Tuple[List[np.ndarray], List[float]],
            Tuple[List[np.ndarray], List[float], np.ndarray]]:
     """
-    SC3 Consensus Strategy.
+    SC3: consensus clustering of single-cell RNA-seq data (SC3).
 
     Computes a consensus matrix from a subset of base partitions and uses
     Hierarchical Clustering (Complete Linkage) to derive the final partition.
@@ -48,6 +48,26 @@ def sc3(
         A list of time costs (in seconds) for each ensemble run.
     cons_mat : np.ndarray, optional
         The consensus matrix from the last repetition, returned only if return_matrix is True.
+
+
+    .. note:: **Source**
+
+        Kiselev et al., "SC3: consensus clustering of single-cell RNA-seq data", *Nature Methods*, 2017.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{kiselev2017sc3,
+                title={SC3: consensus clustering of single-cell RNA-seq data},
+                author={Kiselev, Vladimir Yu and Kirschner, Kristina and Schaub, Michael T and Andrews, Tallulah and Yiu, Andrew and Chandra, Tamir and Natarajan, Kedar N and Reik, Wolf and Barahona, Mauricio and Green, Anthony R and others},
+                journal={Nature methods},
+                volume={14},
+                number={5},
+                pages={483--486},
+                year={2017},
+                publisher={Nature Publishing Group US New York}
+            }
     """
 
     # 1. Preprocessing

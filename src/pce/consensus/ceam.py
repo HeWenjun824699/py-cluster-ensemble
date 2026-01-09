@@ -51,6 +51,26 @@ def ceam(
         Prediction results for `nRepeat` independent runs.
     time_list : list of float
         Execution time for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Zhou et al., "Clustering Ensemble via Diffusion on Adaptive Multiplex", *TKDE*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{zhou2023clustering,
+                title={Clustering ensemble via diffusion on adaptive multiplex},
+                author={Zhou, Peng and Hu, Boao and Yan, Dengcheng and Du, Liang},
+                journal={IEEE Transactions on Knowledge and Data Engineering},
+                volume={36},
+                number={4},
+                pages={1463--1474},
+                year={2023},
+                publisher={IEEE}
+            }
     """
 
     # 1. Preprocessing

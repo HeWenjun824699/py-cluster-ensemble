@@ -17,7 +17,7 @@ def ecpcs_mc(
         seed: int = 2024
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Ensemble Clustering by Propagation of Cluster-wise Similarities via Meta-Clustering (ECPCS-MC).
+    Enhanced Ensemble Clustering via Fast Propagation of Cluster-Wise Similarities (ECPCS-MC).
 
     A variant of the ECPCS framework that utilizes the Meta-Clustering (MCLA-style)
     strategy. It propagates similarities between clusters to build a refined
@@ -48,6 +48,26 @@ def ecpcs_mc(
         Consensus partitions for `nRepeat` independent runs.
     time_list : list of float
         Time cost for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Enhanced Ensemble Clustering via Fast Propagation of Cluster-Wise Similarities", *TSMC*, 2018.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2018enhanced,
+                title={Enhanced ensemble clustering via fast propagation of cluster-wise similarities},
+                author={Huang, Dong and Wang, Chang-Dong and Peng, Hongxing and Lai, Jianhuang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Systems, Man, and Cybernetics: Systems},
+                volume={51},
+                number={1},
+                pages={508--520},
+                year={2018},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

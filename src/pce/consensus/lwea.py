@@ -17,7 +17,7 @@ def lwea(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Locally Weighted Ensemble Clustering (LWEA).
+    Locally weighted ensemble clustering (LWEA).
 
     LWEA introduces a local weighting strategy to evaluate the reliability of
     clusters in base partitions. It constructs a weighted bipartite graph
@@ -50,6 +50,26 @@ def lwea(
         A list of predicted label arrays for `nRepeat` repetitions.
     time_list : list of float
         A list of execution times for each repetition in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Locally weighted ensemble clustering", *TCYB*, 2017.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2017locally,
+                title={Locally weighted ensemble clustering},
+                author={Huang, Dong and Wang, Chang-Dong and Lai, Jian-Huang},
+                journal={IEEE transactions on cybernetics},
+                volume={48},
+                number={5},
+                pages={1460--1473},
+                year={2017},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

@@ -17,12 +17,14 @@ def trce(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Tensor-based Regularized Clustering Ensemble (TRCE).
+    Tri-level Robust Clustering Ensemble with Multiple Graph Learning (TRCE).
 
-    TRCE formulates the ensemble problem as a tensor optimization task. It
-    constructs a co-association tensor from base partitions and solves for a
-    consensus matrix through a regularized optimization framework, preserving
-    high-order structural information.
+    TRCE formulates the consensus clustering problem as a multiple graph learning
+    task. It constructs a unified framework that integrates structural information
+    from three levels: instance-level constraints, cluster-level associations, and
+    instance-cluster relationships. By learning a consensus graph from these
+    multi-view structures, TRCE achieves high robustness against noise and
+    inconsistent base partitions.
 
     Parameters
     ----------
@@ -48,6 +50,25 @@ def trce(
         Prediction results for `nRepeat` independent runs.
     time_list : list of float
         Time cost for each tensor-based optimization run.
+
+
+    .. note:: **Source**
+
+        Zhou et al., "Tri-level Robust Clustering Ensemble with Multiple Graph Learning", *AAAI*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @inproceedings{zhou2021tri,
+                title={Tri-level robust clustering ensemble with multiple graph learning},
+                author={Zhou, Peng and Du, Liang and Shen, Yi-Dong and Li, Xuejun},
+                booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+                volume={35},
+                number={12},
+                pages={11125--11133},
+                year={2021}
+            }
     """
 
     # 1. Data preprocessing

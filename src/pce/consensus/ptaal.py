@@ -16,7 +16,7 @@ def ptaal(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Probability Trajectory based Association for Active Learning (PTAAL).
+    Robust Ensemble Clustering Using Probability Trajectories (PTAAL).
 
     PTAAL utilizes probability trajectories to model the relationships between
     samples and clusters. It is designed to work within an active learning
@@ -47,6 +47,26 @@ def ptaal(
         A list of predicted label arrays for `nRepeat` repetitions.
     time_list : list of float
         A list of execution times for each repetition in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Robust Ensemble Clustering Using Probability Trajectories", *TKDE*, 2015.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2015robust,
+                title={Robust ensemble clustering using probability trajectories},
+                author={Huang, Dong and Lai, Jian-Huang and Wang, Chang-Dong},
+                journal={IEEE transactions on knowledge and data engineering},
+                volume={28},
+                number={5},
+                pages={1312--1326},
+                year={2015},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

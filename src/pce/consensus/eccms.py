@@ -18,7 +18,7 @@ def eccms(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Ensemble Clustering via Co-association Matrix Self-enhancement (ECCMS).
+    Ensemble Clustering via Co-Association Matrix Self-Enhancement (ECCMS).
 
     ECCMS implements a self-enhancement mechanism for the co-association matrix.
     It utilizes Entropy-based Consensus Information (ECI) and selects high-confidence
@@ -52,6 +52,26 @@ def eccms(
         Prediction results for `nRepeat` experimental runs.
     time_list : list of float
         Execution time (seconds) for each run.
+
+
+    .. note:: **Source**
+
+        Jia et al., "Ensemble Clustering via Co-Association Matrix Self-Enhancement", *TNNLS*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{jia2023ensemble,
+                title={Ensemble clustering via co-association matrix self-enhancement},
+                author={Jia, Yuheng and Tao, Sirui and Wang, Ran and Wang, Yongheng},
+                journal={IEEE Transactions on Neural Networks and Learning Systems},
+                volume={35},
+                number={8},
+                pages={11168--11179},
+                year={2023},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data Preprocessing

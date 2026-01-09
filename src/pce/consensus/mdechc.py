@@ -16,7 +16,7 @@ def mdechc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Multi-Diversity Ensemble Clustering via Hierarchical Clustering (MDECHC).
+    Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECHC).
 
     A variant of the MDEC framework that solves the consensus problem through
     hierarchical clustering. It leverages ECI and Locally Weighted Co-association
@@ -44,6 +44,26 @@ def mdechc(
         Prediction results for `nRepeat` independent runs.
     time_list : list of float
         Time cost for each hierarchical clustering run.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond", *TCYB*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2021toward,
+                title={Toward multidiversified ensemble clustering of high-dimensional data: From subspaces to metrics and beyond},
+                author={Huang, Dong and Wang, Chang-Dong and Lai, Jian-Huang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Cybernetics},
+                volume={52},
+                number={11},
+                pages={12231--12244},
+                year={2021},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

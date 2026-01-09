@@ -20,7 +20,7 @@ def space(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Sequential Probing and Active Clustering Ensemble (SPACE).
+    Active Clustering Ensemble With Self-Paced Learning (SPACE).
 
     SPACE is an advanced ensemble framework that incorporates active learning
     and sequential probing. It adaptively selects and queries informative sample
@@ -56,6 +56,26 @@ def space(
         Consensus partitions for each experimental repetition.
     time_list : list of float
         Computation time cost for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Zhou et al., "Active Clustering Ensemble With Self-Paced Learning", *TNNLS*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{zhou2023active,
+                title={Active clustering ensemble with self-paced learning},
+                author={Zhou, Peng and Sun, Bicheng and Liu, Xinwang and Du, Liang and Li, Xuejun},
+                journal={IEEE Transactions on Neural Networks and Learning Systems},
+                volume={35},
+                number={9},
+                pages={12186--12200},
+                year={2023},
+                publisher={IEEE}
+            }
     """
 
     # 1. Preprocessing

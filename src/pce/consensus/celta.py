@@ -17,7 +17,7 @@ def celta(
         seed: int = 2025
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Clustering Ensemble Method via Low-Rank Tensor Approximation (CELTA).
+    Clustering Ensemble Meets Low-rank Tensor Approximation (CELTA).
 
     CELTA models the ensemble problem through a low-rank tensor approximation
     framework. It constructs Microcluster Association (MCA) and Co-Association
@@ -46,6 +46,25 @@ def celta(
         List of predicted labels for each repetition.
     time_list : list of float
         List of computation times for each repetition.
+
+
+    .. note:: **Source**
+
+        Jia et al., "Clustering Ensemble Meets Low-rank Tensor Approximation", *AAAI*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @inproceedings{jia2021clustering,
+                title={Clustering ensemble meets low-rank tensor approximation},
+                author={Jia, Yuheng and Liu, Hui and Hou, Junhui and Zhang, Qingfu},
+                booktitle={Proceedings of the AAAI conference on artificial intelligence},
+                volume={35},
+                number={9},
+                pages={7970--7978},
+                year={2021}
+            }
     """
 
     # 1. Data preprocessing

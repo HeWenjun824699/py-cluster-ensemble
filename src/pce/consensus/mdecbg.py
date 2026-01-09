@@ -16,7 +16,7 @@ def mdecbg(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Multi-Diversity Ensemble Clustering via Bipartite Graph (MDECBG).
+    Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECBG).
 
     MDECBG belongs to the Multi-Diversity Ensemble Clustering (MDEC) framework.
     It integrates diverse information from base partitions by constructing
@@ -44,6 +44,26 @@ def mdecbg(
         List of ensemble prediction results for each run.
     time_list : list of float
         List of execution times for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond", *TCYB*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2021toward,
+                title={Toward multidiversified ensemble clustering of high-dimensional data: From subspaces to metrics and beyond},
+                author={Huang, Dong and Wang, Chang-Dong and Lai, Jian-Huang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Cybernetics},
+                volume={52},
+                number={11},
+                pages={12231--12244},
+                year={2021},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

@@ -17,7 +17,7 @@ def lwgp(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Locally Weighted Graph Partitioning (LWGP).
+    Locally weighted ensemble clustering (LWGP).
 
     LWGP is a graph-based ensemble method that incorporates local weighting
     to refine the similarity structure. It represents the ensemble as a
@@ -48,6 +48,26 @@ def lwgp(
         Predicted consensus labels for each repetition.
     time_list : list of float
         Computation time cost for each run.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Locally weighted ensemble clustering", *TCYB*, 2017.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2017locally,
+                title={Locally weighted ensemble clustering},
+                author={Huang, Dong and Wang, Chang-Dong and Lai, Jian-Huang},
+                journal={IEEE transactions on cybernetics},
+                volume={48},
+                number={5},
+                pages={1460--1473},
+                year={2017},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

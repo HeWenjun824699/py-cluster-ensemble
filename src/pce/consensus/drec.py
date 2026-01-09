@@ -17,11 +17,13 @@ def drec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Dual Regularized Ensemble Clustering (DREC).
+    Ensemble clustering based on dense representation (DREC).
 
-    This algorithm utilizes dense representation to capture global data
-    structures and introduces a dual regularization framework to optimize
-    the consensus partition, enhancing robustness against noise.
+    This algorithm addresses the limitation of the traditional co-association
+    matrix, which is often too sparse to capture latent global structures.
+    It constructs a dense representation matrix to reveal the intrinsic
+    relationships between samples, thereby enhancing the robustness of the
+    consensus partition against noise and improving clustering quality.
 
     Parameters
     ----------
@@ -47,6 +49,25 @@ def drec(
         List of ensemble prediction results for `nRepeat` runs.
     time_list : list of float
         List of execution times for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Zhou et al., "Ensemble clustering based on dense representation", *Neurocomputing*, 2019.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{zhou2019ensemble,
+                title={Ensemble clustering based on dense representation},
+                author={Zhou, Jie and Zheng, Hongchan and Pan, Lulu},
+                journal={Neurocomputing},
+                volume={357},
+                pages={66--76},
+                year={2019},
+                publisher={Elsevier}
+            }
     """
 
     # 1. Data preprocessing

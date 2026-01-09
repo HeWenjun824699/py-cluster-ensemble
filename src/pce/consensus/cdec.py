@@ -55,11 +55,11 @@ def cdec(
 
     .. note:: **Source**
 
-       Zhang et al., "Towards Balance Adaptive Weighted Ensemble Clustering", *IEEE TCSVT*, 2025.
+        Zhang et al., "Towards Balance Adaptive Weighted Ensemble Clustering", *TCSVT*, 2025.
 
-       **BibTeX:**
+        **BibTeX**
 
-       .. code-block:: bibtex
+        .. code-block:: bibtex
 
             @article{zhang2025towards,
                 title={Towards Balance Adaptive Weighted Ensemble Clustering},

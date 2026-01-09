@@ -16,7 +16,7 @@ def mdecsc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Multi-Diversity Ensemble Clustering via Spectral Clustering (MDECSC).
+    Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond (MDECSC).
 
     This MDEC variant utilizes spectral clustering on a refined consensus matrix.
     By combining segment extraction, ECI weighting, and LWCA computation, it
@@ -44,6 +44,26 @@ def mdecsc(
         A list of prediction results for `nRepeat` repetition experiments.
     time_list : list of float
         Execution time (seconds) for each repetition.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond", *TCYB*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2021toward,
+                title={Toward multidiversified ensemble clustering of high-dimensional data: From subspaces to metrics and beyond},
+                author={Huang, Dong and Wang, Chang-Dong and Lai, Jian-Huang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Cybernetics},
+                volume={52},
+                number={11},
+                pages={12231--12244},
+                year={2021},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

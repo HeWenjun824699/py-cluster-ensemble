@@ -19,7 +19,7 @@ def icsc(
         assign_labels: str = 'discretize'
 ) -> Tuple[List[np.ndarray], List[float]]:
     """
-    Iterative Consensus Spectral Clustering (ICSC).
+    Iterative consensus spectral clustering improves detection of subject and group level brain functional modules (ICSC).
 
     This function performs consensus clustering by iteratively selecting a subset of
     base partitions, computing a co-association matrix, and applying spectral clustering.
@@ -56,6 +56,26 @@ def icsc(
         A tuple containing:
         - labels_list: A list of predicted labels for each iteration.
         - time_list: A list of execution times for each iteration.
+
+
+    .. note:: **Source**
+
+        Gupta et al., "Iterative consensus spectral clustering improves detection of subject and group level brain functional modules", *Scientific Reports*, 2020.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{gupta2020iterative,
+                title={Iterative consensus spectral clustering improves detection of subject and group level brain functional modules},
+                author={Gupta, Sukrit and Rajapakse, Jagath C},
+                journal={Scientific reports},
+                volume={10},
+                number={1},
+                pages={7590},
+                year={2020},
+                publisher={Nature Publishing Group UK London}
+            }
     """
 
     if np.min(BPs) == 1:

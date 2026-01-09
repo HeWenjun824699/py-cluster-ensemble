@@ -18,12 +18,13 @@ def cdkm(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Consensus Clustering via Discrete Kernel K-Means (CDKM).
+    Coordinate Descent Method for k-means (CDKM).
 
-    CDKM formulates the cluster ensemble as a discrete kernel K-means optimization
-    problem. It utilizes a hypergraph incidence matrix and an efficient
-    coordinate descent solver with a multi-initialization strategy to avoid
-    local optima.
+    CDKM reformulates the cluster ensemble problem as a discrete kernel k-means
+    optimization task on a hypergraph. By treating the hypergraph incidence matrix
+    as the feature representation, it employs an efficient coordinate descent
+    algorithm to iteratively optimize the objective function, utilizing a
+    multi-initialization strategy to mitigate the risk of local optima.
 
     Parameters
     ----------
@@ -49,6 +50,26 @@ def cdkm(
         Optimization results for `nRepeat` experimental runs.
     time_list : list of float
         Execution time for each outer loop iteration.
+
+
+    .. note:: **Source**
+
+        Nie et al., "Coordinate Descent Method for k-means", *TPAMI*, 2021.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{nie2021coordinate,
+                title={Coordinate descent method for $ k $ k-means},
+                author={Nie, Feiping and Xue, Jingjing and Wu, Danyang and Wang, Rong and Li, Hui and Li, Xuelong},
+                journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+                volume={44},
+                number={5},
+                pages={2371--2385},
+                year={2021},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

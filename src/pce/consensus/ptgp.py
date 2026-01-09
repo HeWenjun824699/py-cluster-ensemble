@@ -16,7 +16,7 @@ def ptgp(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Probability Trajectory based Graph Partitioning (PTGP).
+    Robust Ensemble Clustering Using Probability Trajectories (PTGP).
 
     PTGP formulates the ensemble problem as a graph partitioning task. It
     extracts micro-clusters and builds a similarity graph based on probability
@@ -44,6 +44,26 @@ def ptgp(
         A list of prediction results for `nRepeat` repetition experiments.
     time_list : list of float
         Execution time (seconds) for each repetition.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Robust Ensemble Clustering Using Probability Trajectories", *TKDE*, 2015.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2015robust,
+                title={Robust ensemble clustering using probability trajectories},
+                author={Huang, Dong and Lai, Jian-Huang and Wang, Chang-Dong},
+                journal={IEEE transactions on knowledge and data engineering},
+                volume={28},
+                number={5},
+                pages={1312--1326},
+                year={2015},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

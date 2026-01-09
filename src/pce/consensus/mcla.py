@@ -16,7 +16,7 @@ def mcla(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Meta-Clustering Algorithm (MCLA).
+    Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions (MCLA).
 
     MCLA solves the consensus problem by clustering the clusters themselves.
     It views each cluster in base partitions as a hyperedge in a hypergraph,
@@ -50,6 +50,25 @@ def mcla(
         A list containing `nRepeat` prediction arrays, each of shape (n_samples,).
     time_list : list of float
         A list containing the execution time (in seconds) for each repetition.
+
+
+    .. note:: **Source**
+
+        Strehl et al., "Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions", *JMLR*, 2002.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{strehl2002cluster,
+                title={Cluster ensembles---a knowledge reuse framework for combining multiple partitions},
+                author={Strehl, Alexander and Ghosh, Joydeep},
+                journal={Journal of machine learning research},
+                volume={3},
+                number={Dec},
+                pages={583--617},
+                year={2002}
+            }
     """
 
     # 1. Process data

@@ -17,7 +17,7 @@ def ecpcs_hc(
         seed: int = 2024
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Ensemble Clustering by Propagation of Cluster-wise Similarities via Hierarchical Clustering (ECPCS-HC).
+    Enhanced Ensemble Clustering via Fast Propagation of Cluster-Wise Similarities (ECPCS-HC).
 
     This algorithm enhances consensus performance by propagating similarities
     between clusters across different base partitions. After constructing an
@@ -48,6 +48,26 @@ def ecpcs_hc(
         List of predicted labels for each experimental repetition.
     time_list : list of float
         List of execution times for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Enhanced Ensemble Clustering via Fast Propagation of Cluster-Wise Similarities", *TSMC*, 2018.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2018enhanced,
+                title={Enhanced ensemble clustering via fast propagation of cluster-wise similarities},
+                author={Huang, Dong and Wang, Chang-Dong and Peng, Hongxing and Lai, Jianhuang and Kwoh, Chee-Keong},
+                journal={IEEE Transactions on Systems, Man, and Cybernetics: Systems},
+                volume={51},
+                number={1},
+                pages={508--520},
+                year={2018},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

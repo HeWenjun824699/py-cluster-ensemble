@@ -16,7 +16,7 @@ def ptasl(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Probability Trajectory based Association with Single Linkage (PTASL).
+    Robust Ensemble Clustering Using Probability Trajectories (PTASL).
 
     PTASL is a hierarchical consensus method that uses probability trajectory
     similarity (PTS) in conjunction with single linkage. Similar to its variants,
@@ -44,6 +44,26 @@ def ptasl(
         Predicted consensus labels for `nRepeat` independent runs.
     time_list : list of float
         Execution time cost for each single linkage run.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Robust Ensemble Clustering Using Probability Trajectories", *TKDE*, 2015.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2015robust,
+                title={Robust ensemble clustering using probability trajectories},
+                author={Huang, Dong and Lai, Jian-Huang and Wang, Chang-Dong},
+                journal={IEEE transactions on knowledge and data engineering},
+                volume={28},
+                number={5},
+                pages={1312--1326},
+                year={2015},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

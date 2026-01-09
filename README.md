@@ -15,7 +15,7 @@
 针对 Python 生态缺乏统一集成工具的现状，PCE 提供了从 **基聚类生成 (Generation)**、**集成共识 (Consensus)** 到 **结果评估 (Evaluation)** 的标准化全链路解决方案。它特别针对科研实验场景进行了深度优化，注重**实验的可复现性**与**MATLAB 迁移体验**，内置以下核心能力：
 
 * 🔄 **无缝迁移**：完美兼容 MATLAB (`.mat`) 数据格式，自动处理索引转换，降低转码成本。
-* 🛠️ **全栈流程**：收录 30+ 种主流集成算法（2003-2025）及 14+ 种聚类评估指标。
+* 🛠️ **全栈流程**：收录 30+ 种主流集成算法（2002-2025）及 14+ 种聚类评估指标。
 * ⚡ **自动化实验**：内置智能网格搜索与批处理流水线，大幅提升实验效率。
 * 📊 **论文级绘图**：一键生成符合学术标准的高质量可视化图表。
 
@@ -533,9 +533,9 @@ ana.plot_parameter_sensitivity(
 <details>
 <summary><strong>🔽 点击查看详细参数列表 (Click to expand)</strong></summary>
 
-### 3.1 CSPA-HGPA-MCLA-JMLR-2003
+### 3.1 CSPA-HGPA-MCLA-JMLR-2002
 
-> **来源：** Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions-JMLR-2003
+> **来源：** Cluster Ensembles --- A Knowledge Reuse Framework for Combining Multiple Partitions-JMLR-2002
 
 ### 3.1.1 cspa (Cluster-based Similarity Partitioning Algorithm)
 
@@ -603,9 +603,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 HGPA 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.2 PTA(AL-CL-SL)-PTGP-TKDE-2016
+### 3.2 PTA(AL-CL-SL)-PTGP-TKDE-2015
 
-> **来源：** Robust Ensemble Clustering Using Probability Trajectories-TKDE-2016
+> **来源：** Robust Ensemble Clustering Using Probability Trajectories-TKDE-2015
 
 ### 3.2.1 ptaal (Probability Trajectory based Association for Active Learning)
 
@@ -695,9 +695,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 PTGP 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.3 LWEA-LWGP-TCYB-2018
+### 3.3 LWEA-LWGP-TCYB-2017
 
-> **来源：** Locally weighted ensemble clustering-TCYB-2018
+> **来源：** Locally weighted ensemble clustering-TCYB-2017
 
 ### 3.3.1 lwea (Locally Weighted Ensemble Algorithm)
 
@@ -745,11 +745,11 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 LWGP 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.4 DREC-Neurocomputing-2018
+### 3.4 DREC-Neurocomputing-2019
 
 > **来源：** Ensemble clustering based on dense representation-Neurocomputing-2019
 
-### 3.4.1 drec (Dual Regularized Ensemble Clustering)
+### 3.4.1 drec (Dense Representation Ensemble Clustering)
 
 基于密集表示的双重正则化集成聚类（DREC）。该方法利用密集表示（Dense Representation）捕捉数据结构，并通过引入正则化项（lambda）来优化共识划分，增强算法对噪声的鲁棒性。
 
@@ -772,7 +772,7 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 DREC 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.5 USENC-TKDE-2020
+### 3.5 USENC-TKDE-2019
 
 > **来源：** Ultra-Scalable Spectral Clustering and Ensemble Clustering-TKDE-2019
 
@@ -825,7 +825,7 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CELTA 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.7 ECPCS-TSMC-2021
+### 3.7 ECPCS-TSMC-2018
 
 > **来源：** Enhanced Ensemble Clustering via Fast Propagation of Cluster-Wise Similarities-TSMC-2018
 
@@ -875,9 +875,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 ECPCS-MC 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.8 SPCE-TNNLS-2021
+### 3.8 SPCE-TNNLS-2020
 
-> **来源：** Self-paced Clustering Ensemble-SPCE-TNNLS-2021
+> **来源：** Self-Paced Clustering Ensemble-SPCE-TNNLS-2020
 
 ### 3.8.1 spce (Self-Paced Clustering Ensemble)
 
@@ -929,11 +929,11 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 TRCE 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.10 CDKM-TPAMI-2022
+### 3.10 CDKM-TPAMI-2021
 
-> **来源：** Coordinate Descent Method for k-means-TPAMI-2022
+> **来源：** Coordinate Descent Method for k-means-TPAMI-2021
 
-### 3.10.1 cdkm (Consensus Clustering via Discrete Kernel K-Means)
+### 3.10.1 cdkm (Coordinate Descent Method for k-means)
 
 基于离散核 K-Means 的集成聚类算法（CDKM）。该方法将聚类集成问题建模为离散核 K-Means 优化问题，利用超图关联矩阵（Hypergraph Association Matrix）捕捉数据结构，并通过坐标下降法（Coordinate Descent）高效求解。算法内置了双层循环机制（外层实验重复，内层初始化择优），以克服局部最优并提升结果稳定性。
 
@@ -956,9 +956,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CDKM 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.11 MDEC-TCYB-2022
+### 3.11 MDEC-TCYB-2021
 
-> **来源：** Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond-TCYB-2022
+> **来源：** Toward Multi-Diversified Ensemble Clustering of High-Dimensional Data: From Subspaces to Metrics and Beyond-TCYB-2021
 
 ### 3.11.1 mdecbg (Multi-Diversity Ensemble Clustering via Bipartite Graph)
 
@@ -1138,9 +1138,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 KCC_UH 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.15 CEAM-TKDE-2024
+### 3.15 CEAM-TKDE-2023
 
-> **来源：** Clustering Ensemble via Diffusion on Adaptive Multiplex-TKDE-2024
+> **来源：** Clustering Ensemble via Diffusion on Adaptive Multiplex-TKDE-2023
 
 ### 3.15.1 ceam (Clustering Ensemble via Diffusion on Adaptive Multiplex)
 
@@ -1166,9 +1166,9 @@ ana.plot_parameter_sensitivity(
 | `labels_list` | `List[np.ndarray]` | **预测标签列表**<br>包含 `nRepeat` 个元素的列表，每个元素是一个形状为 `(n_samples,)` 的一维 NumPy 数组，代表某次实验的 CEAM 集成结果 |
 | `time_list`   | `List[float]`      | **执行时间列表**<br>包含 `nRepeat` 个元素的列表，每个元素代表某次实验核心算法的运行耗时（单位：秒） |
 
-### 3.16 SPACE-TNNLS-2024
+### 3.16 SPACE-TNNLS-2023
 
-> **来源：** Active Clustering Ensemble With Self-Paced Learning-TNNLS-2024
+> **来源：** Active Clustering Ensemble With Self-Paced Learning-TNNLS-2023
 
 ### 3.16.1 space (Active Clustering Ensemble with Self-Paced Learning)
 
@@ -1622,7 +1622,7 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
 ### ✅ 已完成特性 (Implemented Features)
 
 **1. 核心算法生态 (Core Algorithms Ecosystem)**
-> 👑 **行业领先的算法覆盖度**: 收录 **30 种** 主流聚类集成算法与 **8 种** 基聚类生成策略，时间跨度覆盖 **2003 至 2025** 年，涵盖图论、谱分析、张量学习、深度学习及主动学习等前沿领域。
+> 👑 **行业领先的算法覆盖度**: 收录 **30 种** 主流聚类集成算法与 **8 种** 基聚类生成策略，时间跨度覆盖 **2002 至 2025** 年，涵盖图论、谱分析、张量学习、深度学习及主动学习等前沿领域。
 
 #### **A. 基聚类生成器 (Generators) - [8 种策略]**
 提供从高速生成到深度扰动的多样化基聚类池构建方案：
@@ -1634,7 +1634,7 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
 全方位覆盖从经典到 SOTA 的集成逻辑，满足不同数据规模与结构的实验需求：
 
 - **🏛️ 经典基石 (The Classics)**
-  - `CSPA`, `MCLA`, `HGPA` (JMLR-2003 三大基石)
+  - `CSPA`, `MCLA`, `HGPA` (JMLR-2002 三大基石)
 
 - **🕸️ 图分割与谱集成 (Graph & Spectral)**
   - **局部加权与扩散**: `LWEA`, `LWGP` (局部加权), `CEAM` (多层网络扩散), `USENC` (超大规模谱集成)
@@ -1713,7 +1713,7 @@ DCC (Deep Consensus Clustering) 是一种结合深度表示学习与共识聚类
 
    20大类、30小类
 
-   - [x] CSPA-HGPA-MCLA-JMLR-2003
+   - [x] CSPA-HGPA-MCLA-JMLR-2002
      - [x] cspa.py（cspa集成算法）
      - [x] mcla.py（mcla集成算法）
      - [x] hgpa.py（hgpa集成算法）

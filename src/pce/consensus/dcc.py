@@ -18,7 +18,7 @@ def dcc(
 ) -> Union[Tuple[List[np.ndarray], List[float]],
            Tuple[List[np.ndarray], List[float], np.ndarray]]:
     """
-    DCC Consensus Strategy (K-Means on Co-association Matrix).
+    Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation (DCC).
 
     Parameters
     ----------
@@ -45,6 +45,25 @@ def dcc(
         List of execution times for each repetition.
     M : np.ndarray, optional
         The consensus matrix from the last repetition, returned only if return_matrix is True.
+
+
+    .. note:: **Source**
+
+        Tan et al., "Fine-grained subphenotypes in acute kidney injury populations based on deep clustering Derivation and interpretation", *Scientific Reports*, 2024.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{tan2024fine,
+                title={Fine-grained subphenotypes in acute kidney injury populations based on deep clustering: Derivation and interpretation},
+                author={Tan, Yongsen and Huang, Jiahui and Zhuang, Jinhu and Huang, Haofan and Tian, Mu and Liu, Yong and Wu, Ming and Yu, Xiaxia},
+                journal={International Journal of Medical Informatics},
+                volume={191},
+                pages={105553},
+                year={2024},
+                publisher={Elsevier}
+            }
     """
 
     # 1. Index processing (1-based -> 0-based).

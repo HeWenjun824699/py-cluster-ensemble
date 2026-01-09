@@ -20,7 +20,7 @@ def kcc_uh(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    K-means Consensus Clustering with Harmonic Utility (KCC_UH).
+    Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering (KCC_UH).
 
     A variant of the KCC framework that utilizes the Harmonic Utility function.
     By maximizing the harmonic utility in a weighted feature-transformed space,
@@ -57,6 +57,26 @@ def kcc_uh(
         List of ensemble result arrays for `nRepeat` repetitions.
     time_list : list of float
         Computation time cost for each repetition.
+
+
+    .. note:: **Source**
+
+        Lin et al., "Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering", *TMS*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{lin2023algorithm,
+                title={Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering},
+                author={Lin, Hao and Liu, Hongfu and Wu, Junjie and Li, Hong and G{\"u}nnemann, Stephan},
+                journal={ACM transactions on mathematical software},
+                volume={49},
+                number={4},
+                pages={1--27},
+                year={2023},
+                publisher={ACM New York, NY}
+            }
     """
 
     # 1. Preprocessing

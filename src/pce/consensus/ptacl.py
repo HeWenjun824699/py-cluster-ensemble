@@ -16,7 +16,7 @@ def ptacl(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Probability Trajectory based Association with Complete Linkage (PTACL).
+    Robust Ensemble Clustering Using Probability Trajectories (PTACL).
 
     PTACL implements a consensus strategy that combines probability trajectory
     similarity (PTS) with hierarchical complete linkage. It first generates
@@ -44,6 +44,26 @@ def ptacl(
         List of predicted labels for each experimental repetition.
     time_list : list of float
         List of execution times for each run in seconds.
+
+
+    .. note:: **Source**
+
+        Huang et al., "Robust Ensemble Clustering Using Probability Trajectories", *TKDE*, 2015.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{huang2015robust,
+                title={Robust ensemble clustering using probability trajectories},
+                author={Huang, Dong and Lai, Jian-Huang and Wang, Chang-Dong},
+                journal={IEEE transactions on knowledge and data engineering},
+                volume={28},
+                number={5},
+                pages={1312--1326},
+                year={2015},
+                publisher={IEEE}
+            }
     """
 
     # 1. Data preprocessing

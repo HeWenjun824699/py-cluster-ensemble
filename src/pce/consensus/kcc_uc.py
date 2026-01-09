@@ -20,7 +20,7 @@ def kcc_uc(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    K-means Consensus Clustering with Category Utility (KCC_Uc).
+    Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering (KCC_Uc).
 
     KCC_Uc transforms the cluster ensemble problem into a K-means optimization
     task in a transformed feature space. It aims to maximize the category
@@ -58,6 +58,26 @@ def kcc_uc(
         Consensus prediction results for `nRepeat` experimental runs.
     time_list : list of float
         Execution time (seconds) for each ensemble repetition.
+
+
+    .. note:: **Source**
+
+        Lin et al., "Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering", *TMS*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @article{lin2023algorithm,
+                title={Algorithm 1038: KCC: A MATLAB Package for k-Means-based Consensus Clustering},
+                author={Lin, Hao and Liu, Hongfu and Wu, Junjie and Li, Hong and G{\"u}nnemann, Stephan},
+                journal={ACM transactions on mathematical software},
+                volume={49},
+                number={4},
+                pages={1--27},
+                year={2023},
+                publisher={ACM New York, NY}
+            }
     """
 
     # 1. Preprocessing

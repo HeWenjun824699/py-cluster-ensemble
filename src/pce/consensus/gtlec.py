@@ -18,7 +18,7 @@ def gtlec(
         seed: int = 2026
 ) -> tuple[list[np.ndarray], list[float]]:
     """
-    Graph-Based Tensor Learning for Ensemble Clustering (GTLEC).
+    On regularizing multiple clusterings for ensemble clustering by graph tensor learning (GTLEC).
 
     GTLEC models the multiple partitions as a co-association tensor and utilizes
     tensor learning to capture high-order relationships. It incorporates graph
@@ -52,6 +52,23 @@ def gtlec(
         Consensus partitions for each repetition.
     time_list : list of float
         Computation time for each repetition in seconds.
+
+
+    .. note:: **Source**
+
+        Chen et al., "On regularizing multiple clusterings for ensemble clustering by graph tensor learning", *MM*, 2023.
+
+        **BibTeX**
+
+        .. code-block:: bibtex
+
+            @inproceedings{chen2023regularizing,
+                title={On regularizing multiple clusterings for ensemble clustering by graph tensor learning},
+                author={Chen, Man-Sheng and Lin, Jia-Qi and Wang, Chang-Dong and Xi, Wu-Dong and Huang, Dong},
+                booktitle={Proceedings of the 31st ACM International Conference on Multimedia},
+                pages={3069--3077},
+                year={2023}
+            }
     """
 
     # 1. Preprocessing
