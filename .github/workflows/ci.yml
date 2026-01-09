@@ -29,7 +29,7 @@ jobs:
           poetry self add poetry-plugin-export
           poetry export --without-hashes --format=requirements.txt > requirements.txt
           grep -v "torch==" requirements.txt > requirements_no_torch.txt
-      # Avoid Memory Overflow
+      # Avoid Out Of Disk Space
       - name: Install CPU Torch
         run: |
           pip install torch==2.2.0 --index-url https://download.pytorch.org/whl/cpu
