@@ -1372,17 +1372,18 @@ DCC (Deep Consensus Clustering) 的核心集成策略实现。该算法计算基
 
 ### 5.2 plot_coassociation_heatmap 参数说明
 
-绘制排序后的共协矩阵（Co-association Matrix）热力图，用于直观评估基聚类的集成一致性。
+绘制排序后的共协矩阵（Co-association Matrix）热力图。该函数通过 `Y`（参考标签）对矩阵行列进行重新排序，从而直观地展示聚类成员的一致性结构。
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **`BPs`** | **`np.ndarray`** | **必填** | **基聚类矩阵**<br>形状为 `(n_samples, n_estimators)`，用于计算样本间的 Hamming 距离 |
-| **`Y`** | **`np.ndarray`** | **必填** | **真实标签/参考标签**<br>用于对矩阵行列进行排序，使得同类样本在对角线上形成聚集块 |
-| `xlabel` | `str` | `None` | **X轴标签**<br>通常设为 "Sample Index" |
-| `ylabel` | `str` | `None` | **Y轴标签**<br>通常设为 "Sample Index" |
+| **`Y`** | `np.ndarray` | **必填** | **参考标签向量**<br>形状为 `(n_samples,)`，用于对矩阵进行排序以显现聚类块结构 |
+| **`BPs`** | `np.ndarray` | `None` | **基聚类矩阵**<br>形状为 `(n_samples, n_estimators)`。若未提供 `consensus_matrix`，则通过此参数计算 Hamming 相似度 |
+| **`consensus_matrix`** | `np.ndarray` | `None` | **预计算一致性矩阵**<br>形状为 `(n_samples, n_samples)` 的相似度矩阵。若已提供此参数，则忽略 `BPs` |
+| `xlabel` | `str` | `None` | **X 轴标签**<br>用于描述横坐标含义 |
+| `ylabel` | `str` | `None` | **Y 轴标签**<br>用于描述纵坐标含义 |
 | `title` | `str` | `None` | **图表标题**<br>若为 `None`，自动生成包含样本数的默认标题 |
-| `save_path` | `str` | `None` | **保存路径**<br>建议保存为 `.png` 或 `.pdf` |
-| `show` | `bool` | `True` | **显示窗口**<br>是否弹出绘图窗口 |
+| `save_path` | `str` | `None` | **保存路径**<br>指定图像文件的存储路径，支持 `.png`、`.pdf` 等格式 |
+| `show` | `bool` | `True` | **是否显示窗口**<br>控制是否调用 `plt.show()` 弹出绘图界面 |
 
 ### 5.3 plot_metric_line 参数说明
 
