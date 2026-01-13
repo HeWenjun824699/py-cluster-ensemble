@@ -220,6 +220,7 @@ def single_multiple_run(params):
             generate_brainnet_node(
                 labels=group_consensus_labels,
                 consensus_matrix=final_matrix,
+                data_path=directory,
                 save_path=node_file_path
             )
             # ========================================================================

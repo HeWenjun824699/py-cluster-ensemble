@@ -187,7 +187,8 @@ def icsc_sub_application(
             # (run_id, percent_threshold, session_ids, sessions_data, max, min, nodes, dataset, save_dir)
             p = (run_id, percent_threshold, subject_session_list,
                  subject_session_data, max_labels, min_labels,
-                 num_nodes, dataset, save_dir, heatmap_format)
+                 num_nodes, dataset, save_dir, heatmap_format,
+                 subject_session_dir)
             params.append(p)
         else:
             print(f"Warning: No valid session data found for {subject}")

@@ -49,7 +49,8 @@ def single_subject_run(params):
     Here receives sessions_data (dict) instead of file path list.
     """
     (run_id, percent_threshold, session_ids, sessions_data,
-     max_labels, min_labels, num_nodes, dataset, save_dir, heatmap_format) = params
+     max_labels, min_labels, num_nodes, dataset, save_dir,
+     heatmap_format, subject_session_dir) = params
 
     num_sessions = len(session_ids)
     np.random.seed()
@@ -241,6 +242,7 @@ def single_subject_run(params):
             generate_brainnet_node(
                 labels=subject_consensus_labels,
                 consensus_matrix=final_matrix,
+                data_path=subject_session_dir,
                 save_path=node_file_path
             )
             # ========================================================================

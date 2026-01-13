@@ -44,6 +44,65 @@ def get_power_264_coords(n_nodes):
     return coords
 
 
+def get_cluster_to_name_mapping(predicted_labels, gt_dir):
+    """
+    Maps predicted cluster IDs to ground truth network names based on majority overlap.
+    Logic ported from map.py.
+
+    Args:
+        predicted_labels: Array of predicted cluster IDs (from ICSC).
+        gt_dir: Directory containing 'node_communities.npy' and 'label_names_map.npy'.
+
+    Returns:
+        dict: Mapping {predicted_cluster_id: 'Network_Name'}
+    """
+    gt_path = os.path.join(gt_dir, "node_communities.npy")
+    names_path = os.path.join(gt_dir, "label_names_map.npy")
+
+    # Check if ground truth files exist
+    if not os.path.exists(gt_path) or not os.path.exists(names_path):
+        print(f"[Warning] Ground truth files not found in {gt_dir}. Labels will be empty.")
+        return {}
+
+    try:
+        # Load ground truth data
+        # Ensure GT labels are integers
+        gt_labels = np.load(gt_path).astype(int)
+        label_names = np.load(names_path, allow_pickle=True)
+
+        # Handle length mismatch (truncate to minimum length)
+        min_len = min(len(predicted_labels), len(gt_labels))
+        pred_trunc = predicted_labels[:min_len]
+        gt_trunc = gt_labels[:min_len]
+
+        mapping = {}
+        unique_preds = np.unique(pred_trunc)
+
+        for pid in unique_preds:
+            # Find indices where prediction matches current cluster ID
+            indices = np.where(pred_trunc == pid)[0]
+            if len(indices) == 0: continue
+
+            # Get corresponding ground truth values
+            gt_values = gt_trunc[indices]
+
+            # Majority vote: Find which GT label appears most in this predicted cluster
+            counts = np.bincount(gt_values)
+            best_gt_id = np.argmax(counts)
+
+            # Map ID to Name (ensure index is within bounds)
+            if best_gt_id < len(label_names):
+                mapping[pid] = label_names[best_gt_id]
+            else:
+                mapping[pid] = f"Unknown_{pid}"
+
+        return mapping
+
+    except Exception as e:
+        print(f"[Error] Failed to generate label mapping: {e}")
+        return {}
+
+
 def save_split_modules(lines, labels_processed, original_save_path):
     """
     Helper function: Splits the generated node lines into separate files per module.
@@ -90,7 +149,7 @@ def save_split_modules(lines, labels_processed, original_save_path):
         print(f"[Warning] Failed to split modules: {e}")
 
 
-def generate_brainnet_node(labels, consensus_matrix, save_path, split_output=True):
+def generate_brainnet_node(labels, consensus_matrix, data_path, save_path, split_output=True):
     """
     Generate a .node file for BrainNet Viewer.
 
@@ -101,6 +160,8 @@ def generate_brainnet_node(labels, consensus_matrix, save_path, split_output=Tru
     consensus_matrix : np.ndarray
         Consensus matrix (N, N), used to calculate Node Size.
         Size = Node Strength (Sum of consensus probabilities for the node).
+    data_path: str
+        Directory containing 'node_communities.npy' and 'label_names_map.npy'.
     save_path : str
         Path to save the .node file.
     split_output : bool
@@ -123,7 +184,10 @@ def generate_brainnet_node(labels, consensus_matrix, save_path, split_output=Tru
         # 2. Get coordinates (X, Y, Z)
         coords = get_power_264_coords(n_nodes)
 
-        # 3. Calculate Node Size based on Node Strength
+        # 3. Get Label Mapping
+        label_map_dict = get_cluster_to_name_mapping(labels, data_path)
+
+        # 4. Calculate Node Size based on Node Strength
         # Logic: Sum of the row in consensus matrix.
         # Higher sum -> More stable/central node in the consensus structure.
         node_sizes = np.sum(consensus_matrix, axis=1)
@@ -131,20 +195,26 @@ def generate_brainnet_node(labels, consensus_matrix, save_path, split_output=Tru
         # Optional: Normalize size if needed (e.g., Min-Max scaling)
         # currently keeping raw strength values.
 
-        # 4. Process Labels (Color)
+        # 5. Process Labels (Color)
         # BrainNet Viewer requires positive integers (>=1) for color indices.
         labels_processed = labels.astype(int)
         if np.min(labels_processed) == 0:
             labels_processed += 1
 
-        # 5. Generate File Content
+        # 6. Generate File Content
         # Format: X  Y  Z  Color  Size  Label
         lines = []
         for i in range(n_nodes):
             x, y, z = coords[i]
             color = labels_processed[i]
             size = node_sizes[i]
-            label_text = '-'  # Do not display text label
+
+            if label_map_dict:
+                original_cluster_id = int(labels[i])
+                raw_text = label_map_dict.get(original_cluster_id, '-')
+                label_text = str(raw_text).replace(" ", "_")
+            else:
+                label_text = '-'  # Do not display text label
 
             # Use tab or space delimiter
             line = f"{x:.4f} {y:.4f} {z:.4f} {color} {size:.4f} {label_text}"
