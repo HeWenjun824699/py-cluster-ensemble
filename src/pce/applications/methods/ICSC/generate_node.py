@@ -47,7 +47,7 @@ def get_power_264_coords(n_nodes):
 def get_cluster_to_name_mapping(predicted_labels, gt_dir):
     """
     Maps predicted cluster IDs to ground truth network names based on majority overlap.
-    Logic ported from map.py.
+    Now includes PURITY printing for debugging.
 
     Args:
         predicted_labels: Array of predicted cluster IDs (from ICSC).
@@ -66,7 +66,6 @@ def get_cluster_to_name_mapping(predicted_labels, gt_dir):
 
     try:
         # Load ground truth data
-        # Ensure GT labels are integers
         gt_labels = np.load(gt_path).astype(int)
         label_names = np.load(names_path, allow_pickle=True)
 
@@ -77,6 +76,10 @@ def get_cluster_to_name_mapping(predicted_labels, gt_dir):
 
         mapping = {}
         unique_preds = np.unique(pred_trunc)
+
+        print("\n" + "=" * 60)
+        print(f"{'Cluster ID':<12} | {'Assigned Name':<30} | {'Purity':<10}")
+        print("-" * 60)
 
         for pid in unique_preds:
             # Find indices where prediction matches current cluster ID
@@ -90,12 +93,21 @@ def get_cluster_to_name_mapping(predicted_labels, gt_dir):
             counts = np.bincount(gt_values)
             best_gt_id = np.argmax(counts)
 
+            # Calculate Purity (The fraction of nodes that match the majority label)
+            purity = counts[best_gt_id] / len(indices)
+
             # Map ID to Name (ensure index is within bounds)
             if best_gt_id < len(label_names):
-                mapping[pid] = label_names[best_gt_id]
+                assigned_name = label_names[best_gt_id]
             else:
-                mapping[pid] = f"Unknown_{pid}"
+                assigned_name = f"Unknown_{pid}"
 
+            # Print the purity info
+            print(f"{pid:<12} | {assigned_name:<30} | {purity:.2%}")
+
+            mapping[pid] = assigned_name
+
+        print("=" * 60 + "\n")
         return mapping
 
     except Exception as e:
