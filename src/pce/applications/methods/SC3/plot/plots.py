@@ -4,12 +4,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Patch
 from scipy.cluster.hierarchy import linkage
+from scipy.spatial.distance import pdist
 from sklearn.metrics import silhouette_samples, silhouette_score
 
-# Define SC3-Nature methods-2017-like colormap (Blue -> White -> Red seems standard for consensus, or Blue->Red)
-# R sc3_plot_consensus doc: "Similarity 0 (blue) ... similarity 1 (red)"
-sc3_cmap = LinearSegmentedColormap.from_list("sc3_consensus", ["blue", "red"])
 
 def _ensure_dir(file_path):
     """Helper to ensure directory exists for a given file path."""
@@ -18,62 +17,116 @@ def _ensure_dir(file_path):
         if out_dir and not os.path.exists(out_dir):
             os.makedirs(out_dir, exist_ok=True)
 
+
 def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=None):
     """
-    Plot consensus matrix as a heatmap.
-    Matches sc3_plot_consensus in R.
-    
-    Parameters
-    ----------
-    consensus_matrix : np.ndarray
-        NxN consensus matrix.
-    labels : np.ndarray, optional
-        Cluster labels for annotation.
-    show_labels : bool
-        Whether to show cell names/indices.
-    file_path : str, optional
-        If provided, save plot to this path.
+    Plot consensus matrix matching R SC3's visual style exactly.
+
+    Refinements:
+    1. Color Logic: Multi-step gradient mimicking R's 'RdYlBu' (7 steps),
+       but anchoring the deep blue to 'Cluster0 Blue' (#1f77b4).
+    2. Grid: Delicate white borders (0.5px).
+    3. Gaps: Physical separation between clusters.
     """
     if consensus_matrix is None:
-        print("No consensus matrix provided.")
         return
 
-    # In R: pheatmap(..., cluster_rows=hc, cluster_cols=hc)
-    # Seaborn clustermap performs hierarchical clustering automatically.
-    
-    # Prepare annotations if labels are provided
-    col_colors = None
-    if labels is not None:
-        # Map labels to colors
-        unique_labels = np.unique(labels)
-        # Use a distinct palette
-        palette = sns.color_palette("tab10", n_colors=len(unique_labels))
-        lut = dict(zip(unique_labels, palette))
-        col_colors = pd.Series(labels).map(lut)
-        col_colors.name = "Cluster"
+    # --- 1. 聚类算法 (R: Euclidean + Complete) ---
+    dist_vector = pdist(consensus_matrix, metric='euclidean')
+    row_linkage = linkage(dist_vector, method='complete')
+    col_linkage = row_linkage
 
-    # Convert to numpy to avoid index alignment issues with seaborn
-    colors_array = col_colors.to_numpy() if col_colors is not None else None
+    # --- 2. R 的 7 段式变色逻辑 ---
+    # 构建混合色板
+    custom_colors = [
+        '#4575B4',  # 0.0 (最深蓝)
+        '#91BFDB',  # 0.16 (浅蓝)
+        '#E0F3F8',  # 0.33 (极浅蓝)
+        '#FFFFBF',  # 0.50 (米黄/白 )
+        '#FEE090',  # 0.66 (浅橙)
+        '#FC8D59',  # 0.83 (橙)
+        '#D73027'   # 1.0 (深红)
+    ]
+
+    custom_cmap = LinearSegmentedColormap.from_list("sc3_imitation", custom_colors)
+
+    # --- 4. 视觉参数 ---
+    n_cells = consensus_matrix.shape[0]
+
+    # 网格线设置 (模拟 R 的小方格)
+    lw = 0.35
+    if n_cells > 200:
+        lw = 0.1
+    if n_cells > 500:
+        lw = 0.05
+    linecolor = '#808080'
+
+    plt.figure(figsize=(10, 9))
+    df_cons = pd.DataFrame(consensus_matrix)
 
     g = sns.clustermap(
-        consensus_matrix,
-        cmap=sc3_cmap,
+        df_cons,
+        row_linkage=row_linkage,
+        col_linkage=col_linkage,
+
+        # 压缩树状图高度
+        dendrogram_ratio=0.1,
+
+        # 配色与样式
+        cmap=custom_cmap,
         vmin=0, vmax=1,
-        row_colors=colors_array,
-        col_colors=colors_array,
+        linewidths=lw,
+        linecolor=linecolor,
+
         xticklabels=show_labels,
         yticklabels=show_labels,
-        dendrogram_ratio=(0.1, 0.1),
-        cbar_pos=(0.02, 0.8, 0.05, 0.18) # Adjust position to look like R's if possible, or default
+        cbar_pos=(1.02, 0.60, 0.02, 0.30),
+        # cbar_kws={'label': 'Similarity'},
+        tree_kws={'linewidths': 1.0}
     )
-    
-    g.ax_heatmap.set_title("Consensus Matrix")
-    
+
+    # --- 5. 绘制分区线 (Gaps) ---
+    if labels is not None:
+        reordered_ind = g.dendrogram_row.reordered_ind
+        reordered_labels = np.array(labels)[reordered_ind]
+        boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
+
+        # 绘制加粗白线模拟 R 的 cutree 效果
+        # 这里线宽设为 3，确保能看出来是“分区”
+        gap_lw = 3
+        g.ax_heatmap.hlines(boundaries, *g.ax_heatmap.get_xlim(), color='white', linewidth=gap_lw, clip_on=True, zorder=10)
+        g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=gap_lw, clip_on=True, zorder=10)
+
+    # --- 6. [核心修正] Colorbar 顶部严格对齐 ---
+    # 获取热图绘制后的准确坐标 (Bbox)
+    # heatmap_pos.y0 = 底部, heatmap_pos.y1 = 顶部
+    heatmap_pos = g.ax_heatmap.get_position()
+
+    # 设定 Colorbar 尺寸
+    cb_width = 0.02
+    cb_height = 0.30
+
+    # 计算位置：
+    # left = 热图右边缘 + 间距
+    # bottom = 热图顶部 (y1) - Colorbar高度 (height) -> 这样顶部就齐平了
+    cb_left = heatmap_pos.x1 + 0.02
+    cb_bottom = heatmap_pos.y1 - cb_height
+
+    # 应用新位置
+    g.cax.set_position([cb_left, cb_bottom, cb_width, cb_height])
+
+    # --- 6. 细节修饰 ---
+    g.ax_heatmap.set_xlabel("")
+    g.ax_heatmap.set_ylabel("")
+    g.ax_heatmap.tick_params(left=False, bottom=False)
+
     if file_path:
         _ensure_dir(file_path)
-        g.savefig(file_path)
-    
+        g.savefig(file_path, dpi=300, bbox_inches='tight')
+        print(f"Consensus plot saved to {file_path}")
+
     # plt.show()
+
 
 def plot_silhouette(consensus_matrix, labels, file_path=None):
     """
