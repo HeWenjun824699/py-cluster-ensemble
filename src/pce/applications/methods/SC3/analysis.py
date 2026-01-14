@@ -72,7 +72,8 @@ def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
 
     # Extract calculated values
     # In Python code, get_marker_genes returns dict/df aligned with filtered data
-    calc_clusts = marker_res['clusts']
+    # Convert to 1-based indexing for R consistency
+    calc_clusts = marker_res['clusts'] + 1
     calc_auroc = marker_res['auroc']
     calc_pvalue = marker_res['pvalue']
 
@@ -89,10 +90,10 @@ def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
     df = pd.DataFrame({
         'feature_symbol': gene_names,
         f"sc3_{k}_markers_clusts": full_clusts,
+        f"sc3_{k}_markers_padj": full_pvalue,
         f"sc3_{k}_markers_auroc": full_auroc,
-        f"sc3_{k}_markers_padj": full_pvalue
     })
-    
+
     return df
 
 def organise_outliers(biology_res, cell_names, k):

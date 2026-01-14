@@ -176,21 +176,27 @@ def sc3_application(
             cells_df = pd.DataFrame(index=cell_names)
             genes_df = pd.DataFrame({'feature_symbol': original_gene_names})
 
+            # Add gene filter to Genes DataFrame
+            if model.gene_mask is not None:
+                genes_df['sc3_gene_filter'] = model.gene_mask
+            else:
+                genes_df['sc3_gene_filter'] = True
+
             # Add Cluster assignments to Cells DataFrame (convert to 1-based indexing for R consistency)
-            cells_df[f"sc3_{k}_clusters"] = labels + 1 
+            cells_df[f"sc3_{k}_clusters"] = labels + 1
 
             if biology_res:
                 # Organise biological results (mapped to full dimensions)
-                
-                # Differential Expression (DE) Genes
-                de_df = organise_de_genes(biology_res, original_gene_names, k, model.gene_mask)
-                if de_df is not None:
-                    genes_df = pd.merge(genes_df, de_df, on='feature_symbol', how='left')
 
                 # Marker Genes
                 mark_df = organise_marker_genes(biology_res, original_gene_names, k, model.gene_mask)
                 if mark_df is not None:
                     genes_df = pd.merge(genes_df, mark_df, on='feature_symbol', how='left')
+
+                # Differential Expression (DE) Genes
+                de_df = organise_de_genes(biology_res, original_gene_names, k, model.gene_mask)
+                if de_df is not None:
+                    genes_df = pd.merge(genes_df, de_df, on='feature_symbol', how='left')
 
                 # Outlier Scores
                 outl_df = organise_outliers(biology_res, cell_names, k)

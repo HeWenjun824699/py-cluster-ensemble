@@ -160,61 +160,57 @@ def get_marker_genes(data, labels):
         'pvalue': p_values
     }
 
+
 def get_outl_cells(data, labels):
     """
-    Find outlier cells (Robust PCA + MCD).
-    
-    Returns
-    -------
-    np.ndarray
-        (n_cells,) Outlier scores.
+    Improved Outlier Detection trying to match SC3 logic using MinCovDet.
     """
     n_cells = data.shape[0]
     outlier_scores = np.zeros(n_cells)
     unique_labels = np.unique(labels)
-    
+
     chisq_quantile = 0.9999
-    
+
     for l in unique_labels:
         mask = (labels == l)
-        cluster_data = data[mask, :] # (n_cells_in_cluster, n_genes)
-        
+        cluster_data = data[mask, :]
         n_cluster_cells = cluster_data.shape[0]
-        
+
+        # SC3 R code logic: if dim(t@loadings)[1] <= 6 message("No outliers...")
         if n_cluster_cells <= 6:
-            # Too small matches R logic
             continue
-            
-        # Robust PCA (Approximation using standard PCA for dimensionality reduction)
-        # R uses PcaHubert.
-        # We use standard PCA then MinCovDet.
-        # Determine components: R uses min(3, auto).
-        # We use min(3, n_samples, n_features)
-        n_comp = min(3, n_cluster_cells, cluster_data.shape[1])
-        if n_comp < 1:
-            continue
-            
+
+        # R uses PcaHubert which limits k=3 automatically usually.
+        # We try to use MinCovDet directly on PCA reduced data.
+        # Ensure we don't take more components than samples
+        n_comp = min(3, n_cluster_cells - 1, cluster_data.shape[1])
+
         try:
-            pca = PCA(n_components=n_comp)
-            scores = pca.fit_transform(cluster_data) # (n_cluster_cells, n_comp)
-            
-            # MCD
-            mcd = MinCovDet()
+            # Step 1: PCA (Standard) - Note: This is the deviation from R (Robust)
+            # Center the data first
+            pca_data = cluster_data - np.mean(cluster_data, axis=0)
+
+            # Use SVD to get components
+            U, S, Vt = np.linalg.svd(pca_data, full_matrices=False)
+            scores = U[:, :n_comp] * S[:n_comp]
+
+            # Step 2: Robust Covariance (MCD) on the scores
+            # support_fraction=0.7 matches typical R defaults for robustness
+            mcd = MinCovDet(support_fraction=0.7, random_state=2026)
             mcd.fit(scores)
-            
-            # Mahalanobis distance (squared)
+
+            # Mahalanobis distance
             mah_dist = mcd.mahalanobis(scores)
-            
-            # Score = sqrt(mah) - sqrt(chisq)
-            # df = n_comp (number of variables in MCD)
+
+            # Outlier score
             threshold = np.sqrt(chi2.ppf(chisq_quantile, df=n_comp))
             outliers = np.sqrt(mah_dist) - threshold
             outliers[outliers < 0] = 0
-            
+
             outlier_scores[mask] = outliers
-            
-        except Exception as e:
-            # Warning can be added here if needed
+
+        except Exception:
+            # Fallback if Singular Matrix etc.
             pass
-            
+
     return outlier_scores

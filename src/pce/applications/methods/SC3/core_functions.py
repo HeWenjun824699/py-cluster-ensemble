@@ -1,10 +1,6 @@
 import numpy as np
-import warnings
-from scipy.spatial.distance import pdist, squareform
 from scipy.linalg import eigh
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from scipy.stats import spearmanr
 
 
 def estkTW(dataset):
