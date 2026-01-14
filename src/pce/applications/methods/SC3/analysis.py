@@ -113,13 +113,10 @@ def organise_outliers(biology_res, cell_names, k):
     if outl is None:
         return None
     
-    # In R: log2(outl + 1)
-    scores = np.log2(outl + 1)
-    
     col_name = f"sc3_{k}_log2_outlier_score"
     
     df = pd.DataFrame({
-        col_name: scores
+        col_name: outl
     }, index=cell_names)
 
     return df

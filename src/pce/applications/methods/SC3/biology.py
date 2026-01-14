@@ -5,6 +5,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.decomposition import PCA
 from sklearn.covariance import MinCovDet
 
+
 def p_adjust_holm(p_values):
     """
     Holm-Bonferroni correction.
@@ -15,39 +16,40 @@ def p_adjust_holm(p_values):
     mask = ~np.isnan(p_values)
     if not np.any(mask):
         return p_values
-        
+
     p_valid = p_values[mask]
     n_valid = len(p_valid)
-    
+
     idx = np.argsort(p_valid)
     sorted_p = p_valid[idx]
-    
+
     corrections = np.arange(n_valid, 0, -1)
     adjusted = sorted_p * corrections
-    
+
     for i in range(1, n_valid):
         adjusted[i] = max(adjusted[i], adjusted[i-1])
-        
+
     adjusted = np.minimum(adjusted, 1.0)
-    
+
     result = np.full_like(p_values, np.nan)
     result_valid = np.empty_like(p_valid)
     result_valid[idx] = adjusted
     result[mask] = result_valid
-    
+
     return result
+
 
 def get_de_genes(data, labels):
     """
     Find differentially expressed genes (Kruskal-Wallis).
-    
+
     Parameters
     ----------
     data : np.ndarray
         (n_cells, n_genes)
     labels : np.ndarray
         (n_cells,)
-        
+
     Returns
     -------
     np.ndarray
@@ -56,17 +58,17 @@ def get_de_genes(data, labels):
     n_genes = data.shape[1]
     unique_labels = np.unique(labels)
     p_values = np.ones(n_genes)
-    
+
     if len(unique_labels) < 2:
         return p_values
-        
+
     # Pre-calculate groups indices to speed up loop
     groups_indices = [np.where(labels == l)[0] for l in unique_labels]
-    
+
     for i in range(n_genes):
         gene_expr = data[:, i]
         groups = [gene_expr[idx] for idx in groups_indices]
-        
+
         # Check if all groups have constant values (or all same constant)
         # kruskal requires variance
         try:
@@ -74,21 +76,22 @@ def get_de_genes(data, labels):
             if np.all(gene_expr == gene_expr[0]):
                 p_values[i] = 1.0
                 continue
-                
+
             stat, p = kruskal(*groups)
             p_values[i] = p
         except ValueError:
             p_values[i] = 1.0
-            
+
     # Adjust p-values (Holm)
     p_values = p_adjust_holm(p_values)
-    
+
     return p_values
+
 
 def get_marker_genes(data, labels):
     """
     Find marker genes (AUROC + Wilcoxon).
-    
+
     Returns
     -------
     dict
@@ -96,38 +99,38 @@ def get_marker_genes(data, labels):
     """
     n_genes = data.shape[1]
     unique_labels = np.unique(labels)
-    
+
     auroc_arr = np.zeros(n_genes)
     clusts_arr = np.zeros(n_genes) # Stores label of the marker cluster
     p_values = np.ones(n_genes)
-    
+
     for i in range(n_genes):
         gene_expr = data[:, i]
         ranks = rankdata(gene_expr)
-        
+
         # Mean rank per cluster
         mean_ranks = []
         for l in unique_labels:
             mean_ranks.append(np.mean(ranks[labels == l]))
-            
+
         mean_ranks = np.array(mean_ranks)
-        
+
         # Cluster with max mean rank
         max_rank = np.max(mean_ranks)
         max_indices = np.where(mean_ranks == max_rank)[0]
-        
+
         if len(max_indices) > 1:
             auroc_arr[i] = np.nan
             clusts_arr[i] = np.nan
             p_values[i] = 1.0
             continue
-            
+
         pos_idx = max_indices[0]
         pos_label = unique_labels[pos_idx]
-        
+
         # Binary truth: 1 if in pos_label, 0 otherwise
         truth = (labels == pos_label).astype(int)
-        
+
         # AUROC of ranks vs truth
         try:
             if len(np.unique(truth)) < 2:
@@ -137,23 +140,23 @@ def get_marker_genes(data, labels):
                 auroc_arr[i] = auc
         except ValueError:
             auroc_arr[i] = 0.5
-            
+
         clusts_arr[i] = pos_label
-        
+
         # P-value (Mann-Whitney U / Wilcoxon Rank Sum)
         pos_scores = ranks[truth == 1]
         neg_scores = ranks[truth == 0]
-        
+
         try:
             # alternative='two-sided' matches R wilcox.test default
             _, p = mannwhitneyu(pos_scores, neg_scores, alternative='two-sided')
             p_values[i] = p
         except ValueError:
              p_values[i] = 1.0
-             
+
     # Adjust p-values
     p_values = p_adjust_holm(p_values)
-    
+
     return {
         'auroc': auroc_arr,
         'clusts': clusts_arr,
@@ -161,7 +164,7 @@ def get_marker_genes(data, labels):
     }
 
 
-def get_outl_cells(data, labels):
+def get_outl_cells(data, labels, seed=2026):
     """
     Improved Outlier Detection trying to match SC3 logic using MinCovDet.
     """
@@ -184,6 +187,8 @@ def get_outl_cells(data, labels):
         # We try to use MinCovDet directly on PCA reduced data.
         # Ensure we don't take more components than samples
         n_comp = min(3, n_cluster_cells - 1, cluster_data.shape[1])
+        if n_comp < 1:
+            continue
 
         try:
             # Step 1: PCA (Standard) - Note: This is the deviation from R (Robust)
@@ -192,11 +197,12 @@ def get_outl_cells(data, labels):
 
             # Use SVD to get components
             U, S, Vt = np.linalg.svd(pca_data, full_matrices=False)
-            scores = U[:, :n_comp] * S[:n_comp]
+            # scores = U[:, :n_comp] * S[:n_comp]
+            scores = U[:, :n_comp]
 
             # Step 2: Robust Covariance (MCD) on the scores
             # support_fraction=0.7 matches typical R defaults for robustness
-            mcd = MinCovDet(support_fraction=0.7, random_state=2026)
+            mcd = MinCovDet(support_fraction=0.7, random_state=seed)
             mcd.fit(scores)
 
             # Mahalanobis distance
@@ -207,7 +213,7 @@ def get_outl_cells(data, labels):
             outliers = np.sqrt(mah_dist) - threshold
             outliers[outliers < 0] = 0
 
-            outlier_scores[mask] = outliers
+            outlier_scores[mask] = np.log2(outliers + 1)
 
         except Exception:
             # Fallback if Singular Matrix etc.
