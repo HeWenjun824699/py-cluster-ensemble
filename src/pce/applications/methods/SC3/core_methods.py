@@ -6,6 +6,7 @@ from .biology import get_de_genes, get_marker_genes, get_outl_cells
 from ....generators.sc3_kmeans import sc3_kmeans
 from ....consensus.sc3 import sc3
 
+
 class SC3:
     """
     Python implementation of the SC3-Nature methods-2017 algorithm.

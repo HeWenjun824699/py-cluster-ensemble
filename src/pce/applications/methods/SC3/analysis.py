@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def organise_de_genes(biology_res, gene_names, k, gene_mask=None):
     """
     Organise DE genes results matching R SC3-Nature methods-2017 export format.
@@ -49,6 +50,7 @@ def organise_de_genes(biology_res, gene_names, k, gene_mask=None):
 
     return df
 
+
 def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
     """
     Organise Marker genes results matching R SC3-Nature methods-2017 export format.
@@ -95,6 +97,7 @@ def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
     })
 
     return df
+
 
 def organise_outliers(biology_res, cell_names, k):
     """
