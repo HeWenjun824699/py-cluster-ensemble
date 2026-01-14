@@ -217,26 +217,26 @@ def sc3_application(
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
 
-                # # 1. Consensus Matrix Plot
-                # plot_consensus(
-                #     model.consensus_matrix,
-                #     labels=labels,
-                #     file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
-                # )
-                #
-                # # 2. Silhouette Plot
-                # plot_silhouette(
-                #     model.consensus_matrix,
-                #     labels=labels,
-                #     file_path=os.path.join(output_directory, "png", "silhouette.png")
-                # )
-                #
-                # # 3. Gene Expression Plot (on filtered data)
-                # plot_expression(
-                #     model.data,
-                #     labels=labels,
-                #     file_path=os.path.join(output_directory, "png", "expression.png")
-                # )
+                # 1. Consensus Matrix Plot
+                plot_consensus(
+                    model.consensus_matrix,
+                    labels=labels,
+                    file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
+                )
+
+                # 2. Silhouette Plot
+                plot_silhouette(
+                    model.consensus_matrix,
+                    labels=labels,
+                    file_path=os.path.join(output_directory, "png", "silhouette.png")
+                )
+
+                # 3. Gene Expression Plot (on filtered data)
+                plot_expression(
+                    model.data,
+                    labels=labels,
+                    file_path=os.path.join(output_directory, "png", "expression.png")
+                )
 
                 # 4. DE Genes Heatmap
                 # Pass the raw DE p-values dictionary (aligned to filtered data)
@@ -253,9 +253,10 @@ def sc3_application(
                 # Pass the raw marker dictionary (aligned to filtered data)
                 if 'marker' in biology_res:
                     plot_markers(
-                        model.data,
+                        data=X,
                         labels=labels,
-                        marker_res=biology_res['marker'],
+                        marker_res=mark_df,
+                        consensus_matrix=model.consensus_matrix,
                         file_path=os.path.join(output_directory, "png", "marker_genes.png")
                     )
 

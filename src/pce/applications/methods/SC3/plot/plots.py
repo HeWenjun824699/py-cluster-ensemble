@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import ticker, cm
+from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import pdist
@@ -324,6 +325,7 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
         xticklabels=False,
         yticklabels=True,
         cbar_pos=(1.02, 0.60, 0.02, 0.30),
+        tree_kws={'linewidths': 1.5},
         # cbar_kws={'label': 'Expression'}
     )
 
@@ -345,10 +347,19 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
     g.cax.set_position([1.002, cb_bottom, cb_width, cb_height])
 
     # --- 添加 log10_padj 图例 ---
+    # # log10_padj 图例 位于 Colorbar 的下方
+    # gap = 0.05
+    # padj_cb_height = 0.08
+    # padj_cb_bottom = cb_bottom - gap - padj_cb_height
+    # cax_padj = g.figure.add_axes([1.002, padj_cb_bottom, cb_width, padj_cb_height])
+
+    # log10_padj 图例 位于 Colorbar 的右侧
     gap = 0.05
+    padj_cb_left = 1.002 + cb_width + gap
     padj_cb_height = 0.08
-    padj_cb_bottom = cb_bottom - gap - padj_cb_height
-    cax_padj = g.figure.add_axes([1.002, padj_cb_bottom, cb_width, padj_cb_height])
+    padj_cb_bottom = (cb_bottom + cb_height) - padj_cb_height
+    cax_padj = g.figure.add_axes([padj_cb_left, padj_cb_bottom, cb_width, padj_cb_height])
+
     mappable_green = cm.ScalarMappable(norm=norm, cmap=discrete_greens)
     cb_padj = plt.colorbar(mappable_green, cax=cax_padj, orientation='vertical')
     cax_padj.set_title("log10_padj", fontsize=fontsize, loc='left', pad=8, fontweight='bold')
@@ -398,74 +409,248 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
     # plt.show()
 
 
-def plot_markers(data, labels, marker_res, auroc_thr=0.85, p_val_thr=0.01, file_path=None):
+def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_val_thr=0.01, file_path=None):
     """
-    Plot expression of marker genes.
-    Matches sc3_plot_markers.
-    
-    marker_res: DataFrame/Dict from get_marker_genes
+    Plot expression of marker genes matching R SC3 style exactly.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Expression matrix (n_cells, n_genes). Example: (90, 20214).
+    labels : np.ndarray
+        Cluster labels for each cell (n_cells,).
+    marker_res : pd.DataFrame
+        DataFrame containing marker statistics.
+        Expected columns include 'feature_symbol' and columns ending in '_clusts', '_padj', '_auroc'.
+        Example shape: (20214, 4).
+    consensus_matrix : np.ndarray
+        (n_cells, n_cells) matrix. Used for column clustering linkage to match SC3 behavior.
     """
-    # marker_res is a DataFrame with columns: ['auroc', 'clusts', 'pvalue']
-    # index should be gene index if not specified? 
-    # In Python get_marker_genes returns a DataFrame aligned with genes? 
-    # Let's check core_functions/biology.py.
-    # get_marker_genes returns df with columns ["auroc", "clusts", "pvalue"]
-    # rows correspond to genes in order.
-    
+
+    # --- 1. 列名标准化与数据清洗 ---
     if not isinstance(marker_res, pd.DataFrame):
-        marker_res = pd.DataFrame(marker_res, columns=["auroc", "clusts", "pvalue"])
-    
-    # Filter
-    mask = (marker_res['pvalue'] < p_val_thr) & (marker_res['auroc'] > auroc_thr)
-    valid_markers = marker_res[mask].copy()
-    valid_markers['gene_index'] = valid_markers.index
-    
-    if valid_markers.empty:
-        print("No markers found.")
+        print("Error: marker_res must be a pandas DataFrame.")
         return
-        
-    # Select top 10 per cluster
+
+    # 自动识别列名 (因为 k 不同，列名前缀如 sc3_6_markers... 会变)
+    col_map = {}
+    for col in marker_res.columns:
+        if col == 'feature_symbol':
+            col_map['symbol'] = col
+        elif col.endswith('_clusts'):
+            col_map['clusts'] = col
+        elif col.endswith('_padj'):
+            col_map['pvalue'] = col
+        elif col.endswith('_auroc'):
+            col_map['auroc'] = col
+
+    required_keys = ['symbol', 'clusts', 'pvalue', 'auroc']
+    if not all(k in col_map for k in required_keys):
+        print(f"Error: Could not identify required columns in marker_res. Found: {marker_res.columns}")
+        return
+
+    # 创建标准化的临时 DataFrame
+    df_markers = marker_res.copy()
+    df_markers = df_markers.rename(columns={
+        col_map['symbol']: 'gene_name',
+        col_map['clusts']: 'cluster',
+        col_map['pvalue']: 'pvalue',
+        col_map['auroc']: 'auroc'
+    })
+
+    # 记录原始索引 (假设 marker_res 的行顺序对应 data 的列顺序)
+    df_markers['original_index'] = np.arange(len(df_markers))
+
+    # --- 2. 筛选与排序 ---
+    # 筛选: p_val < thr AND auroc > thr
+    mask = (df_markers['pvalue'] < p_val_thr) & (df_markers['auroc'] > auroc_thr)
+    valid_markers = df_markers[mask].copy()
+
+    if valid_markers.empty:
+        print("No markers found with current thresholds.")
+        return
+
+    # 选取每个 Cluster 的 Top 10
     top_genes_indices = []
-    
-    unique_clusters = np.unique(valid_markers['clusts'])
+    top_genes_names = []
+    gene_to_cluster = []
+
+    unique_clusters = sorted(valid_markers['cluster'].unique())
+
     for c in unique_clusters:
-        c_markers = valid_markers[valid_markers['clusts'] == c]
-        # Sort by AUROC desc
-        c_markers = c_markers.sort_values('auroc', ascending=False)
-        top_10 = c_markers.head(10)['gene_index'].tolist()
-        top_genes_indices.extend(top_10)
-        
-    # Extract data
-    # Remove duplicates if any
-    top_genes_indices = list(dict.fromkeys(top_genes_indices))
-    
-    subset_data = data[:, top_genes_indices].T
-    
-    # Annotations
-    unique_labels = np.unique(labels)
-    palette = sns.color_palette("tab10", n_colors=len(unique_labels))
-    lut = dict(zip(unique_labels, palette))
-    col_colors = pd.Series(labels).map(lut)
-    col_colors.name = "Cluster"
-    
+        c_data = valid_markers[valid_markers['cluster'] == c]
+        c_data = c_data.sort_values('auroc', ascending=False)
+        top_10 = c_data.head(10)
+
+        top_genes_indices.extend(top_10['original_index'].tolist())
+        top_genes_names.extend(top_10['gene_name'].tolist())
+        gene_to_cluster.extend([c] * len(top_10))
+
+    # --- 3. 构建绘图矩阵 ---
+    # data 是 (Cells, Genes)，我们需要 (Genes, Cells)
+    subset_data = data[:, top_genes_indices].T  # Shape: (n_selected_genes, n_cells)
+    df_plot = pd.DataFrame(subset_data, index=top_genes_names)
+
+    # --- 4. 视觉配置 (严格复刻 R) ---
+    # 4.1 7段式 Heatmap 颜色
+    sc3_colors = ['#4575B4', '#91BFDB', '#E0F3F8', '#FFFFBF', '#FEE090', '#FC8D59', '#D73027']
+    sc3_cmap = LinearSegmentedColormap.from_list("sc3_markers", sc3_colors)
+
+    # 4.2 Cluster 颜色 (复刻 markers.png 中的色盘)
+    r_style_palette = ['#F37CEB', '#F98A81', '#83B0F7', '#00C753', '#00D7D9', '#CCB100']
+    # 如果 Cluster 数量超过预设，扩展色盘
+    if len(unique_clusters) > len(r_style_palette):
+        extra_colors = sns.color_palette("Set3", len(unique_clusters)).as_hex()
+        cluster_colors_list = r_style_palette + extra_colors
+    else:
+        cluster_colors_list = r_style_palette
+
+    # 建立映射: Cluster ID -> Color Hex
+    cluster_color_map = {c: cluster_colors_list[i] for i, c in enumerate(unique_clusters)}
+
+    # 4.3 制作左侧颜色条数据 (Row Colors)
+    row_colors = pd.Series(gene_to_cluster).map(cluster_color_map).tolist()
+
+    # 4.4 计算列聚类 (使用 Consensus Matrix)
+    dist_vector = pdist(consensus_matrix, metric='euclidean')
+    col_linkage_obj = linkage(dist_vector, method='complete')
+
+    # --- 5. 绘图 (Clustermap) ---
+    n_genes, n_cells = df_plot.shape
+
+    # 设定每个小方格的物理尺寸 (英寸)
+    cell_unit_size = 0.15
+
+    # 矩阵本身的物理尺寸
+    matrix_w_inches = n_cells * cell_unit_size
+    matrix_h_inches = n_genes * cell_unit_size
+
+    # 定义周边元素的固定尺寸 (英寸)
+    dendrogram_h_inches = 1.2  # 顶部树状图高度
+    legend_w_inches = 2.0  # 右侧图例预留宽度
+    label_w_inches = 1.0  # 右侧基因名预留宽度
+    left_margin = 0.5  # 左侧 Row Colors 条宽度
+    bottom_margin = 0.2  # 底部留白
+
+    # 计算总 figsize
+    total_w = left_margin + matrix_w_inches + label_w_inches + legend_w_inches
+    total_h = matrix_h_inches + dendrogram_h_inches + bottom_margin
+
+    # 计算 dendrogram_ratio (seaborn 需要的是比例，不是绝对值)
+    # 我们希望树的高度是 dendrogram_h_inches
+    # col_ratio = 树的高度 / 总高度
+    col_dendro_ratio = dendrogram_h_inches / total_h
+
+    # 防止比例过小或过大导致报错
+    col_dendro_ratio = max(0.05, min(0.3, col_dendro_ratio))
+
+    # 确定字体大小
+    fontsize = 12 if n_genes <= 30 else 10
+
+    # 动态调整网格线宽
+    lw = 0.5
+    if df_plot.shape[1] > 100:
+        lw = 0.1
+    if df_plot.shape[1] > 500:
+        lw = 0.05
+
     g = sns.clustermap(
-        subset_data,
-        cmap="viridis",
+        df_plot,
+        figsize=(total_w, total_h),
+        cmap=sc3_cmap,
+        row_cluster=False,
         col_cluster=True,
-        row_cluster=False, # Don't re-cluster markers, keep them grouped by cluster? 
-                           # R pheatmap usually clusters unless order is fixed.
-                           # R sc3_plot_markers: cluster_rows = FALSE.
-        col_colors=col_colors.to_numpy(),
+        col_linkage=col_linkage_obj,
+        row_colors=row_colors,
+        dendrogram_ratio=(0.02, col_dendro_ratio),
+        cbar_pos=(1.02, 0.75, 0.02, 0.15),
+        linewidths=lw,
+        linecolor='#808080',
         xticklabels=False,
         yticklabels=True,
-        cbar_kws={'label': 'Expression'}
+        vmin=0,
+        tree_kws={'linewidths': 1.5}
     )
-    g.ax_heatmap.set_title("Marker Genes Expression")
-    
+
+    heatmap_ax = g.ax_heatmap
+
+    # --- 6. 后期精修 (Gaps, Labels, Legend) ---
+    # 6.1 绘制 GAP (白色粗分割线)
+    # [行 GAP]：在不同 Cluster 的基因之间画线
+    cluster_ids = np.array(gene_to_cluster)
+    row_boundaries = np.where(cluster_ids[:-1] != cluster_ids[1:])[0] + 1
+    heatmap_ax.hlines(row_boundaries, *heatmap_ax.get_xlim(), color='white', linewidth=3)
+
+    # [列 GAP]：在不同 Cluster 的细胞之间画线
+    reordered_col_ind = g.dendrogram_col.reordered_ind
+    reordered_labels = np.array(labels)[reordered_col_ind]
+    col_boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
+    heatmap_ax.vlines(col_boundaries, *heatmap_ax.get_ylim(), color='white', linewidth=3)
+
+    # 6.2 调整 Row Colors 条
+    # 去掉 Seaborn 默认添加的 label
+    if g.ax_row_colors:
+        g.ax_row_colors.set_xticklabels([])
+        g.ax_row_colors.set_xlabel("")
+        heatmap_pos = heatmap_ax.get_position()
+        # 计算物理宽度对应的相对比例
+        rc_width = cell_unit_size / total_w
+        rc_gap = 0.05 / total_w
+        rc_new_pos = [heatmap_pos.x0 - rc_width - rc_gap, heatmap_pos.y0, rc_width, heatmap_pos.height]
+        g.ax_row_colors.set_position(rc_new_pos)
+
+    # 6.3 动态对齐 Colorbar
+    heatmap_pos = heatmap_ax.get_position()
+    cb_width = 0.01
+    cb_height = 0.25
+    cb_bottom = heatmap_pos.y1 - cb_height
+    g.cax.set_position([1.002, cb_bottom, cb_width, cb_height])
+
+    # 6.4 添加 Cluster 图例 (Legend)
+    # 因为 sns.clustermap 的 row_colors 不会自动生成图例，需手动添加
+    legend_elements = [Patch(facecolor=cluster_color_map[c], edgecolor='#808080', label=f'{int(c)}')
+                       for c in unique_clusters]
+
+    # [修改] 计算图例位置：使其位于 Colorbar 右侧
+    legend_left = 1.002 + cb_width + 0.03
+    legend_bottom = cb_bottom
+    legend_width = 0.05
+    legend_height = cb_height
+
+    # 在 Colorbar 右侧添加图例 Axes
+    legend_ax = g.figure.add_axes([legend_left, legend_bottom, legend_width, legend_height])
+
+    legend_ax.legend(
+        handles=legend_elements,
+        loc='upper left',
+        title="Cluster",
+        title_fontproperties={'weight': 'bold', 'size': fontsize},
+        frameon=False,
+        fontsize=fontsize,
+        handlelength=2.0,
+        handleheight=2.0,
+        labelspacing=0,
+        borderpad=0,
+        handletextpad=0.5,
+        borderaxespad=0
+    )
+    legend_ax.axis('off')
+
+    # 6.5 坐标轴与标签调整
+    heatmap_ax.set_xlabel("")
+    heatmap_ax.set_ylabel("")
+
+    # 将基因名放在右侧
+    heatmap_ax.tick_params(axis='y', labelsize=9, labelright=True, labelleft=False, rotation=0, length=0)
+
+    # 保存
     if file_path:
         _ensure_dir(file_path)
-        g.savefig(file_path)
+        g.savefig(file_path, dpi=300, bbox_inches='tight')
+        print(f"Marker genes plot saved to {file_path}")
+
     # plt.show()
+
 
 def plot_cluster_stability(stability_indices, clusters, file_path=None):
     """
