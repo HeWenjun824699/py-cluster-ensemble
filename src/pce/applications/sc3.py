@@ -185,6 +185,11 @@ def sc3_application(
             # Add Cluster assignments to Cells DataFrame (convert to 1-based indexing for R consistency)
             cells_df[f"sc3_{k}_clusters"] = labels + 1
 
+            # Biological Results
+            mark_df = None
+            de_df = None
+            outl_df = None
+
             if biology_res:
                 # Organise biological results (mapped to full dimensions)
 
@@ -212,34 +217,35 @@ def sc3_application(
                 if not os.path.exists(output_directory):
                     os.makedirs(output_directory)
 
-                # 1. Consensus Matrix Plot
-                plot_consensus(
-                    model.consensus_matrix,
-                    labels=labels,
-                    file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
-                )
-
-                # 2. Silhouette Plot
-                plot_silhouette(
-                    model.consensus_matrix,
-                    labels=labels,
-                    file_path=os.path.join(output_directory, "png", "silhouette.png")
-                )
-
-                # 3. Gene Expression Plot (on filtered data)
-                plot_expression(
-                    model.data,
-                    labels=labels,
-                    file_path=os.path.join(output_directory, "png", "expression.png")
-                )
+                # # 1. Consensus Matrix Plot
+                # plot_consensus(
+                #     model.consensus_matrix,
+                #     labels=labels,
+                #     file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
+                # )
+                #
+                # # 2. Silhouette Plot
+                # plot_silhouette(
+                #     model.consensus_matrix,
+                #     labels=labels,
+                #     file_path=os.path.join(output_directory, "png", "silhouette.png")
+                # )
+                #
+                # # 3. Gene Expression Plot (on filtered data)
+                # plot_expression(
+                #     model.data,
+                #     labels=labels,
+                #     file_path=os.path.join(output_directory, "png", "expression.png")
+                # )
 
                 # 4. DE Genes Heatmap
                 # Pass the raw DE p-values dictionary (aligned to filtered data)
                 if 'de' in biology_res:
                     plot_de_genes(
-                        model.data,
+                        data=X,
                         labels=labels,
-                        de_genes_dict=biology_res['de'],
+                        de_results_df=de_df,
+                        consensus_matrix=model.consensus_matrix,
                         file_path=os.path.join(output_directory, "png", "de_genes.png")
                     )
 

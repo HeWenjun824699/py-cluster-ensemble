@@ -1,13 +1,15 @@
+import os
+
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-import os
+from matplotlib import ticker, cm
 from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.patches import Patch
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import pdist
-from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.metrics import silhouette_samples
 
 
 def _ensure_dir(file_path):
@@ -38,16 +40,7 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
 
     # --- 2. R 的 7 段式变色逻辑 ---
     # 构建混合色板
-    custom_colors = [
-        '#4575B4',  # 0.0 (最深蓝)
-        '#91BFDB',  # 0.16 (浅蓝)
-        '#E0F3F8',  # 0.33 (极浅蓝)
-        '#FFFFBF',  # 0.50 (米黄/白 )
-        '#FEE090',  # 0.66 (浅橙)
-        '#FC8D59',  # 0.83 (橙)
-        '#D73027'   # 1.0 (深红)
-    ]
-
+    custom_colors = ['#4575B4', '#91BFDB', '#E0F3F8', '#FFFFBF', '#FEE090', '#FC8D59', '#D73027']
     custom_cmap = LinearSegmentedColormap.from_list("sc3_imitation", custom_colors)
 
     # --- 4. 视觉参数 ---
@@ -68,16 +61,11 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
         df_cons,
         row_linkage=row_linkage,
         col_linkage=col_linkage,
-
-        # 压缩树状图高度
         dendrogram_ratio=0.1,
-
-        # 配色与样式
         cmap=custom_cmap,
         vmin=0, vmax=1,
         linewidths=lw,
         linecolor=linecolor,
-
         xticklabels=show_labels,
         yticklabels=show_labels,
         cbar_pos=(1.02, 0.60, 0.02, 0.30),
@@ -92,14 +80,11 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
         boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
 
         # 绘制加粗白线模拟 R 的 cutree 效果
-        # 这里线宽设为 3，确保能看出来是“分区”
         gap_lw = 3
         g.ax_heatmap.hlines(boundaries, *g.ax_heatmap.get_xlim(), color='white', linewidth=gap_lw, clip_on=True, zorder=10)
         g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=gap_lw, clip_on=True, zorder=10)
 
-    # --- 6. [核心修正] Colorbar 顶部严格对齐 ---
-    # 获取热图绘制后的准确坐标 (Bbox)
-    # heatmap_pos.y0 = 底部, heatmap_pos.y1 = 顶部
+    # --- 6. Colorbar 顶部严格对齐 ---
     heatmap_pos = g.ax_heatmap.get_position()
 
     # 设定 Colorbar 尺寸
@@ -107,8 +92,6 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
     cb_height = 0.30
 
     # 计算位置：
-    # left = 热图右边缘 + 间距
-    # bottom = 热图顶部 (y1) - Colorbar高度 (height) -> 这样顶部就齐平了
     cb_left = heatmap_pos.x1 + 0.02
     cb_bottom = heatmap_pos.y1 - cb_height
 
@@ -239,63 +222,181 @@ def plot_expression(data, labels, file_path=None):
         g.savefig(file_path)
     # plt.show()
 
-def plot_de_genes(data, labels, de_genes_dict, p_val=0.01, file_path=None):
+
+def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, file_path=None):
     """
-    Plot expression of DE genes.
+    Plot expression of DE genes using the DE results DataFrame directly.
     Matches sc3_plot_de_genes in R.
-    
-    de_genes_dict: result from get_de_genes (p-values)
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Expression matrix (n_cells, n_genes).
+        **Important**: The columns of this matrix must match the rows of de_results_df 1-to-1.
+        (i.e., data.shape[1] == de_results_df.shape[0])
+    labels : list
+        Cluster labels for each cell.
+    de_results_df : pd.DataFrame
+        DataFrame with shape (n_genes, 2).
+        - Col 0: Gene Names (e.g., 'feature_symbol')
+        - Col 1: P-values (e.g., 'sc3_k_de_padj')
+    p_val : float
+        Significance threshold.
     """
-    # Need to identify top 50 DE genes
-    # In Python implementation, get_de_genes returns p-values for all genes
-    # data is (cells, genes)
-    
-    if len(de_genes_dict) != data.shape[1]:
-        print("Mismatch between DE results and gene count.")
+
+    # --- 1. 解析 DataFrame ---
+    if not isinstance(de_results_df, pd.DataFrame):
+        print("Error: de_results_df must be a pandas DataFrame.")
         return
-        
-    # Filter by p-value
-    sig_indices = np.where(de_genes_dict < p_val)[0]
-    
+
+    if data.shape[1] != de_results_df.shape[0]:
+        print(f"Error: Data columns ({data.shape[1]}) do not match DE results rows ({de_results_df.shape[0]}).")
+        return
+
+    # 提取基因名 (第1列) 和 P值 (第2列)
+    all_gene_names = de_results_df.iloc[:, 0].values.astype(str)
+    all_p_values = de_results_df.iloc[:, 1].values
+
+    # --- 2. 数据清洗 (处理 NaN) ---
+    all_p_values = np.array(all_p_values, dtype=float)
+    all_p_values[np.isnan(all_p_values)] = 1.0
+
+    # --- 3. 筛选 Top 50 DE Genes ---
+    sig_indices = np.where(all_p_values < p_val)[0]
+
     if len(sig_indices) == 0:
-        print("No DE genes found.")
+        print(f"No DE genes found with p-value < {p_val}.")
         return
-        
-    # Sort by p-value and take top 50
-    sig_pvals = de_genes_dict[sig_indices]
-    sorted_indices = sig_indices[np.argsort(sig_pvals)]
-    top_50_indices = sorted_indices[:50]
-    
-    # Extract data (Genes x Cells)
+
+    # 在显著基因中，按 p-value 从小到大排序
+    sig_pvals = all_p_values[sig_indices]
+    sorted_local_indices = np.argsort(sig_pvals)
+    # 映射回全局索引 (这些索引对应 data 的列 和 gene_names 的位置)
+    sorted_global_indices = sig_indices[sorted_local_indices]
+
+    # 截取前 50 个
+    top_50_indices = sorted_global_indices[:50]
+    top_50_pvals = all_p_values[top_50_indices]
+    top_50_names = all_gene_names[top_50_indices]
+
+    # --- 4. 提取绘图数据 ---
     subset_data = data[:, top_50_indices].T
-    
-    # Annotations
-    unique_labels = np.unique(labels)
-    palette = sns.color_palette("tab10", n_colors=len(unique_labels))
-    lut = dict(zip(unique_labels, palette))
-    col_colors = pd.Series(labels).map(lut)
-    col_colors.name = "Cluster"
-    
-    # Row annotation (Log10 p-adj)
-    # row_colors? heatmap supports row_colors.
-    # We can map p-value to a color or just show the heatmap.
-    
+    df_plot = pd.DataFrame(subset_data, index=top_50_names)
+
+    # --- 5. 视觉配置 (R 风格复刻) ---
+    custom_colors = ['#4575B4', '#91BFDB', '#E0F3F8', '#FFFFBF', '#FEE090', '#FC8D59', '#D73027']
+    sc3_cmap = LinearSegmentedColormap.from_list("sc3_imitation", custom_colors)
+    lighter_greens = ['#EDF8FB', '#B2E2E2', '#66C2A4', '#238B45']
+    smooth_greens = LinearSegmentedColormap.from_list("GreensSmooth", lighter_greens, N=256)
+    discrete_greens = LinearSegmentedColormap.from_list("Greens4", lighter_greens, N=4)
+
+    # 行注释 (log10_padj) - 左侧绿色条
+    safe_pvals = top_50_pvals.copy()
+    safe_pvals[safe_pvals < 1e-17] = 1e-17
+    log10_padj = -np.log10(safe_pvals)
+
+    # 归一化
+    norm = mcolors.Normalize(vmin=log10_padj.min(), vmax=log10_padj.max())
+
+    # 使用基因名作为索引，确保与 heatmap 自动对齐
+    row_colors = pd.Series(
+        log10_padj, index=top_50_names
+    ).map(lambda x: mcolors.to_hex(smooth_greens(norm(x))))
+    row_colors.name = "log10_padj"
+
+    # --- 计算共识聚类的 Linkage ---
+    dist_vector = pdist(consensus_matrix, metric='euclidean')
+    col_linkage_obj = linkage(dist_vector, method='complete')
+
+    # --- 6. 绘图 (Clustermap) ---
+    plt.figure(figsize=(10, 10))
+    fontsize = 10 if len(top_50_names) <= 30 else 8
+
     g = sns.clustermap(
-        subset_data,
-        cmap="viridis",
-        col_cluster=True, # Cluster cells
-        row_cluster=True, # Cluster genes
-        col_colors=col_colors.to_numpy(),
+        df_plot,
+        cmap=sc3_cmap,
+        row_cluster=False,
+        col_cluster=True,
+        col_linkage=col_linkage_obj,
+        # col_colors=col_colors.to_numpy(),
+        row_colors=row_colors,
+        dendrogram_ratio=(0.04, 0.10),
         xticklabels=False,
         yticklabels=True,
-        cbar_kws={'label': 'Expression'}
+        cbar_pos=(1.02, 0.60, 0.02, 0.30),
+        # cbar_kws={'label': 'Expression'}
     )
-    g.ax_heatmap.set_title("DE Genes Expression")
-    
+
+    # --- 7. 手动强制设置绿条的位置和宽度 ---
+    heatmap_pos = g.ax_heatmap.get_position()
+
+    # 计算绿条的新位置
+    rc_width = 0.02
+    rc_gap = 0.005
+    rc_new_pos = [heatmap_pos.x0 - rc_width - rc_gap, heatmap_pos.y0, rc_width, heatmap_pos.height]
+    g.ax_row_colors.set_position(rc_new_pos)
+    g.ax_row_colors.set_xticks([])
+    g.ax_row_colors.set_xlabel("log10_padj", fontsize=fontsize, fontweight='bold', rotation=-90)
+
+    # --- 8. 动态对齐 Colorbar ---
+    cb_width = 0.02
+    cb_height = 0.20
+    cb_bottom = heatmap_pos.y1 - cb_height
+    g.cax.set_position([1.002, cb_bottom, cb_width, cb_height])
+
+    # --- 添加 log10_padj 图例 ---
+    gap = 0.05
+    padj_cb_height = 0.08
+    padj_cb_bottom = cb_bottom - gap - padj_cb_height
+    cax_padj = g.figure.add_axes([1.002, padj_cb_bottom, cb_width, padj_cb_height])
+    mappable_green = cm.ScalarMappable(norm=norm, cmap=discrete_greens)
+    cb_padj = plt.colorbar(mappable_green, cax=cax_padj, orientation='vertical')
+    cax_padj.set_title("log10_padj", fontsize=fontsize, loc='left', pad=8, fontweight='bold')
+    cax_padj.tick_params(labelsize=fontsize)
+    cb_padj.outline.set_visible(False)
+    cax_padj.tick_params(length=0)
+    min_val = log10_padj.min()
+    max_val = log10_padj.max()
+    cax_padj.set_yticks([min_val, max_val])
+    cax_padj.set_yticklabels([f"{min_val:.1f}", f"{max_val:.1f}"])
+
+    # --- 9. 细节修饰 ---
+    # Colorbar 刻度设置
+    g.cax.yaxis.set_major_locator(ticker.MultipleLocator(2))
+    g.cax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+    g.cax.tick_params(
+        labelsize=fontsize,
+        length=0
+    )
+
+    g.ax_heatmap.set_xlabel("")
+    g.ax_heatmap.set_ylabel("")
+
+    # 调整右侧基因名字体
+    g.ax_heatmap.tick_params(
+        axis='y',
+        labelright=True,
+        labelleft=False,
+        rotation=0,
+        length=0
+    )
+
+    plt.setp(g.ax_heatmap.get_yticklabels(), fontsize=fontsize)
+
+    # 绘制列分割白线 (Gaps)
+    if hasattr(g.dendrogram_col, 'reordered_ind'):
+        reordered_col_ind = g.dendrogram_col.reordered_ind
+        reordered_labels = np.array(labels)[reordered_col_ind]
+        boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
+        g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=3)
+
     if file_path:
         _ensure_dir(file_path)
-        g.savefig(file_path)
+        g.savefig(file_path, dpi=300, bbox_inches='tight')
+        print(f"DE genes plot saved to {file_path}")
+
     # plt.show()
+
 
 def plot_markers(data, labels, marker_res, auroc_thr=0.85, p_val_thr=0.01, file_path=None):
     """
