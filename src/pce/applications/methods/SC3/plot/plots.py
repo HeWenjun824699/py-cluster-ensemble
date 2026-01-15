@@ -174,6 +174,7 @@ def plot_silhouette(consensus_matrix, labels, file_path=None):
         plt.savefig(file_path)
     # plt.show()
 
+
 def plot_expression(data, labels, file_path=None):
     """
     Plot expression matrix used for SC3-Nature methods-2017 clustering as a heatmap.
@@ -352,20 +353,37 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
     # padj_cb_height = 0.08
     # padj_cb_bottom = cb_bottom - gap - padj_cb_height
     # cax_padj = g.figure.add_axes([1.002, padj_cb_bottom, cb_width, padj_cb_height])
+    # mappable_green = cm.ScalarMappable(norm=norm, cmap=discrete_greens)
+    # cb_padj = plt.colorbar(mappable_green, cax=cax_padj, orientation='vertical')
+    # cax_padj.set_title("log10_padj", fontsize=fontsize, loc='left', pad=8, fontweight='bold')
+    # cax_padj.tick_params(labelsize=fontsize, length=0)
+    # cb_padj.outline.set_visible(False)
+    # min_val = log10_padj.min()
+    # max_val = log10_padj.max()
+    # cax_padj.set_yticks([min_val, max_val])
+    # cax_padj.set_yticklabels([f"{min_val:.1f}", f"{max_val:.1f}"])
 
     # log10_padj 图例 位于 Colorbar 的右侧
     gap = 0.05
     padj_cb_left = 1.002 + cb_width + gap
     padj_cb_height = 0.08
-    padj_cb_bottom = (cb_bottom + cb_height) - padj_cb_height
+    main_cb_top = cb_bottom + cb_height
+    safe_text_gap = 0.02
+    padj_cb_bottom = main_cb_top - safe_text_gap - padj_cb_height
     cax_padj = g.figure.add_axes([padj_cb_left, padj_cb_bottom, cb_width, padj_cb_height])
-
     mappable_green = cm.ScalarMappable(norm=norm, cmap=discrete_greens)
     cb_padj = plt.colorbar(mappable_green, cax=cax_padj, orientation='vertical')
-    cax_padj.set_title("log10_padj", fontsize=fontsize, loc='left', pad=8, fontweight='bold')
-    cax_padj.tick_params(labelsize=fontsize)
+    g.figure.text(
+        padj_cb_left,
+        main_cb_top,
+        "log10_padj",
+        fontsize=fontsize,
+        fontweight='bold',
+        ha='left',
+        va='top'
+    )
+    cax_padj.tick_params(labelsize=fontsize, length=0)
     cb_padj.outline.set_visible(False)
-    cax_padj.tick_params(length=0)
     min_val = log10_padj.min()
     max_val = log10_padj.max()
     cax_padj.set_yticks([min_val, max_val])
@@ -605,13 +623,14 @@ def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_v
     cb_height = 0.25
     cb_bottom = heatmap_pos.y1 - cb_height
     g.cax.set_position([1.002, cb_bottom, cb_width, cb_height])
+    g.cax.tick_params(axis='y', length=0)
 
     # 6.4 添加 Cluster 图例 (Legend)
     # 因为 sns.clustermap 的 row_colors 不会自动生成图例，需手动添加
     legend_elements = [Patch(facecolor=cluster_color_map[c], edgecolor='#808080', label=f'{int(c)}')
                        for c in unique_clusters]
 
-    # [修改] 计算图例位置：使其位于 Colorbar 右侧
+    # 计算图例位置：使其位于 Colorbar 右侧
     legend_left = 1.002 + cb_width + 0.03
     legend_bottom = cb_bottom
     legend_width = 0.05
@@ -620,11 +639,24 @@ def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_v
     # 在 Colorbar 右侧添加图例 Axes
     legend_ax = g.figure.add_axes([legend_left, legend_bottom, legend_width, legend_height])
 
+    # 绘制标题 "Cluster"
+    legend_ax.text(
+        -0.03,
+        1.0,
+        "Cluster",
+        transform=legend_ax.transAxes,
+        fontsize=fontsize,
+        fontweight='bold',
+        ha='left',
+        va='top'
+    )
+
+    # 绘制图例内容 (小方块)
+    content_shift_down = 0.08
     legend_ax.legend(
         handles=legend_elements,
+        bbox_to_anchor=(0, 1.0 - content_shift_down),
         loc='upper left',
-        title="Cluster",
-        title_fontproperties={'weight': 'bold', 'size': fontsize},
         frameon=False,
         fontsize=fontsize,
         handlelength=2.0,
