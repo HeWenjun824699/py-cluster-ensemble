@@ -29,7 +29,7 @@ def test_sc3_basic(synthetic_data, tmp_path):
 
     assert labels.shape == (20,)
     assert isinstance(time_cost, float)
-    assert (output_dir / "png" / "consensus_matrix.png").exists()
+    assert (output_dir / "fig" / "consensus_matrix.png").exists()
 
 @patch('pce.applications.dcc.train_representation')
 @patch('pce.applications.dcc.run_consensus_clustering')
@@ -56,7 +56,7 @@ def test_dcc_pipeline(mock_sensitivity, mock_viz, mock_consensus, mock_train, tm
         k_max=4,
         run_viz=True,
         run_sensitivity=True,
-        epochs=1 # passed to kwargs
+        epochs=1
     )
 
     # Verify calls
