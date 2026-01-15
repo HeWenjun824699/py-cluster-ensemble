@@ -163,7 +163,8 @@ import pce.analysis as ana
 # 适用场景: 原始数据分布展示 / 聚类结果可视化
 X, Y = io.load_mat_X_Y('data/isolet.mat')
 ana.plot_2d_scatter(
-    X, Y, 
+    X=X, 
+    Y=Y, 
     method='tsne', 
     title='Ground Truth Visualization (t-SNE)',
     save_path='output/tsne_plot.png'
@@ -173,7 +174,8 @@ ana.plot_2d_scatter(
 # 适用场景: 观察集成的一致性结构 (需先运行场景 B 生成 BPs)
 BPs, Y = io.load_mat_BPs_Y('data/base_partitions.mat')
 ana.plot_coassociation_heatmap(
-    Y, BPs=BPs, 
+    BPs=BPs,
+    Y=Y,
     title='Ensemble Consensus Matrix',
     save_path='output/heatmap.png'
 )
@@ -182,7 +184,7 @@ ana.plot_coassociation_heatmap(
 # 适用场景: 展示场景 B 中 nRepeat 次实验的稳定性
 # results_list 是场景 B 中 evaluation_batch 的返回值
 ana.plot_metric_line(
-    results_list, 
+    results_list=results_list, 
     metrics=['ACC', 'NMI', 'ARI'], 
     xlabel='Run ID',
     title='Performance Stability over 10 Runs',

@@ -1,6 +1,6 @@
 import os
-
 import pce
+
 
 # ================= Configuration =================
 DATA_DIR = r"./data"
@@ -37,7 +37,15 @@ METHODS = {
     "HETCLU": {
         "func": pce.generators.hetero_clustering,
         "args": {}
-    }
+    },
+    "SC3KM": {
+        "func": pce.generators.sc3_kmeans,
+        "args": {}
+    },
+    "SPECTRAL": {
+        "func": pce.generators.spectral,
+        "args": {}
+    },
 }
 
 # ================= Main Logic =================

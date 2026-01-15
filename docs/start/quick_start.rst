@@ -111,7 +111,8 @@ PCE features paper-quality visualization tools to analyze results and communicat
     # Use case: Visualize original data distribution / clustering results
     X, Y = io.load_mat_X_Y('./data/isolet.mat')
     ana.plot_2d_scatter(
-        X, Y,
+        X=X,
+        Y=Y,
         method='tsne',
         title='Ground Truth Visualization (t-SNE)',
         save_path='./output/tsne_plot.png'
@@ -121,7 +122,8 @@ PCE features paper-quality visualization tools to analyze results and communicat
     # Use case: Observe ensemble consensus structure (requires BPs from Scenario B)
     BPs, Y = io.load_mat_BPs_Y('./data/base_partitions.mat')
     ana.plot_coassociation_heatmap(
-        Y, BPs=BPs,
+        BPs=BPs,
+        Y=Y,
         title='Ensemble Consensus Matrix',
         save_path='./output/heatmap.png'
     )
@@ -130,7 +132,7 @@ PCE features paper-quality visualization tools to analyze results and communicat
     # Use case: Show stability over nRepeat runs from Scenario B
     # results_list is the return value from evaluation_batch in Scenario B
     ana.plot_metric_line(
-        results_list,
+        results_list=results_list,
         metrics=['ACC', 'NMI', 'ARI'],
         xlabel='Run ID',
         title='Performance Stability over 10 Runs',

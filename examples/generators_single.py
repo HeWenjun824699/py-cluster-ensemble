@@ -1,7 +1,7 @@
 import pce
 
-data_path = r"./data/isolet_1560n_617d_2c.mat"
 
+data_path = r"./data/isolet_1560n_617d_2c.mat"
 X, Y = pce.io.load_mat_X_Y(data_path)
 print(X)
 print(Y)
@@ -74,6 +74,26 @@ BPs = pce.generators.litekmeans(
 # # Heterogeneous Clustering
 # base_output_path = r"./data/HETCLU200/isolet_1560n_617d_2c_HETCLU200.mat"
 # BPs = pce.generators.hetero_clustering(
+#     X=X,
+#     Y=Y,
+#     nClusters=None,
+#     nPartitions=200,
+#     seed=2026
+# )
+
+# # SC3 K-Means
+# base_output_path = r"./data/SC3KM200/isolet_1560n_617d_2c_SC3KM200.mat"
+# BPs = pce.generators.sc3_kmeans(
+#     X=X,
+#     Y=Y,
+#     nClusters=None,
+#     nPartitions=200,
+#     seed=2026
+# )
+
+# # Spectral Clustering
+# base_output_path = r"./data/SPECTRAL200/isolet_1560n_617d_2c_SPECTRAL200.mat"
+# BPs = pce.generators.spectral(
 #     X=X,
 #     Y=Y,
 #     nClusters=None,

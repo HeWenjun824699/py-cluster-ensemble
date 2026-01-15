@@ -16,7 +16,14 @@ pce.pipelines.consensus_batch(
 )
 
 # # Multiple datasets and multiple algorithms
-# consensus_methods = ["cspa", "ptaal", "lwea"]
+# consensus_methods = [
+#     "cspa", "mcla", "hgpa", "ptaal", "ptacl", "ptasl", "ptgp",
+#     "lwea", "lwgp", "drec", "usenc", "celta", "ecpcs_hc",
+#     "ecpcs_mc", "spce", "trce", "cdkm", "mdecbg", "mdechc",
+#     "mdecsc", "eccms", "gtlec", "kcc_uc", "kcc_uh", "ceam",
+#     "space", "cdec", "sc3", "icsc", "dcc"
+# ]
+#
 # for method in consensus_methods:
 #     pce.pipelines.consensus_batch(
 #         input_dir=data_dir,

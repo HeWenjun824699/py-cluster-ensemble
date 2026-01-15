@@ -19,7 +19,8 @@ Visualize high-dimensional data distributions using t-SNE or PCA. This is essent
 
    # 2. Generate t-SNE scatter plot
    ana.plot_2d_scatter(
-       X, Y,
+       X=X,
+       Y=Y,
        xlabel='Dimension 1',
        ylabel='Dimension 2',
        method='tsne',
@@ -42,7 +43,8 @@ Analyze the consistency of the ensemble by plotting a co-association heatmap. By
 
    # 2. Plot co-association matrix heatmap
    ana.plot_coassociation_heatmap(
-       Y, BPs=BPs,
+       BPs=BPs,
+       Y=Y,
        xlabel='Sample Index (Sorted by Ground Truth)',
        ylabel='Sample Index (Sorted by Ground Truth)',
        title='Ensemble Consensus Matrix Heatmap',
@@ -90,7 +92,7 @@ After running a Grid Search, you can visualize how a specific hyperparameter (e.
 
    # Plot sensitivity of parameter 'theta' on Accuracy
    ana.plot_parameter_sensitivity(
-       csv_file,
+       csv_file=csv_file,
        target_param='theta',
        metric='ACC',
        fixed_params={},    # Optionally fix other parameters
