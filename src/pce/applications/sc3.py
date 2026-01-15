@@ -221,14 +221,14 @@ def sc3_application(
                 plot_consensus(
                     model.consensus_matrix,
                     labels=labels,
-                    file_path=os.path.join(output_directory, "png", "consensus_matrix.png")
+                    file_path=os.path.join(output_directory, "fig", "consensus_matrix.png")
                 )
 
                 # 2. Silhouette Plot
                 plot_silhouette(
-                    model.consensus_matrix,
+                    consensus_matrix=model.consensus_matrix,
                     labels=labels,
-                    file_path=os.path.join(output_directory, "png", "silhouette.png")
+                    file_path=os.path.join(output_directory, "fig", "silhouette.png")
                 )
 
                 # 3. Gene Expression Plot (on filtered data)
@@ -237,7 +237,7 @@ def sc3_application(
                     labels=labels,
                     consensus_matrix=model.consensus_matrix,
                     seed=model.seed,
-                    file_path=os.path.join(output_directory, "png", "expression.png")
+                    file_path=os.path.join(output_directory, "fig", "expression.png")
                 )
 
                 # 4. DE Genes Heatmap
@@ -248,7 +248,7 @@ def sc3_application(
                         labels=labels,
                         de_results_df=de_df,
                         consensus_matrix=model.consensus_matrix,
-                        file_path=os.path.join(output_directory, "png", "de_genes.png")
+                        file_path=os.path.join(output_directory, "fig", "de_genes.png")
                     )
 
                 # 5. Marker Genes Heatmap
@@ -259,7 +259,7 @@ def sc3_application(
                         labels=labels,
                         marker_res=mark_df,
                         consensus_matrix=model.consensus_matrix,
-                        file_path=os.path.join(output_directory, "png", "marker_genes.png")
+                        file_path=os.path.join(output_directory, "fig", "marker_genes.png")
                     )
 
             except Exception as plot_e:

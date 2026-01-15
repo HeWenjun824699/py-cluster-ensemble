@@ -9,7 +9,7 @@ from matplotlib import ticker, cm
 from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.cluster.hierarchy import linkage
-from scipy.spatial.distance import pdist
+from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples
 
@@ -20,6 +20,28 @@ def _ensure_dir(file_path):
         out_dir = os.path.dirname(file_path)
         if out_dir and not os.path.exists(out_dir):
             os.makedirs(out_dir, exist_ok=True)
+
+
+def _save_fig(file_path, g):
+    """Helper to save figure to file."""
+    if file_path:
+        _ensure_dir(file_path)
+
+        # 分离文件名和后缀
+        base_name, ext = os.path.splitext(file_path)
+        png_path = f"{base_name}.png"
+        pdf_path = f"{base_name}.pdf"
+        svg_path = f"{base_name}.svg"
+
+        # 保存为 PNG、PDF、SVG
+        g.savefig(png_path, dpi=300, bbox_inches='tight')
+        g.savefig(pdf_path, dpi=300, bbox_inches='tight')
+        g.savefig(svg_path, dpi=300, bbox_inches='tight')
+
+        return png_path, pdf_path, svg_path
+
+    else:
+        raise Exception("Please specify a valid file path.")
 
 
 def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=None):
@@ -105,75 +127,135 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
     g.ax_heatmap.set_ylabel("")
     g.ax_heatmap.tick_params(left=False, bottom=False)
 
-    if file_path:
-        _ensure_dir(file_path)
-        g.savefig(file_path, dpi=300, bbox_inches='tight')
-        print(f"Consensus plot saved to {file_path}")
-
-    # plt.show()
+    # 保存图像
+    png_path, pdf_path, svg_path = _save_fig(file_path, g)
+    print(f"\nConsensus plot saved to {os.path.dirname(file_path)}")
+    print(f"- File name: {os.path.basename(png_path)}")
+    print(f"- File name: {os.path.basename(pdf_path)}")
+    print(f"- File name: {os.path.basename(svg_path)}")
 
 
 def plot_silhouette(consensus_matrix, labels, file_path=None):
     """
     Plot silhouette indexes of the cells.
-    Matches sc3_plot_silhouette in R.
+    Refactored to match R's 'cluster::plot.silhouette' visual style exactly:
+    - Horizontal bars (black).
+    - Grouped by cluster with gaps.
+    - Right-side statistics (Cluster : Size | Avg Score).
     """
     if consensus_matrix is None or labels is None:
         print("Consensus matrix or labels missing.")
         return
-        
-    # Calculate silhouette scores
-    # R uses 'cluster::silhouette(clusts, diss)' where diss is distance from consensus
-    # Dissimilarity = 1 - consensus? Or Euclidean on consensus?
-    # R code: 
-    #   tmp <- ED2(dat) ... diss <- as.dist(...)
-    #   silh <- cluster::silhouette(clusts, diss)
-    # So it uses Euclidean distance of the consensus matrix rows.
-    
-    # We can use sklearn silhouette_samples with metric='precomputed' if we have distance,
-    # or just pass the consensus matrix if we treat it as features.
-    # To match R exactly, we should compute Euclidean distance of consensus matrix.
-    from scipy.spatial.distance import pdist, squareform
+
+    n_cells = len(labels)
+
+    # --- 1. 计算轮廓系数 (Silhouette Scores) ---
     dist_mat = squareform(pdist(consensus_matrix, metric='euclidean'))
-    
     silhouette_vals = silhouette_samples(dist_mat, labels, metric='precomputed')
-    
-    # Average silhouette score
-    avg_score = np.mean(silhouette_vals)
-    
-    # Organize for plotting
-    # R's default plot(silh) shows bars sorted by cluster and then by score (descending)
-    
-    df = pd.DataFrame({'label': labels, 'silhouette': silhouette_vals})
-    df = df.sort_values(['label', 'silhouette'], ascending=[True, False]).reset_index()
-    
-    plt.figure(figsize=(10, 6))
-    
-    # Create a bar plot
-    # We want a solid block for each cluster
-    # Color by cluster
-    unique_labels = np.unique(labels)
-    palette = sns.color_palette("tab10", n_colors=len(unique_labels))
-    
-    y_lower = 0
-    for i, k in enumerate(unique_labels):
-        k_vals = df[df['label'] == k]['silhouette'].values
-        k_size = len(k_vals)
-        
-        x = np.arange(y_lower, y_lower + k_size)
-        plt.bar(x, k_vals, width=1.0, color=palette[i], edgecolor='none', label=f'Cluster {k}')
-        y_lower += k_size
-        
-    plt.title(f"Silhouette Plot (Avg Score: {avg_score:.2f})")
-    plt.xlabel("Cells (sorted by cluster and silhouette width)")
-    plt.ylabel("Silhouette Width")
-    plt.axhline(avg_score, color="red", linestyle="--")
-    plt.legend()
-    
+    global_avg_score = np.mean(silhouette_vals)
+
+    # --- 2. 数据整理与排序 ---
+    df = pd.DataFrame({'label': labels, 'score': silhouette_vals})
+    # 计算每个 Cluster 的统计数据：数量 (n) 和 平均分 (ave)
+    cluster_stats = df.groupby('label')['score'].agg(['count', 'mean']).sort_index()
+
+    # 排序逻辑：
+    # Primary: Cluster ID (从小到大)
+    # Secondary: Score (从大到小)
+    df = df.sort_values(by=['label', 'score'], ascending=[True, False])
+
+    # --- 3. 绘图坐标计算 (核心复刻逻辑) ---
+    y_positions = []
+    current_y = 0
+    gap = 2
+    cluster_label_pos = {}
+    unique_labels = sorted(df['label'].unique())
+
+    # 遍历每个 Cluster 生成坐标
+    for i, clust in enumerate(unique_labels):
+        clust_data = df[df['label'] == clust]
+        n_items = len(clust_data)
+        start_y = current_y
+
+        # 生成该组数据的 Y 坐标 (0.5, 1.5, 2.5...)
+        y_pos_group = np.arange(start_y, start_y + n_items) + 0.5
+        y_positions.extend(y_pos_group)
+
+        # 记录该组的中心位置用于放文字
+        cluster_center = start_y + (n_items / 2.0)
+
+        # 格式化右侧文字: "j : n_j | ave_i s_i"
+        avg_s = cluster_stats.loc[clust, 'mean']
+        count_s = cluster_stats.loc[clust, 'count']
+        display_clust = int(clust) + 1
+        stats_text = f"{display_clust} : {int(count_s)} | {avg_s:.2f}"
+        cluster_label_pos[cluster_center] = stats_text
+        current_y += n_items + gap
+
+    # --- 4. 绘图 ---
+    plt.figure(figsize=(10, 8))
+    ax = plt.gca()
+
+    # 绘制水平条形图，颜色全黑
+    ax.barh(y_positions, df['score'].values, height=0.8, color='black', edgecolor='black', linewidth=0)
+
+    # --- 5. 样式复刻 ---
+
+    # 反转 Y 轴，使 Cluster 1 (y=0附近) 在顶部
+    ax.set_ylim(current_y - gap + 1, 0)
+
+    # 设置 X 轴范围
+    ax.set_xlim(0, 1.05)
+
+    # 移除 Y 轴刻度
+    ax.set_yticks([])
+
+    # 右侧添加统计文本 (Cluster : Count | Avg)
+    for y, text in cluster_label_pos.items():
+        ax.text(1.02, y, text, ha='left', va='center', fontsize=10, color='black')
+
+    # 添加右上角 Header
+    header_y_pos = -2
+    formula_str = r"$\mathsf{j} : \mathsf{n}_{\mathsf{j}} \mid \mathsf{ave}_{\mathsf{i} \in \mathsf{C}_{\mathsf{j}}} \ \mathsf{s}_{\mathsf{i}}$"
+    ax.text(1.02, header_y_pos, formula_str, ha='left', va='bottom', fontsize=10)
+    cluster_str = f"{len(unique_labels)} clusters $\mathsf{{C}}_{{\mathsf{{j}}}}$"
+    ax.text(1.02, header_y_pos - gap*2, cluster_str, ha='left', va='bottom', fontsize=10)
+
+    # 左上角信息 "n = 90"
+    ax.text(0, header_y_pos, f"n = {n_cells}", ha='left', va='bottom', fontsize=10, fontweight='normal')
+
+    # R Title: "Silhouette plot of (x = clusts, dist = diss)"
+    ax.set_title("Silhouette plot of (x = clusters, dist = diss)", loc='left', pad=30, fontsize=12, fontweight='bold')
+
+    # X 轴标签
+    xlabel_str = r"Silhouette width $\mathsf{s}_{\mathsf{i}}$"
+    ax.set_xlabel(xlabel_str, fontsize=10)
+
+    # R: "Average silhouette width : 0.92"
+    plt.figtext(0.125, 0.02, f"Average silhouette width : {global_avg_score:.2f}", fontsize=10)
+
+    # 去掉顶部和右侧的边框线 (Spines)，保留左侧和底部
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+    # 调整布局以显示右侧文字
+    plt.subplots_adjust(right=0.8, bottom=0.1)
+
+    # 保存图像
     if file_path:
         _ensure_dir(file_path)
-        plt.savefig(file_path)
-    # plt.show()
+        base_name, ext = os.path.splitext(file_path)
+        png_path = f"{base_name}.png"
+        pdf_path = f"{base_name}.pdf"
+        svg_path = f"{base_name}.svg"
+        plt.savefig(png_path)
+        plt.savefig(pdf_path)
+        plt.savefig(svg_path)
+        print(f"\nSilhouette plot saved to {os.path.dirname(file_path)}")
+        print(f"- File name: {os.path.basename(png_path)}")
+        print(f"- File name: {os.path.basename(pdf_path)}")
+        print(f"- File name: {os.path.basename(svg_path)}")
 
 
 def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
@@ -263,12 +345,12 @@ def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
     # 调整 Colorbar 样式
     g.cax.tick_params(labelsize=10, axis='y', length=0)
 
-    if file_path:
-        _ensure_dir(file_path)
-        g.savefig(file_path, dpi=300, bbox_inches='tight')
-        print(f"Expression plot saved to {file_path}")
-
-    # plt.show()
+    # 保存图像
+    png_path, pdf_path, svg_path = _save_fig(file_path, g)
+    print(f"\nExpression plot saved to {os.path.dirname(file_path)}")
+    print(f"- File name: {os.path.basename(png_path)}")
+    print(f"- File name: {os.path.basename(pdf_path)}")
+    print(f"- File name: {os.path.basename(svg_path)}")
 
 
 def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, file_path=None):
@@ -465,12 +547,12 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
         boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
         g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=3)
 
-    if file_path:
-        _ensure_dir(file_path)
-        g.savefig(file_path, dpi=300, bbox_inches='tight')
-        print(f"DE genes plot saved to {file_path}")
-
-    # plt.show()
+    # 保存图像
+    png_path, pdf_path, svg_path = _save_fig(file_path, g)
+    print(f"\nDE genes plot saved to {os.path.dirname(file_path)}")
+    print(f"- File name: {os.path.basename(png_path)}")
+    print(f"- File name: {os.path.basename(pdf_path)}")
+    print(f"- File name: {os.path.basename(svg_path)}")
 
 
 def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_val_thr=0.01, file_path=None):
@@ -501,7 +583,7 @@ def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_v
     for col in marker_res.columns:
         if col == 'feature_symbol':
             col_map['symbol'] = col
-        elif col.endswith('_clusts'):
+        elif col.endswith('_clusters'):
             col_map['clusts'] = col
         elif col.endswith('_padj'):
             col_map['pvalue'] = col
@@ -721,37 +803,9 @@ def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_v
     # 将基因名放在右侧
     heatmap_ax.tick_params(axis='y', labelsize=9, labelright=True, labelleft=False, rotation=0, length=0)
 
-    # 保存
-    if file_path:
-        _ensure_dir(file_path)
-        g.savefig(file_path, dpi=300, bbox_inches='tight')
-        print(f"Marker genes plot saved to {file_path}")
-
-    # plt.show()
-
-
-def plot_cluster_stability(stability_indices, clusters, file_path=None):
-    """
-    Plot stability of the clusters.
-    Matches sc3_plot_cluster_stability.
-    
-    stability_indices: list/array of stability scores.
-    clusters: list/array of cluster IDs corresponding to the scores.
-    """
-    if stability_indices is None:
-        print("No stability data.")
-        return
-        
-    plt.figure(figsize=(8, 6))
-    plt.bar(clusters, stability_indices, color='steelblue')
-    plt.ylim(0, 1)
-    plt.xlabel("Cluster")
-    plt.ylabel("Stability Index")
-    plt.title("Cluster Stability")
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    
-    if file_path:
-        _ensure_dir(file_path)
-        plt.savefig(file_path)
-
-    # plt.show()
+    # 保存图像
+    png_path, pdf_path, svg_path = _save_fig(file_path, g)
+    print(f"\nMarker genes plot saved to {os.path.dirname(file_path)}")
+    print(f"- File name: {os.path.basename(png_path)}")
+    print(f"- File name: {os.path.basename(pdf_path)}")
+    print(f"- File name: {os.path.basename(svg_path)}")

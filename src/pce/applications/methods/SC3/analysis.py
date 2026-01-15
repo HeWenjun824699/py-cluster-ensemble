@@ -91,7 +91,7 @@ def organise_marker_genes(biology_res, gene_names, k, gene_mask=None):
 
     df = pd.DataFrame({
         'feature_symbol': gene_names,
-        f"sc3_{k}_markers_clusts": full_clusts,
+        f"sc3_{k}_markers_clusters": full_clusts,
         f"sc3_{k}_markers_padj": full_pvalue,
         f"sc3_{k}_markers_auroc": full_auroc,
     })
