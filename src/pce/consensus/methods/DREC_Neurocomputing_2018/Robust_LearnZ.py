@@ -3,7 +3,7 @@ from scipy.linalg import eigh, norm
 
 def robust_learn_z(X, lam):
     """
-    Learn Z by min_{Z} \|X-XZ\|_{2,1}+lambda\|Z\|_F
+    Learn Z by min_{Z} |X-XZ|_{2,1}+lambda|Z|_F
     Optimized using eigendecomposition of XtX since XtX is constant and symmetric,
     and the other coefficient matrix is diagonal.
     

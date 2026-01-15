@@ -13,7 +13,7 @@ from .utils import set_paper_style, save_fig
 
 def plot_2d_scatter(
         X: np.ndarray,
-        labels: np.ndarray,
+        Y: np.ndarray,
         xlabel: Optional[str] = None,
         ylabel: Optional[str] = None,
         method: Optional[str] = 'tsne',
@@ -33,7 +33,7 @@ def plot_2d_scatter(
     ----------
     X : np.ndarray
         Feature matrix of shape (n_samples, n_features).
-    labels : np.ndarray
+    Y : np.ndarray
         Label vector of shape (n_samples,). Used to determine the color of
         each scatter point.
     xlabel : str, optional
@@ -80,7 +80,7 @@ def plot_2d_scatter(
     sns.scatterplot(
         x=X_2d[:, 0],
         y=X_2d[:, 1],
-        hue=labels,
+        hue=Y,
         palette='tab10',
         s=60,  # Dot size
         alpha=0.8,  # Transparency

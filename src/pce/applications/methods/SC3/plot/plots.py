@@ -270,7 +270,7 @@ def plot_silhouette(consensus_matrix, labels, file_path=None):
     header_y_pos = -2
     formula_str = r"$\mathsf{j} : \mathsf{n}_{\mathsf{j}} \mid \mathsf{ave}_{\mathsf{i} \in \mathsf{C}_{\mathsf{j}}} \ \mathsf{s}_{\mathsf{i}}$"
     ax.text(1.02, header_y_pos, formula_str, ha='left', va='bottom', fontsize=10)
-    cluster_str = f"{len(unique_labels)} clusters $\mathsf{{C}}_{{\mathsf{{j}}}}$"
+    cluster_str = f"{len(unique_labels)} clusters $\\mathsf{{C}}_{{\\mathsf{{j}}}}$"
     ax.text(1.02, header_y_pos - gap*2, cluster_str, ha='left', va='bottom', fontsize=10)
 
     # Top-left info "n = 90"

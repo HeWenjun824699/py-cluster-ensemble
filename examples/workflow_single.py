@@ -1,6 +1,6 @@
 import numpy as np
-
 import pce
+
 
 data_path = r"./data/isolet_1560n_617d_2c.mat"
 

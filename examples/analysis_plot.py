@@ -5,7 +5,8 @@ import pce
 # Scenario A: Plot T-SNE scatter plot of raw data
 X, Y = pce.io.load_mat_X_Y('./data/10X_PBMC_4271n_16653d_8c.mat')
 pce.analysis.plot_2d_scatter(
-    X, Y,
+    X=X,
+    Y=Y,
     xlabel='Dimension 1',
     ylabel='Dimension 2',
     method='tsne',
@@ -16,7 +17,8 @@ pce.analysis.plot_2d_scatter(
 # Scenario B: Plot co-association matrix heatmap
 BPs, Y = pce.io.load_mat_BPs_Y('./data/CDKM200/10X_PBMC_4271n_16653d_8c_CDKM200.mat')
 pce.analysis.plot_coassociation_heatmap(
-    Y, BPs=BPs,
+    BPs=BPs,
+    Y=Y,
     xlabel='Sample Index (Sorted by Ground Truth)',
     ylabel='Sample Index (Sorted by Ground Truth)',
     title='10X_PBMC_4271n_16653d_8c_CDKM200 HeatMap',
@@ -40,7 +42,7 @@ pce.analysis.plot_metric_line(
 # Scenario D: Plot line chart for parameter sensitivity analysis
 csv_file = './results/grid/GridSearch_001/10X_PBMC_4271n_16653d_8c_CDKM200/10X_PBMC_4271n_16653d_8c_CDKM200.csv'
 pce.analysis.plot_parameter_sensitivity(
-    csv_file,
+    csv_file=csv_file,
     target_param='theta',
     metric='ACC',
     fixed_params={},
