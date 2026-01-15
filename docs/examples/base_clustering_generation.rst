@@ -52,7 +52,7 @@ For large-scale benchmarking, you may need to generate partitions using multiple
        "RPKM": pce.generators.rpkmeans,
        "BAGKM": pce.generators.bagkmeans,
        "HETCLU": pce.generators.hetero_clustering
-       "SC3KM": pce.generators.sc3_generator
+       "SC3KM": pce.generators.sc3_kmeans
        "SPECTRAL": pce.generators.spectral
    }
 

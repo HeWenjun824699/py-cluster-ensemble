@@ -2,8 +2,8 @@ from typing import Optional
 
 import numpy as np
 from sklearn.cluster import KMeans
-from .methods.sc3_generator_core import calculate_distance
-from .methods.sc3_generator_core import transformation
+from .methods.sc3_kmeans_core import calculate_distance
+from .methods.sc3_kmeans_core import transformation
 from .utils.check_array import check_array
 from .utils.get_k_range import get_k_range
 

@@ -153,7 +153,7 @@ class SC3:
             n_clusters = self.estimate_k()
             print(f"Estimated k: {n_clusters}")
 
-        # 2. Generate Base Partitions (Using sc3_generator)
+        # 2. Generate Base Partitions (Using sc3_kmeans)
         print("Generating base partitions...")
         bps_list = []
         # Triple loop: Metric -> Transformation -> Dimensions
