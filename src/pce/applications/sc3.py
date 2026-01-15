@@ -235,7 +235,7 @@ def sc3_application(
                 plot_expression(
                     model.data,
                     labels=labels,
-                    file_path=os.path.join(output_directory, "png", "expression_py.png")
+                    file_path=os.path.join(output_directory, "png", "expression.png")
                 )
 
                 # 4. DE Genes Heatmap
