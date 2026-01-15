@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import ticker, cm
-from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Patch
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import KMeans
@@ -15,7 +15,15 @@ from sklearn.metrics import silhouette_samples
 
 
 def _ensure_dir(file_path):
-    """Helper to ensure directory exists for a given file path."""
+    """
+    Helper to ensure directory exists for a given file path.
+
+    Parameters
+    ----------
+    file_path : str
+        The full path to the file. The directory part of this path will be checked
+        and created if it does not exist.
+    """
     if file_path:
         out_dir = os.path.dirname(file_path)
         if out_dir and not os.path.exists(out_dir):
@@ -23,7 +31,23 @@ def _ensure_dir(file_path):
 
 
 def _save_fig(file_path, g):
-    """Helper to save figure to file."""
+    """
+    Helper to save figure to file.
+
+    Parameters
+    ----------
+    file_path : str
+        The base path to save the figure (without extension or with).
+        The function will generate .png, .pdf, and .svg files.
+    g : matplotlib.figure.Figure or seaborn.matrix.ClusterGrid
+        The figure object to save.
+
+    Returns
+    -------
+    tuple
+        A tuple containing paths to the saved PNG, PDF, and SVG files.
+        (png_path, pdf_path, svg_path)
+    """
     if file_path:
         _ensure_dir(file_path)
 
@@ -48,11 +72,24 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
     """
     Plot consensus matrix matching R SC3's visual style exactly.
 
-    Refinements:
-    1. Color Logic: Multi-step gradient mimicking R's 'RdYlBu' (7 steps),
-       but anchoring the deep blue to 'Cluster0 Blue' (#1f77b4).
-    2. Grid: Delicate white borders (0.5px).
-    3. Gaps: Physical separation between clusters.
+    Refinements include multi-step gradient color logic, delicate grid borders,
+    and physical separation gaps between clusters.
+
+    Parameters
+    ----------
+    consensus_matrix : np.ndarray
+        A square consensus matrix where values range from 0 to 1.
+    labels : np.ndarray or list, optional
+        Cluster labels for each sample. Used to draw gaps between clusters.
+        If None, gaps are not drawn.
+    show_labels : bool, optional
+        Whether to show labels on the axes. Default is False.
+    file_path : str, optional
+        Path to save the plot. If provided, saves as PNG, PDF, and SVG.
+
+    Returns
+    -------
+    None
     """
     if consensus_matrix is None:
         return
@@ -138,10 +175,26 @@ def plot_consensus(consensus_matrix, labels=None, show_labels=False, file_path=N
 def plot_silhouette(consensus_matrix, labels, file_path=None):
     """
     Plot silhouette indexes of the cells.
+
     Refactored to match R's 'cluster::plot.silhouette' visual style exactly:
     - Horizontal bars (black).
     - Grouped by cluster with gaps.
     - Right-side statistics (Cluster : Size | Avg Score).
+
+    Parameters
+    ----------
+    consensus_matrix : np.ndarray
+        Pairwise distance or similarity matrix used to calculate silhouette scores.
+        Note: The function assumes this is a similarity matrix and converts it to
+        distance using `pdist(..., metric='euclidean')`.
+    labels : np.ndarray or list
+        Cluster labels for each cell.
+    file_path : str, optional
+        Path to save the plot. If provided, saves as PNG, PDF, and SVG.
+
+    Returns
+    -------
+    None
     """
     if consensus_matrix is None or labels is None:
         print("Consensus matrix or labels missing.")
@@ -265,6 +318,23 @@ def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
     1. If genes > 100, perform K-Means (k=100) on genes to reduce rows.
     2. Columns (cells) are ordered by the consensus matrix clustering (hc).
     3. Use the specific SC3 7-color palette.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Expression matrix.
+    labels : np.ndarray or list
+        Cluster labels for each cell.
+    consensus_matrix : np.ndarray
+        Consensus matrix used for column clustering linkage.
+    seed : int, optional
+        Random seed for K-Means if gene reduction is performed. Default is 2026.
+    file_path : str, optional
+        Path to save the plot. If provided, saves as PNG, PDF, and SVG.
+
+    Returns
+    -------
+    None
     """
     if data is None or labels is None or consensus_matrix is None:
         print("Data, labels, or consensus_matrix missing.")
@@ -344,7 +414,7 @@ def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
     # Adjust Colorbar style
     g.cax.tick_params(labelsize=10, axis='y', length=0)
 
-    # 保存图像
+    # Save figure
     png_path, pdf_path, svg_path = _save_fig(file_path, g)
     print(f"\nExpression plot saved to {os.path.dirname(file_path)}")
     print(f"- File name: {os.path.basename(png_path)}")
@@ -355,6 +425,7 @@ def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
 def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, file_path=None):
     """
     Plot expression of DE genes using the DE results DataFrame directly.
+
     Matches sc3_plot_de_genes in R.
 
     Parameters
@@ -363,14 +434,22 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
         Expression matrix (n_cells, n_genes).
         **Important**: The columns of this matrix must match the rows of de_results_df 1-to-1.
         (i.e., data.shape[1] == de_results_df.shape[0])
-    labels : list
+    labels : np.ndarray or list
         Cluster labels for each cell.
     de_results_df : pd.DataFrame
         DataFrame with shape (n_genes, 2).
         - Col 0: Gene Names (e.g., 'feature_symbol')
         - Col 1: P-values (e.g., 'sc3_k_de_padj')
-    p_val : float
-        Significance threshold.
+    consensus_matrix : np.ndarray
+        Consensus matrix used for column clustering linkage.
+    p_val : float, optional
+        Significance threshold. Default is 0.01.
+    file_path : str, optional
+        Path to save the plot. If provided, saves as PNG, PDF, and SVG.
+
+    Returns
+    -------
+    None
     """
 
     # --- 1. Parse DataFrame ---
@@ -546,7 +625,7 @@ def plot_de_genes(data, labels, de_results_df, consensus_matrix, p_val=0.01, fil
         boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
         g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=3)
 
-    # 保存图像
+    # Save figure
     png_path, pdf_path, svg_path = _save_fig(file_path, g)
     print(f"\nDE genes plot saved to {os.path.dirname(file_path)}")
     print(f"- File name: {os.path.basename(png_path)}")
@@ -570,6 +649,16 @@ def plot_markers(data, labels, marker_res, consensus_matrix, auroc_thr=0.85, p_v
         Example shape: (20214, 4).
     consensus_matrix : np.ndarray
         (n_cells, n_cells) matrix. Used for column clustering linkage to match SC3 behavior.
+    auroc_thr : float, optional
+        AUROC threshold for marker selection. Default is 0.85.
+    p_val_thr : float, optional
+        P-value threshold for marker selection. Default is 0.01.
+    file_path : str, optional
+        Path to save the plot. If provided, saves as PNG, PDF, and SVG.
+
+    Returns
+    -------
+    None
     """
 
     # --- 1. Column name standardization and data cleaning ---

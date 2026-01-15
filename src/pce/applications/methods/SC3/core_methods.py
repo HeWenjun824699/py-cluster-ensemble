@@ -142,7 +142,7 @@ class SC3:
             
         self.biology['de'] = get_de_genes(self.data, self.labels)
         self.biology['marker'] = get_marker_genes(self.data, self.labels)
-        self.biology['outl'] = get_outl_cells(self.data, self.labels)
+        self.biology['outl'] = get_outl_cells(self.data, self.labels, self.seed)
 
     def run(self, n_clusters=None, biology=False, kmeans_nstart=10, kmeans_iter_max=300):
         """
