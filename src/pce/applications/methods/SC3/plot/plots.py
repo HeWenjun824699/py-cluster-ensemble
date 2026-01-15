@@ -10,6 +10,7 @@ from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.cluster.hierarchy import linkage
 from scipy.spatial.distance import pdist
+from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples
 
 
@@ -175,53 +176,98 @@ def plot_silhouette(consensus_matrix, labels, file_path=None):
     # plt.show()
 
 
-def plot_expression(data, labels, file_path=None):
+def plot_expression(data, labels, consensus_matrix, seed=2026, file_path=None):
     """
-    Plot expression matrix used for SC3-Nature methods-2017 clustering as a heatmap.
-    Matches sc3_plot_expression in R.
-    
-    Parameters
-    ----------
-    data : np.ndarray
-        Expression matrix (n_cells, n_genes) or (n_genes, n_cells).
-        R SC3-Nature methods-2017 uses (genes, cells). Python SC3-Nature methods-2017 usually (cells, genes).
-        We will assume (cells, genes) and transpose for the heatmap (Genes x Cells).
+    Plot expression matrix matching R SC3's visual style exactly.
+
+    Logic aligned with R 'sc3_plot_expression':
+    1. If genes > 100, perform K-Means (k=100) on genes to reduce rows.
+    2. Columns (cells) are ordered by the consensus matrix clustering (hc).
+    3. Use the specific SC3 7-color palette.
     """
-    # Transpose to (Genes, Cells) for visualization to match R style
-    # if data is (cells, genes)
+    if data is None or labels is None or consensus_matrix is None:
+        print("Data, labels, or consensus_matrix missing.")
+        return
+
+    # --- 1. 数据形状处理 ---
     if data.shape[0] == len(labels):
-         plot_data = data.T
+        plot_data = data.T
     else:
-         plot_data = data
-         
-    # Labels match the columns (cells)
-    
-    # Prepare annotations
-    unique_labels = np.unique(labels)
-    palette = sns.color_palette("tab10", n_colors=len(unique_labels))
-    lut = dict(zip(unique_labels, palette))
-    col_colors = pd.Series(labels).map(lut)
-    col_colors.name = "Cluster"
-    
-    # R clusters columns (cells) based on hc, and clusters rows (genes) using kmeans if large
-    # Here we use standard clustermap
-    
+        plot_data = data
+
+    n_genes, n_cells = plot_data.shape
+
+    # --- 2. R 语言的核心逻辑：基因降维 (K-Means) ---
+    if n_genes > 100:
+        kmeans = KMeans(n_clusters=100, random_state=seed, n_init=10)
+        kmeans.fit(plot_data)
+        plot_data = kmeans.cluster_centers_
+
+    # --- 3. 视觉配置 (复刻 R) ---
+    # 3.1 自定义色盘
+    sc3_colors = ['#4575B4', '#91BFDB', '#E0F3F8', '#FFFFBF', '#FEE090', '#FC8D59', '#D73027']
+    sc3_cmap = LinearSegmentedColormap.from_list("sc3_expression", sc3_colors)
+
+    # 3.2 计算列聚类 (使用 Consensus Matrix 保证顺序一致性)
+    dist_vector = pdist(consensus_matrix, metric='euclidean')
+    col_linkage = linkage(dist_vector, method='complete')
+
+    # 3.3 网格线宽度 (Grid)
+    lw = 0.05
+    if n_cells < 100:
+        lw = 0.5
+    elif n_cells < 500:
+        lw = 0.1
+
+    linecolor = '#808080'
+
+    # --- 4. 绘图 (Clustermap) ---
+    plt.figure(figsize=(10, 10))
+
     g = sns.clustermap(
         plot_data,
-        cmap="viridis",
-        col_cluster=True,
-        row_cluster=True, # R uses k-means for genes if > 100, we simplify to standard hierarchical
-        col_colors=col_colors.to_numpy(),
+        cmap=sc3_cmap,
+        col_linkage=col_linkage,
+        row_cluster=True,
+        dendrogram_ratio=(0.1, 0.1),
+        linewidths=lw,
+        linecolor=linecolor,
         xticklabels=False,
         yticklabels=False,
-        cbar_kws={'label': 'Log2 Expression'}
+        cbar_pos=(1.02, 0.70, 0.02, 0.20),
+        tree_kws={'linewidths': 1.0}
     )
-    
-    g.ax_heatmap.set_title("Gene Expression")
-    
+
+    # --- 5. 动态对齐 Colorbar (核心修改) ---
+    heatmap_pos = g.ax_heatmap.get_position()
+
+    # 设定 Colorbar 的尺寸
+    cb_width = 0.02
+    cb_height = 0.20
+    cb_gap = 0.02
+
+    # 计算新位置：
+    cb_left = heatmap_pos.x1 + cb_gap
+    cb_bottom = heatmap_pos.y1 - cb_height
+    g.cax.set_position([cb_left, cb_bottom, cb_width, cb_height])
+
+    # --- 6. 后期精修 (Gaps & Title) ---
+    # 绘制列分割白线 (Gaps)
+    reordered_col_ind = g.dendrogram_col.reordered_ind
+    reordered_labels = np.array(labels)[reordered_col_ind]
+    boundaries = np.where(reordered_labels[:-1] != reordered_labels[1:])[0] + 1
+    g.ax_heatmap.vlines(boundaries, *g.ax_heatmap.get_ylim(), color='white', linewidth=3)
+    g.ax_heatmap.set_xlabel("")
+    g.ax_heatmap.set_ylabel("")
+
+    # 调整 Colorbar 样式
+    g.cax.tick_params(labelsize=10, axis='y', length=0)
+
     if file_path:
         _ensure_dir(file_path)
-        g.savefig(file_path)
+        g.savefig(file_path, dpi=300, bbox_inches='tight')
+        print(f"Expression plot saved to {file_path}")
+
     # plt.show()
 
 
@@ -707,4 +753,5 @@ def plot_cluster_stability(stability_indices, clusters, file_path=None):
     if file_path:
         _ensure_dir(file_path)
         plt.savefig(file_path)
+
     # plt.show()

@@ -233,8 +233,10 @@ def sc3_application(
 
                 # 3. Gene Expression Plot (on filtered data)
                 plot_expression(
-                    model.data,
+                    data=X,
                     labels=labels,
+                    consensus_matrix=model.consensus_matrix,
+                    seed=model.seed,
                     file_path=os.path.join(output_directory, "png", "expression.png")
                 )
 
